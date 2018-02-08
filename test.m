@@ -2,9 +2,27 @@
 Test script! If you see this, you have git set up correctly
 This is an example of how to call a couple functions for the V-n diagram
 and weight buildup. Variables listed at the top, function calls below.
+
+and some woo hoos.....
 %}
 clear; clc; close all;
-
+%% ========================================================================
+% woooooo hooooooo!!!! 
+%--------------------------------------------------------------------------
+%{
+    my favorite section breaking styles and section comment styles
+% -------------------------------------------------------------------------
+        see how slick they look!
+% -------------------------------------------------------------------------
+            woo hoo
+% -------------------------------------------------------------------------
+                woo hoo
+% -------------------------------------------------------------------------
+                    woo hoo
+% -------------------------------------------------------------------------
+%}
+% ========================================================================
+%%
 MTOW = 121000; % max takeoff weight, lbf
 S = 1350; % wing area, ft^2
 altitude = [0, 30000, 51000]; % ft
