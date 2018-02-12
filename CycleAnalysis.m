@@ -220,7 +220,7 @@ alphaM = alpha/((1-Beta-eps1-eps2)*(1+f)+eps1+eps2);%Mixxer by-pass ratio
 f6A = f6/(1+alphaM);%Fuel/air at mixxer exit
 ht6A = (ht6+alphaM*ht16)/(1+alphaM);%Total enthalpy at mixxer exit
 tauM = ht6A/ht6;%Enthalpy ratio at mixxer exit
-Pt16_Pt6 = PRf/(PRcL*PRcH*PRb*PRtH*PRtL);
+Pt16_Pt6 = PRf/(PRcL*PRcH*PRb*PRtH*PRtL);%
 [TSTR6,TSPR6,MFP6] = RGCOMPR1(Tt6,f45,M6);%Total to static temperature and pressure ratios and mass flow parameter at mixxer exit
 T6 = Tt6/TSTR6;%Static temperature at mixxer exit
 
