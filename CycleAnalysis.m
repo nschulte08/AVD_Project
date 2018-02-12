@@ -1,3 +1,4 @@
+function [TSFC,F_mdot] = CycleAnalysis(alpha,PRf,PRcH,TechLevel)
 %{
 =====================================================================
 Parametric and Performance Analysis for Low By-pass Mixed Flow Turbofan.
@@ -91,7 +92,7 @@ etamPH = .995;%Mech power takeoff from high pressure spool
 
 %---------------Design Choices---------------%
 PRf = 3.8;%Pressure ratio fan
-PRcL = 3.8;%Pressure ratio low pressure compressor
+PRcL = PRf;%Pressure ratio low pressure compressor
 PRcH = 1;%Pressure ratio high pressure compressor
 alpha = .4;%Bypass Ratio
 Tt4 = 3200;%Max temperature of the high pressure turbine entry
