@@ -18,12 +18,13 @@ iterations = numel(curve);
 for i = 1 : numel(altitude) % create a V-n diagram for each altitude
     [h, P, T, rho, a] = ATMO(altitude(i), 'E');
     for j = 1 : iterations
-        curve(j, i+1) = sqrt((2 * curve(j,1) * MTOW) / (rho * S * CL_max)) * 0.592484; %****KNOTS
+        V_stall = sqrt((2 * curve(j,1) * MTOW) / (rho * S * CL_max));
+        curve(j, i+1) = convvel(V_stall, 'ft/s', 'm/s');
     end
     plot(curve(:,i+1), curve(:,1), 'LineStyle', line_styles{i}, 'LineWidth', 2, 'Color', 'k'); % positive curve
     plot(curve(1:max_negative_n_index,i+1), -curve(1:max_negative_n_index,1), 'LineStyle', line_styles{i}, 'LineWidth', 2, 'Color', 'k'); % negative curve
-    V_max = M_max * a * 0.592484; %****KNOTS
-    V_cruise = M_cruise * a* 0.592484; %****KNOTS
+    V_max = convvel(M_max * a, 'ft/s', 'm/s');
+    V_cruise = convvel(M_cruise * a, 'ft/s', 'm/s');
     points = [ V_max, n_max; V_max, 0; V_cruise, n_min ]; 
     plot(points(:,1), points(:,2), 'LineStyle', line_styles{i}, 'LineWidth', 2, 'Color', 'k'); % straight border lines
     if i == 1 % plot the top and bottom boundary lines
@@ -34,13 +35,13 @@ for i = 1 : numel(altitude) % create a V-n diagram for each altitude
     end
     % set up legend for each line
     LH(i) = plot(nan, nan, 'LineStyle', line_styles{i}, 'LineWidth', 2, 'Color', 'k');
-    L{i} = sprintf('%0.0f %s', altitude(i), 'ft');
+    L{i} = sprintf('%0.0f %s', convlength(altitude(i), 'ft', 'm'), 'm');
 end
 
 grid on; grid minor;
 set(gca, 'fontsize', 12, 'fontweight', 'bold');
-%title('V-n Diagram');
-xlabel('True Airspeed, V [knots]', 'FontSize', 16, 'FontWeight', 'bold');
+title('V-n Diagram', 'FontSize', 16, 'FontWeight', 'bold');
+xlabel('True Airspeed, V [m/s]', 'FontSize', 16, 'FontWeight', 'bold');
 ylabel('Load Factor, n', 'FontSize', 16, 'FontWeight', 'bold');
 legend(LH, L, 'Location', 'NW', 'FontSize', 14, 'FontWeight', 'bold');
 ylim([n_min - 0.5, n_max + 0.5]);
