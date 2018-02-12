@@ -1,4 +1,4 @@
-function [TSFC,F_mdot] = CycleAnalysis(alpha,PRf,PRcH,TechLevel)
+function [S,F_mdot,Pt16_Pt6] = CycleAnalysis(alpha,PRf,PRcH,TechLevel)
 %{
 =====================================================================
 Parametric and Performance Analysis for Low By-pass Mixed Flow Turbofan.
@@ -91,10 +91,10 @@ etamPL = .995;%Mech power takeoff from low pressure spool
 etamPH = .995;%Mech power takeoff from high pressure spool
 
 %---------------Design Choices---------------%
-PRf = 3.8;%Pressure ratio fan
+PRf = PRf;%Pressure ratio fan
 PRcL = PRf;%Pressure ratio low pressure compressor
-PRcH = 1;%Pressure ratio high pressure compressor
-alpha = .4;%Bypass Ratio
+PRcH = PRcH;%Pressure ratio high pressure compressor
+alpha = alpha;%Bypass Ratio
 Tt4 = 3200;%Max temperature of the high pressure turbine entry
 Tt7 = 3600;%Max temperature of the nozzle entry
 M6 = .8;%Mach number of core stream mixer entry
@@ -293,7 +293,7 @@ eta0 = etaTH*etaP;%Uninstalled total efficiency
 %-------------------------------------------------------------------%
 %---------------------------OUTPUTS---------------------------------%
 %-------------------------------------------------------------------%
-
+Pt16_Pt6
 F_mdot
 S
 f0
@@ -319,76 +319,4 @@ etacH
 etatH
 etatL
 
-%% Performance Analysis
-
-%-------------------------------------------------------------------%
-%---------------------------CONSTANTS-------------------------------%
-%-------------------------------------------------------------------%
-
-%-------------------------------------------------------------------%
-%----------------------------INPUTS---------------------------------%
-%-------------------------------------------------------------------%
-
-% %-------Performance choices----------%
-% %Flight paramerters
-% M0 = ;
-% T0 = ;
-% P0 = ;
-% %Throttle setting
-% Tt4 = ;
-% Tt7 = ;
-%Exhaust nozzle setting
-%  P0_P9 = ;
-%-------Design constants-------------%
-%Pressure ratios
-% PRdmax = ;
-% PRb = ;
-% PRMmax = ;
-% PRABR = ;
-% PRn = ;
-
-%Component adiabatic efficiencies
-%etaf = ;
-%etacL = ;
-%etacH = ;
-%etatH = ;
-%etatL = ;
-%etab = ;
-%etamL = ;
-%etamH = ;
-%etamPL = ;
-%etamPH = ;
-
-%Areas
-%A4 =;
-%A45 = ;
-%A6 = ;
-%A16 = ;
-%A6A = ;
-%A8_AB;
-
-%Others
-%Beta = ;
-%eps1 = ;
-%eps2 = ;
-%hPR = ;
-%Ptol = ;
-%Ptoh = ;
-
-%-------Reference conditions---------%
-%Flight parameters
-%Component behavior
-%Others
-%Engine control limits
-
-%-------------------------------------------------------------------%
-%---------------------------ANALYSIS--------------------------------%
-%-------------------------------------------------------------------%
-
-
-
-
-%-------------------------------------------------------------------%
-%---------------------------OUTPUTS---------------------------------%
-%-------------------------------------------------------------------%
-
+end
