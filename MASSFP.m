@@ -18,6 +18,6 @@ else
 end
 end
 TSTR = Tt/T;
-PSTR = Prt/Pr;
-MFP = (M/PSTR)*sqrt((Gamma_air*gc/R)*(Tt/T));
+TSPR = Prt/Pr;
+MFP = (M/TSPR)*sqrt((Gamma_air*gc/R)*(Tt/T));
 end
