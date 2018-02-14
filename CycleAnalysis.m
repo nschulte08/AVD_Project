@@ -32,10 +32,6 @@ Engine stages:
 9 = Exhaust nozzle exit
 %}
 %% Parametric Cycle Analysis
-clear
-clc
-close all
-
 %-------------------------------------------------------------------%
 %---------------------------CONSTANTS-------------------------------%
 %-------------------------------------------------------------------%
@@ -91,10 +87,10 @@ etamPL = .995;%Mech power takeoff from low pressure spool
 etamPH = .995;%Mech power takeoff from high pressure spool
 
 %---------------Design Choices---------------%
-PRf = PRf;%Pressure ratio fan
+%PRf = PRf;%Fan pressure ratio
 PRcL = PRf;%Pressure ratio low pressure compressor
-PRcH = PRcH;%Pressure ratio high pressure compressor
-alpha = alpha;%Bypass Ratio
+%PRcH = PRcH;%Pressure ratio high pressure compressor
+%alpha = alpha;%Bypass Ratio
 Tt4 = 3200;%Max temperature of the high pressure turbine entry
 Tt7 = 3600;%Max temperature of the nozzle entry
 M6 = .8;%Mach number of core stream mixer entry
