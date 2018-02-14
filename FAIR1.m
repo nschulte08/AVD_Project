@@ -11,11 +11,11 @@ phi_pure = phi_ref_pure + A_pure(1)*log(T)+A_pure(2)*T+A_pure(3)/2*T.^2+A_pure(4
 cp_pure = A_pure(1)+A_pure(2)*T+A_pure(3)*T.^2+A_pure(4)*T.^3+A_pure(5)*T.^4+A_pure(6)*T.^5+A_pure(7)*T.^6+A_pure(8)*T.^7;
 phi_vit = phi_ref_vit + A_vit(1)*log(T)+A_vit(2)*T+A_vit(3)/2*T.^2+A_vit(4)/3*T.^3+A_vit(5)/4*T.^4+A_vit(6)/5*T.^5+A_vit(7)/6*T.^6+A_vit(8)/7*T.^7;
 cp_vit = A_vit(1)+A_vit(2)*T+A_vit(3)*T.^2+A_vit(4)*T.^3+A_vit(5)*T.^4+A_vit(6)*T.^5+A_vit(7)*T.^6+A_vit(8)*T.^7;
-h = (h_pure+f*h_vit)/(1+f);
-phi = (phi_pure+f*phi_vit)/(1+f);
-cp = (cp_pure+f*cp_vit)/(1+f);
-R = 1.9857117/(28.97-f*0.946186);
+h = (h_pure+f*h_vit)/(1+f);% pg 91 "Elements of Propulsion"
+phi = (phi_pure+f*phi_vit)/(1+f);% pg 91 "Elements of Propulsion"
+cp = (cp_pure+f*cp_vit)/(1+f);% pg 91 "Elements of Propulsion"
+R = 1.9857117/(28.97-f*0.946186);% pg 91 "Elements of Propulsion"
 Gamma_air = cp/(cp-R);
-Pr = exp((phi-phi_ref_pure)/R);
+Pr = exp((phi-phi_ref_pure)/R);% pg 89 "Elements of Propulsion"
 a = sqrt(Gamma_air*R*T);
 end

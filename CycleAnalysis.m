@@ -1,4 +1,4 @@
-function [S,F_mdot,Pt16_Pt6] = CycleAnalysis(alpha,PRf,PRcH,TechLevel)
+function [S,F_mdot,Pt16_Pt6] = CycleAnalysis(alpha,PRf,PRcH)
 %{
 =====================================================================
 Parametric and Performance Analysis for Low By-pass Mixed Flow Turbofan.
