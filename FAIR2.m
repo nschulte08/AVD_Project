@@ -9,7 +9,7 @@ href_vit = 30.58153;
 phi_ref_vit = 0.6483398;
 
 h_f = h*(1+f)
-T = fsolve(@(T) hfun_combined(T,h_f),500);
+T = fsolve(@(T) hfun_combined(T,h_f,f),500);
 
 
 phi_pure = phi_ref_pure + A_pure(1)*log(T)+A_pure(2)*T+A_pure(3)/2*T.^2+A_pure(4)/3*T.^3+A_pure(5)/4*T.^4+A_pure(6)/5*T.^5+A_pure(7)/6*T.^6+A_pure(8)/7*T.^7;
