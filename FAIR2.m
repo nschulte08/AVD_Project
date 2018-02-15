@@ -7,19 +7,24 @@ href_pure = -1.7558886;
 phi_ref_pure = 0.0454323;
 href_vit = 30.58153;
 phi_ref_vit = 0.6483398;
+phi_ref = 1.578437947;;
+gc = 32.174; %lbm-ft/lbf-s2 %Newtons gravitation constant
 
-h_f = h*(1+f)
-T = fsolve(@(T) hfun_combined(T,h_f,f),500);
+h_f = h*(1+f)%pg 91 "Elements of Propulsion"[Btu/lbm]
+T = 0
+while (T<=0 || T>1000000)
+    T = fsolve(@(T) hfun_combined(T,h_f,f),1000);
+end
 
 
 phi_pure = phi_ref_pure + A_pure(1)*log(T)+A_pure(2)*T+A_pure(3)/2*T.^2+A_pure(4)/3*T.^3+A_pure(5)/4*T.^4+A_pure(6)/5*T.^5+A_pure(7)/6*T.^6+A_pure(8)/7*T.^7;
 cp_pure = A_pure(1)+A_pure(2)*T+A_pure(3)*T.^2+A_pure(4)*T.^3+A_pure(5)*T.^4+A_pure(6)*T.^5+A_pure(7)*T.^6+A_pure(8)*T.^7;
 phi_vit = phi_ref_vit + A_vit(1)*log(T)+A_vit(2)*T+A_vit(3)/2*T.^2+A_vit(4)/3*T.^3+A_vit(5)/4*T.^4+A_vit(6)/5*T.^5+A_vit(7)/6*T.^6+A_vit(8)/7*T.^7;
 cp_vit = A_vit(1)+A_vit(2)*T+A_vit(3)*T.^2+A_vit(4)*T.^3+A_vit(5)*T.^4+A_vit(6)*T.^5+A_vit(7)*T.^6+A_vit(8)*T.^7;
-phi = (phi_pure+f*phi_vit)/(1+f);
-cp = (cp_pure+f*cp_vit)/(1+f);
-R = 1.9857117/(28.97-f*0.946186);
+phi = (phi_pure+f*phi_vit)/(1+f);% pg 91 "Elements of Propulsion"[Btu/(lbm ? °R)]
+cp = (cp_pure+f*cp_vit)/(1+f);% pg 91 "Elements of Propulsion"[Btu/(lbm ? °R)]
+R = 1.9857117/(28.97-f*0.946186);% pg 91 "Elements of Propulsion"[Btu/(lbm ? °R)]
 Gamma_air = cp/(cp-R);
-Pr = exp((phi-phi_ref_pure)/R);
-a = sqrt(Gamma_air*R*T);
+Pr = exp((phi-phi_ref)/R);% pg 89 "Elements of Propulsion"
+a = sqrt(778*gc*Gamma_air*R*T);%[ft/s]
 end
