@@ -100,7 +100,7 @@ P0_P9 = 1;%pressure ratio free stream to nozzle exit
 f = 0; %fuel to air ratio
 [h0,Pr0,~,~,R0,Gamma_air0,a0] = FAIR1(f,T0);%h = [BTU/lbm],
 V0 = M0*a0;%Inlet velocity[ft/s]
-ht0 = h0+(V0.^2)/(2*gc);%Total enthalpy
+ht0 = h0+((V0.^2)/(2*gc));%Total enthalpy
 [~,Prt0,~,~,~,~,~] = FAIR2(f,ht0);%Inlet thermal properties
 taur = ht0/h0; %free stream enthalpy recovery ratio
 PRr = Prt0/Pr0;%free stream pressure recovery
@@ -153,11 +153,11 @@ f4i = 0;%fuel to air ratio guess for burner exit
 Gate = 1;
 while Gate==1
 [ht4,~,~,~,~,~,~] = FAIR1(f4i,Tt3i);%Ideal total enthalpy at burner exit based on fuel/air at burner exit and ideal total temperature
-f = (ht4-ht3)/(etab*hPR-ht4);%defining new fuel/air ratio
+f = (ht4-ht3)/(ht4-etab*hPR);%defining fuel/air ratio (pg. 376, eq.6.36 in EOP)
 if abs(f-f4i)>0.0001
      f4i=f;
 else
-    f = abs(f);%%%%%%%%%%%NOT IN MATTINGLY%%%%%%%%%%%%
+    %f = abs(f);%%%%%%%%%%%NOT IN MATTINGLY%%%%%%%%%%%%
     Gate = 0;
 end
 end
