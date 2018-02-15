@@ -36,21 +36,16 @@ Engine stages:
 %---------------------------CONSTANTS-------------------------------%
 %-------------------------------------------------------------------%
 
-gc = 32.174; %Newtons gravitation constant
-% Gamma_air = 1.4;
-% R = 0;
-% a = 0; %Speed of sound
-
-
+gc = 32.174; %lbm-ft/lbf-s2 %Newtons gravitation constant 
 
 %-------------------------------------------------------------------%
 %----------------------------INPUTS---------------------------------%
 %-------------------------------------------------------------------%
 %---------Atmospheric Properties-------%
-[h0, P0, T0, rho0, s0, mu0, nu0, DELTA0, THETA0, SIGMA0] = ATMO(35000, 'E');
+[~,~,T0,~,~,~,~,~,~,~] = ATMO(35000, 'E');
 
 %---------Flight Conditions------------%
-M0 = 1.6;
+M0 = .5;
 % T0 = 394.10;%R
 % P0 = 3.467;%psia
 
@@ -88,11 +83,11 @@ etamPH = .995;%Mech power takeoff from high pressure spool
 
 %---------------Design Choices---------------%
 %PRf = PRf;%Fan pressure ratio
-PRcL = PRf;%Pressure ratio low pressure compressor
+PRcL = PRf;%Pressure ratio low pressure compressor 
 %PRcH = PRcH;%Pressure ratio high pressure compressor
 %alpha = alpha;%Bypass Ratio
-Tt4 = 3200;%Max temperature of the high pressure turbine entry
-Tt7 = 3600;%Max temperature of the nozzle entry
+Tt4 = 3200;% [R] Max temperature of the high pressure turbine entry
+Tt7 = 3600;% [R] Max temperature of the nozzle entry
 M6 = .8;%Mach number of core stream mixer entry
 P0_P9 = 1;%pressure ratio free stream to nozzle exit
 
@@ -103,8 +98,8 @@ P0_P9 = 1;%pressure ratio free stream to nozzle exit
 %--------------------Free stream-----------------------%
 
 f = 0; %fuel to air ratio
-[h0,Pr0,~,~,R0,Gamma_air0,a0] = FAIR1(f,T0);
-V0 = M0*a0;%Inlet velocity
+[h0,Pr0,~,~,R0,Gamma_air0,a0] = FAIR1(f,T0);%h = [BTU/lbm],
+V0 = M0*a0;%Inlet velocity[ft/s]
 ht0 = h0+(V0.^2)/(2*gc);%Total enthalpy
 [~,Prt0,~,~,~,~,~] = FAIR2(f,ht0);%Inlet thermal properties
 taur = ht0/h0; %free stream enthalpy recovery ratio
@@ -153,16 +148,16 @@ etacH = (ht3i-ht25)/(ht3-ht25);%Adiabatic efficiency HPC
 
 %-----------------------Burner----------------------------%
 
-f4i = .5;%fuel to air ratio guess for burner exit
+f4i = 0;%fuel to air ratio guess for burner exit
 
 Gate = 1;
 while Gate==1
-[ht4i,~,~,~,~,~,~] = FAIR1(f4i,Tt3i);%Ideal total enthalpy at burner exit based on fuel/air at burner exit and ideal total temperature
-f = (ht4i-ht3)/(etab*hPR-ht4i);%defining new fuel/air ratio
-ht4 = ht4i;
+[ht4,~,~,~,~,~,~] = FAIR1(f4i,Tt3i);%Ideal total enthalpy at burner exit based on fuel/air at burner exit and ideal total temperature
+f = (ht4-ht3)/(etab*hPR-ht4);%defining new fuel/air ratio
 if abs(f-f4i)>0.0001
      f4i=f;
 else
+    f = abs(f);%%%%%%%%%%%NOT IN MATTINGLY%%%%%%%%%%%%
     Gate = 0;
 end
 end
