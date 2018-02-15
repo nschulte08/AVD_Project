@@ -5,7 +5,7 @@ href_pure = -1.7558886;%Btu/lbm
 phi_ref_pure = 0.0454323;%[Btu/(lbm ? °R)]
 href_vit = 30.58153;%Btu/lbm
 phi_ref_vit = 0.6483398;%[Btu/(lbm ? °R)]
-phi_ref = 1.578437947;
+phi_ref = 1.578437947;%%%%NOT IN MATTINGLY%%%%%DETERMINED FROM TABLE DATA%%%%%%
 gc = 32.174; %lbm-ft/lbf-s2 %Newtons gravitation constant
 
 
