@@ -11,7 +11,7 @@ if V ~= 0
     Verror = (V-Vn)/V;
 else Verror = V-Vn;
 end
-if abs(Verror)>0.5
+if abs(Verror)>0.00001
     V=Vn;
 else
     Gate=0;
