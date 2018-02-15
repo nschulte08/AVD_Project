@@ -216,10 +216,10 @@ Pt16_Pt6 = PRf/(PRcL*PRcH*PRb*PRtH*PRtL);%
 [TSTR6,TSPR6,MFP6] = RGCOMPR1(Tt6,f45,M6);%Total to static temperature and pressure ratios and mass flow parameter at mixxer exit
 T6 = Tt6/TSTR6;%Static temperature at mixxer exit
 
-%--------------------ADDED(Not in mattingly)------------%
+%%%%%%%%%%%%%%%ADDED(NOT IN MATTINGLY)%%%%%%%%%%%%%%%%%%%%
 [~,~,~,~,R6,Gamma_air6,~] = FAIR1(f,T6);
 [Tt6A,~,~,~,~,~,~] = FAIR2(f6A,ht6A);
-%-------------------------------------------------------%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %---------------------Fan by-pass air mixxer-------------------%
 
