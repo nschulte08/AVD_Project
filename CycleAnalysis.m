@@ -45,12 +45,12 @@ gc = 32.174; %lbm-ft/lbf-s2 %Newtons gravitation constant
 [~,~,T0,~,~,~,~,~,~,~] = ATMO(35000, 'E');
 
 %---------Flight Conditions------------%
-M0 = .5;
+M0 = 1.6;
 % T0 = 394.10;%R
 % P0 = 3.467;%psia
 
 %---------System Parameters------------%
-Beta = 0; %Bleed Air Fraction
+Beta = 1; %Bleed Air Fraction
 Ctol = 0; %Power takeoff shaft power coefficient for low-pressure spool
 Ctoh = .0150; %Power takeoff shaft power coefficient for high-pressure spool
 
@@ -64,7 +64,7 @@ PRb = .950; %Burner
 PRdmax = .960; %Inlet
 PRMmax = .970; %Mixer due to only wall friction
 PRn = .970; %Nozzle
-PRAB = 1;%Afterburner
+PRAB = .950;%Afterburner
 
 %---------Polytropic Efficiencies------%
 ef = .890; %Fan
@@ -78,8 +78,8 @@ etab = .999;%Burner
 etaAB = .990;%Afterburner
 etamL = 1;%Mech low efficiency spool
 etamH = .990;%Mech high efficiency spool
-etamPL = .995;%Mech power takeoff from low pressure spool
-etamPH = .995;%Mech power takeoff from high pressure spool
+etamPL = 1;%Mech power takeoff from low pressure spool
+etamPH = .990;%Mech power takeoff from high pressure spool
 
 %---------------Design Choices---------------%
 %PRf = PRf;%Fan pressure ratio
@@ -99,7 +99,7 @@ P0_P9 = 1;%pressure ratio free stream to nozzle exit
 
 f = 0; %fuel to air ratio
 [h0,Pr0,~,~,R0,Gamma_air0,a0] = FAIR1(f,T0);%h = [BTU/lbm],
-V0 = M0*a0;%Inlet velocity[ft/s]
+V0 = M0*a0;%Inlet streamtube velocity[ft/s]
 ht0 = h0+((V0.^2)/(2*gc));%Total enthalpy
 [~,Prt0,~,~,~,~,~] = FAIR2(f,ht0);%Inlet thermal properties
 taur = ht0/h0; %free stream enthalpy recovery ratio
@@ -157,7 +157,7 @@ f = (ht4-ht3)/(ht4-etab*hPR);%defining fuel/air ratio (pg. 376, eq.6.36 in EOP)
 if abs(f-f4i)>0.0001
      f4i=f;
 else
-    %f = abs(f);%%%%%%%%%%%NOT IN MATTINGLY%%%%%%%%%%%%
+    f = abs(f);%%%%%%%%%%%NOT IN MATTINGLY%%%%%%%%%%%%
     Gate = 0;
 end
 end
@@ -166,10 +166,10 @@ taulam = ht4/h0;%Total to static enthalpy ratio from inlet to burner exit
 
 %------------------------Coolant mixxer 1--------------------------%
 
-taum1 = (1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam/((1-Beta-eps1-eps2)*(1+f)+eps1);%Enthalpy ratio across coolant mixer 1
-tautH = 1-((taur*taucL*(taucH-1)+(1+alpha)*(Ctoh/etamPH))/(etamH*taulam*((1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam)));%Enthalpy ratio across HPT
+taum1 = (1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam/((1-Beta-eps1-eps2)*(1+f)+eps1);%Enthalpy ratio across coolant mixer 1. (EQ 4.20a pg.111 'Aircraft Engine Design')
+tautH = 1-((taur*taucL*(taucH-1)+(1+alpha)*(Ctoh/etamPH))/(etamH*taulam*((1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam)));%Enthalpy ratio across HPT (EQ 4.21a pg.112 'Aircraft Engine Design')
 ht41 = ht4*taum1;%Total enthalpy at mixxer 1 exit
-f41 = f/(1+f+eps1/(1-Beta-eps1-eps2));%Fuel/air at mixxer 1 exit
+f41 = f/(1+f+eps1/(1-Beta-eps1-eps2));%Fuel/air at mixxer 1 exit. (EQ 4.8i pg.105 'Aircraft Engine Design')
 [~,Prt41,~,~,~,~,~] = FAIR2(f41,ht41);%Total pressure at mixxer 1 exit
 
 %--------------------High pressure turbine------------------%
@@ -183,14 +183,14 @@ etatH = (ht41-ht44)/(ht41-ht44i);%Adiabatic efficiency of HPT
 
 %----------------------Coolant mixxer 2--------------------%
 
-taum2 = ((1-Beta-eps1-eps2)*(1+f41)+eps1+eps2*(taur*taucL*taucH/(taulam*taum1*tautH)))/((1-Beta-eps1-eps2)*(1+f41)+eps1+eps2);%Enthalpy ratio across coolant mixxer 2
+taum2 = ((1-Beta-eps1-eps2)*(1+f41)+eps1+eps2*(taur*taucL*taucH/(taulam*taum1*tautH)))/((1-Beta-eps1-eps2)*(1+f41)+eps1+eps2);%Enthalpy ratio across coolant mixxer 2. (EQ 4.20b pg.112 'Aircraft Engine Design')
 ht45 = ht44*taum2;%Total enthalpy at CM2 exit
-f45 = f/(1+f41+(eps1+eps2)/(1-Beta-eps1-eps2));%Fuel/air at CM2 exit
+f45 = f/(1+f41+(eps1+eps2)/(1-Beta-eps1-eps2));%Fuel/air at CM2 exit.(EQ 4.8j pg.105 'Aircraft Engine Design')
 [~,Prt45,~,~,~,~,~] = FAIR2(f45,ht45);%Total pressure at CM2 exit
 
 %---------------------Low pressure turbine-----------------%
 
-tautL = 1 - (taur*((taucL-1)+alpha*(tauf-1))+(1+alpha)*Ctol/etamPL)/(etamL*taulam*tautH*((1-Beta-eps1-eps2)*(1+f)+(eps1+(eps2/tautH))*(taur*taucL*taucH/taulam)));%Enthalpy ratio across LPT
+tautL = 1 - (taur*((taucL-1)+alpha*(tauf-1))+(1+alpha)*Ctol/etamPL)/(etamL*taulam*tautH*((1-Beta-eps1-eps2)*(1+f)+(eps1+(eps2/tautH))*(taur*taucL*taucH/taulam)));%Enthalpy ratio across LPT. (EQ 4.22a pg.112 'Aircraft Engine Design')
 ht5 = ht45*tautL;%Total enthalpy at LPT exit
 [Tt5,Prt5,~,~,~,~,~] = FAIR2(f45,ht5);%Total temperature and total pressure at LPT exit
 PRtL = (Prt5/Prt45).^(1/etL);%Pressure ratio across LPT
@@ -208,8 +208,8 @@ f16 = 0;
 
 %---------------------Core stream air mixxer------------------%
 
-alphaM = alpha/((1-Beta-eps1-eps2)*(1+f)+eps1+eps2);%Mixxer by-pass ratio
-f6A = f6/(1+alphaM);%Fuel/air at mixxer exit
+alphaM = alpha/((1-Beta-eps1-eps2)*(1+f)+eps1+eps2);%Mixxer by-pass ratio (pg. 113 'Aircraft Engine Design')
+f6A = f6/(1+alphaM);%Fuel/air at mixxer exit.(EQ 4.8k pg.105 'Aircraft Engine Design')
 ht6A = (ht6+alphaM*ht16)/(1+alphaM);%Total enthalpy at mixxer exit
 tauM = ht6A/ht6;%Enthalpy ratio at mixxer exit
 Pt16_Pt6 = PRf/(PRcL*PRcH*PRb*PRtH*PRtL);%
@@ -268,8 +268,8 @@ end
 %--------------------Nozzle----------------------------%
 
 f0 = f7;%All fuel burned
-Tt9 = Tt7;%No total temperature loss in nozzle
-ht9 = ht7;%No enthalpy losses in nozzle
+Tt9 = Tt7;%Adiabatic nozzle
+ht9 = ht7;%Adiabatic nozzle
 Prt9 = Prt7;%No pressure losses in nozzle
 
 %--------------------Nozzle exit-----------------------%
