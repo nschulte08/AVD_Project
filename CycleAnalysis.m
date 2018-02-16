@@ -148,12 +148,11 @@ etacH = (ht3i-ht25)/(ht3-ht25);%Adiabatic efficiency HPC
 
 %-----------------------Burner----------------------------%
 
-f4i = 0;%fuel to air ratio guess for burner exit
-
+f4i = 1;%fuel to air ratio guess for burner exit
 Gate = 1;
 while Gate==1
-[ht4,~,~,~,~,~,~] = FAIR1(f4i,Tt3i);%Ideal total enthalpy at burner exit based on fuel/air at burner exit and ideal total temperature
-f = (ht4-ht3)/(ht4-etab*hPR);%defining fuel/air ratio (pg. 376, eq.6.36 in EOP)
+[ht4,~,~,~,~,~,~] = FAIR1(f4i,Tt4);%Ideal total enthalpy at burner exit based on fuel/air at burner exit and ideal total temperature
+f = (ht4-ht3)/(etab*hPR-ht4);%defining fuel/air ratio (pg. 376, eq.6.36 in EOP)
 if abs(f-f4i)>0.0001
      f4i=f;
 else
@@ -164,7 +163,7 @@ end
 taulam = ht4/h0;%Total to static enthalpy ratio from inlet to burner exit
 
 %------------------------Coolant mixxer 1--------------------------%
-
+%%%%%%%%%%%%%TAUM1 and TAUTH ARE PROBLEMS MAYBE%%%%%%%%%%%%%%%%%%%%
 taum1 = ((1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam)/((1-Beta-eps1-eps2)*(1+f)+eps1);%Enthalpy ratio across coolant mixer 1. (EQ 4.20a pg.111 'Aircraft Engine Design')
 tautH = 1-((taur*taucL*(taucH-1)+(1+alpha)*(Ctoh/etamPH))/(etamH*taulam*((1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam)));%Enthalpy ratio across HPT (EQ 4.21a pg.112 'Aircraft Engine Design')
 ht41 = ht4*taum1;%Total enthalpy at mixxer 1 exit
@@ -227,32 +226,29 @@ Pr16 = Prt16/TSPR16;%Pressure at mixxer exit
 [Tt16,h16,~,~,~,Gamma_air16,a16] = FAIR3(f16,Pr16);%Total temperature,total enthalpy,ratio of specific heats and speed of sound at mixxer exit
 V16 = sqrt(2*gc*778*(ht16-h16));%Velocity at mixxer exit
 M16 = V16/a16;%Mach number at mixxer exit
-if M16>1     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    M16 = 1; %%%%%%%%%%%%%NOT IN MATTINGLY%%%%%%%%%%%%%%
-end          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [~,~,MFP16] = RGCOMPR1(Tt16,f16,M16);%mass flow parameter at mixxer exit
 A16_A6 = alphaM*sqrt(Tt16/Tt6)*(Pt16_Pt6^-1)*(MFP6/MFP16);%Area ratio of by-pass duct to mixxer exits
 A6_A6A = 1/(1+A16_A6);%Area ratio of core stream mixxer to fan by-pass air mixxer exits
-% Constant = sqrt(R6*T6/Gamma_air6)*((1+Gamma_air6*M6.^2)+A16_A6*(1+Gamma_air16*M16.^2))/(M6*(1+alphaM));
-% 
-% M6Ai = .1;%initial guess of Mach number at mixxer exit
-% 
-% Gate = 1;
-% while Gate==1
-% [TSTR6A,~,MFP6A] = RGCOMPR1(Tt6A,f6A,M6Ai);
-% T6A = Tt6A/TSTR6A;
-% [~,~,~,~,R6A,Gamma_air6A,~] = FAIR1(f6A,T6A);
-% M6A = sqrt(R6A*T6A/Gamma_air6A)*((1+Gamma_air6A*M6Ai.^2)/Constant);
-% if abs(M6A-M6Ai)>.001
-%     M6Ai = M6A;
-% else
-%     Gate = 0;
-% end
-% end
-% 
-% PRMideal = (1+alphaM)*sqrt(tauM)*A6_A6A*(MFP6/MFP6A);%Ideal pressure ratio of the mixxer
-%PRM = PRMmax*PRMideal;%Pressure ratio of mixxer is pressure ratio ideal times pressure ratio due to only wall friction
-PRM = PRMmax
+Constant = sqrt(R6*T6/Gamma_air6)*((1+Gamma_air6*M6.^2)+A16_A6*(1+Gamma_air16*M16.^2))/(M6*(1+alphaM));
+
+M6Ai = .1;%initial guess of Mach number at mixxer exit
+
+Gate = 1;
+while Gate==1
+[TSTR6A,~,MFP6A] = RGCOMPR1(Tt6A,f6A,M6Ai);
+T6A = Tt6A/TSTR6A;
+[~,~,~,~,R6A,Gamma_air6A,~] = FAIR1(f6A,T6A);
+M6A = sqrt(R6A*T6A/Gamma_air6A)*((1+Gamma_air6A*M6Ai.^2)/Constant);
+if abs(M6A-M6Ai)>.001
+    M6Ai = M6A;
+else
+    Gate = 0;
+end
+end
+
+PRMideal = (1+alphaM)*sqrt(tauM)*A6_A6A*(MFP6/MFP6A);%Ideal pressure ratio of the mixxer
+PRM = PRMmax*PRMideal;%Pressure ratio of mixxer is pressure ratio ideal times pressure ratio due to only wall friction
+
 
 f7i = .5;%initial guess of fuel/air for afterburner
 
@@ -270,7 +266,7 @@ end
 
 %--------------------Nozzle----------------------------%
 
-f0 = f7;%All fuel burned
+f0 = f7;
 Tt9 = Tt7;%Adiabatic nozzle
 ht9 = ht7;%Adiabatic nozzle
 Prt9 = Prt7;%No pressure losses in nozzle
@@ -278,7 +274,7 @@ Prt9 = Prt7;%No pressure losses in nozzle
 %--------------------Nozzle exit-----------------------%
 
 TSPR9 = (P0_P9)*PRr*PRd*PRcL*PRcH*PRb*PRtH*PRtL*PRM*PRAB*PRn;%Total to static pressure ratio at nozzle exit
-Pr9 = Prt9*TSPR9;%Pressure at nozzle exit
+Pr9 = Prt9/TSPR9;%Pressure at nozzle exit
 [T9,h9,~,~,R9,~,a9] = FAIR3(f0,Pr9);%Total temperature,total enthalpy,gas constant and speed of sound at nozzle exit
 V9 = sqrt(2*778*gc*(ht9-h9));%Velocity at nozzle exit
 M9 = V9/a9;%Mach number at nozzle exit
@@ -299,8 +295,8 @@ etaP
 etaTH
 V9_a0 = V9/a0
 TSPR9
-PRtH
-PRtL
+PRtH 
+PRtL 
 PRM
 tauf
 taucL
