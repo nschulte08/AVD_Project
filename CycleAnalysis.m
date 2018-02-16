@@ -50,7 +50,7 @@ M0 = 1.6;
 % P0 = 3.467;%psia
 
 %---------System Parameters------------%
-Beta = 0; %Bleed Air Fraction
+Beta = 0.01; %Bleed Air Fraction
 Ctol = 0; %Power takeoff shaft power coefficient for low-pressure spool
 Ctoh = .0150; %Power takeoff shaft power coefficient for high-pressure spool
 
@@ -96,7 +96,7 @@ P0_P9 = 1;%pressure ratio free stream to nozzle exit
 %-------------------------------------------------------------------%
 
 %--------------------Free stream-----------------------%
-
+T0 = 394.1;%%%%%FOR TESTING ONLY%%%%%REMOVE%%%%%
 f = 0; %fuel to air ratio
 [h0,Pr0,~,~,R0,Gamma_air0,a0] = FAIR1(f,T0);%h = [BTU/lbm],
 V0 = M0*a0;%Inlet streamtube velocity[ft/s]
@@ -143,7 +143,7 @@ Prt3 = Prt25*PRcH.^(1/ecH);%Total pressure at HPC exit using polytropic efficien
 [~,ht3,~,~,~,~,~] = FAIR3(f,Prt3);%Total enthalpy at HPC exit with total pressure
 taucH = ht3/ht25;%Enthalpy ratio across HPC
 Prt3i = Prt25*PRcH;%Ideal total pressure at HPC exit
-[Tt3i,ht3i,~,~,~,~,~] = FAIR3(f,Prt3i);%Ideal total temperature and total enthalpy at HPC exit
+[~,ht3i,~,~,~,~,~] = FAIR3(f,Prt3i);%Ideal total temperature and total enthalpy at HPC exit
 etacH = (ht3i-ht25)/(ht3-ht25);%Adiabatic efficiency HPC
 
 %-----------------------Burner----------------------------%
