@@ -50,7 +50,7 @@ M0 = 1.6;
 % P0 = 3.467;%psia
 
 %---------System Parameters------------%
-Beta = 1; %Bleed Air Fraction
+Beta = 0; %Bleed Air Fraction
 Ctol = 0; %Power takeoff shaft power coefficient for low-pressure spool
 Ctoh = .0150; %Power takeoff shaft power coefficient for high-pressure spool
 
@@ -88,7 +88,7 @@ PRcL = PRf;%Pressure ratio low pressure compressor
 %alpha = alpha;%Bypass Ratio
 Tt4 = 3200;% [R] Max temperature of the high pressure turbine entry
 Tt7 = 3600;% [R] Max temperature of the nozzle entry
-M6 = .8;%Mach number of core stream mixer entry
+M6 = .4;%Mach number of core stream mixer entry
 P0_P9 = 1;%pressure ratio free stream to nozzle exit
 
 %-------------------------------------------------------------------%
@@ -166,7 +166,7 @@ taulam = ht4/h0;%Total to static enthalpy ratio from inlet to burner exit
 
 %------------------------Coolant mixxer 1--------------------------%
 
-taum1 = (1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam/((1-Beta-eps1-eps2)*(1+f)+eps1);%Enthalpy ratio across coolant mixer 1. (EQ 4.20a pg.111 'Aircraft Engine Design')
+taum1 = ((1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam)/((1-Beta-eps1-eps2)*(1+f)+eps1);%Enthalpy ratio across coolant mixer 1. (EQ 4.20a pg.111 'Aircraft Engine Design')
 tautH = 1-((taur*taucL*(taucH-1)+(1+alpha)*(Ctoh/etamPH))/(etamH*taulam*((1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam)));%Enthalpy ratio across HPT (EQ 4.21a pg.112 'Aircraft Engine Design')
 ht41 = ht4*taum1;%Total enthalpy at mixxer 1 exit
 f41 = f/(1+f+eps1/(1-Beta-eps1-eps2));%Fuel/air at mixxer 1 exit. (EQ 4.8i pg.105 'Aircraft Engine Design')
@@ -228,7 +228,7 @@ Pr16 = Prt16/TSPR16;%Pressure at mixxer exit
 [Tt16,h16,~,~,~,Gamma_air16,a16] = FAIR3(f16,Pr16);%Total temperature,total enthalpy,ratio of specific heats and speed of sound at mixxer exit
 V16 = sqrt(2*gc*(ht16-h16));%Velocity at mixxer exit
 M16 = V16/a16;%Mach number at mixxer exit
-[~,~,MFP16] = RGCOMPR1(Tt16,f16,M16);%Total to static temperature and pressure ratios and mass flow parameter at mixxer exit
+[~,~,MFP16] = RGCOMPR1(Tt16,f16,M16);%mass flow parameter at mixxer exit
 A16_A6 = alphaM*sqrt(Tt16/Tt6)*(Pt16_Pt6^-1)*(MFP6/MFP16);%Area ratio of by-pass duct to mixxer exits
 A6_A6A = 1/(1+A16_A6);%Area ratio of core stream mixxer to fan by-pass air mixxer exits
 Constant = sqrt(R6*T6/Gamma_air6)*((1+Gamma_air6*M6.^2)+A16_A6*(1+Gamma_air16*M16.^2))/(M6*(1+alphaM));
