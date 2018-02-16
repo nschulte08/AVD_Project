@@ -100,7 +100,7 @@ P0_P9 = 1;%pressure ratio free stream to nozzle exit
 f = 0; %fuel to air ratio
 [h0,Pr0,~,~,R0,Gamma_air0,a0] = FAIR1(f,T0);%h = [BTU/lbm],
 V0 = M0*a0;%Inlet streamtube velocity[ft/s]
-ht0 = h0+((V0.^2)/(2*gc));%Total enthalpy
+ht0 = h0+((V0.^2)/(2*778*gc));%Total enthalpy
 [~,Prt0,~,~,~,~,~] = FAIR2(f,ht0);%Inlet thermal properties%%%%THE PROBLEM IS THAT THE TOTAL ENTHALPY FALLS OUT OF RANGE OF THE EQ2.61 ON PG 90 IN 'ELEMENTS OF PROPULSION'%%%%
 taur = ht0/h0; %free stream enthalpy recovery ratio
 PRr = Prt0/Pr0;%free stream pressure recovery
