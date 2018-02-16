@@ -101,7 +101,7 @@ f = 0; %fuel to air ratio
 [h0,Pr0,~,~,R0,Gamma_air0,a0] = FAIR1(f,T0);%h = [BTU/lbm],
 V0 = M0*a0;%Inlet streamtube velocity[ft/s]
 ht0 = h0+((V0.^2)/(2*778*gc));%Total enthalpy
-[~,Prt0,~,~,~,~,~] = FAIR2(f,ht0);%Inlet thermal properties%%%%THE PROBLEM IS THAT THE TOTAL ENTHALPY FALLS OUT OF RANGE OF THE EQ2.61 ON PG 90 IN 'ELEMENTS OF PROPULSION'%%%%
+[~,Prt0,~,~,~,~,~] = FAIR2(f,ht0);%Inlet thermal properties
 taur = ht0/h0; %free stream enthalpy recovery ratio
 PRr = Prt0/Pr0;%free stream pressure recovery
 
@@ -226,30 +226,34 @@ T6 = Tt6/TSTR6;%Static temperature at mixxer exit
 TSPR16 = TSPR6*Pt16_Pt6;%Total to static pressure ratio at mixxer exit 
 Pr16 = Prt16/TSPR16;%Pressure at mixxer exit
 [Tt16,h16,~,~,~,Gamma_air16,a16] = FAIR3(f16,Pr16);%Total temperature,total enthalpy,ratio of specific heats and speed of sound at mixxer exit
-V16 = sqrt(2*gc*(ht16-h16));%Velocity at mixxer exit
+V16 = sqrt(2*gc*778*(ht16-h16));%Velocity at mixxer exit
 M16 = V16/a16;%Mach number at mixxer exit
+if M16>1     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    M16 = 1; %%%%%%%%%%%%%NOT IN MATTINGLY%%%%%%%%%%%%%%
+end          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [~,~,MFP16] = RGCOMPR1(Tt16,f16,M16);%mass flow parameter at mixxer exit
 A16_A6 = alphaM*sqrt(Tt16/Tt6)*(Pt16_Pt6^-1)*(MFP6/MFP16);%Area ratio of by-pass duct to mixxer exits
 A6_A6A = 1/(1+A16_A6);%Area ratio of core stream mixxer to fan by-pass air mixxer exits
-Constant = sqrt(R6*T6/Gamma_air6)*((1+Gamma_air6*M6.^2)+A16_A6*(1+Gamma_air16*M16.^2))/(M6*(1+alphaM));
+% Constant = sqrt(R6*T6/Gamma_air6)*((1+Gamma_air6*M6.^2)+A16_A6*(1+Gamma_air16*M16.^2))/(M6*(1+alphaM));
 
-M6Ai = .1;%initial guess of Mach number at mixxer exit
+% M6Ai = .1;%initial guess of Mach number at mixxer exit
+% 
+% Gate = 1;
+% while Gate==1
+% [TSTR6A,~,MFP6A] = RGCOMPR1(Tt6A,f6A,M6Ai);
+% T6A = Tt6A/TSTR6A;
+% [~,~,~,~,R6A,Gamma_air6A,~] = FAIR1(f6A,T6A);
+% M6A = sqrt(R6A*T6A/Gamma_air6A)*((1+Gamma_air6A*M6Ai.^2)/Constant);
+% if abs(M6A-M6Ai)>.001
+%     M6Ai = M6A;
+% else
+%     Gate = 0;
+% end
+% end
 
-Gate = 1;
-while Gate==1
-[TSTR6A,~,MFP6A] = RGCOMPR1(Tt6A,f6A,M6Ai);
-T6A = Tt6A/TSTR6A;
-[~,~,~,~,R6A,Gamma_air6A,~] = FAIR1(f6A,T6A);
-M6A = sqrt(R6A*T6A/Gamma_air6A)*((1+Gamma_air6A*M6Ai.^2)/Constant);
-if abs(M6A-M6Ai)>.0001
-    M6Ai = M6A;
-else Gate = 0;
-end
-end
-
-PRMideal = (1+alphaM)*sqrt(tauM)*A6_A6A*(MFP6/MFP6A);%Ideal pressure ratio of the mixxer
-PRM = PRMmax*PRMideal;%Pressure ratio of mixxer is pressure ratio ideal times pressure ratio due to only wall friction
-
+%PRMideal = (1+alphaM)*sqrt(tauM)*A6_A6A*(MFP6/MFP6A);%Ideal pressure ratio of the mixxer
+%PRM = PRMmax*PRMideal;%Pressure ratio of mixxer is pressure ratio ideal times pressure ratio due to only wall friction
+PRM = PRMmax
 
 f7i = .5;%initial guess of fuel/air for afterburner
 
@@ -276,8 +280,8 @@ Prt9 = Prt7;%No pressure losses in nozzle
 
 TSPR9 = (P0_P9)*PRr*PRb*PRcL*PRcH*PRb*PRtH*PRtL*PRM*PRAB*PRn;%Total to static pressure ratio at nozzle exit
 Pr9 = Prt9*TSPR9;%Pressure at nozzle exit
-[~,h9,~,~,R9,~,a9] = FAIR3(f0,Pr9);%Total temperature,total enthalpy,gas constant and speed of sound at nozzle exit
-V9 = sqrt(2*gc(ht9-h9));%Velocity at nozzle exit
+[T9,h9,~,~,R9,~,a9] = FAIR3(f0,Pr9);%Total temperature,total enthalpy,gas constant and speed of sound at nozzle exit
+V9 = sqrt(2*gc*(ht9-h9));%Velocity at nozzle exit
 M9 = V9/a9;%Mach number at nozzle exit
 F_mdot = (a0/gc)*((1+f0-Beta/(1+alpha))*(V9/a0)-M0+(1+f0-Beta/(1+alpha))*((R9*(T9/T0)*(1-(P0_P9)))/(R0*(V9/a0)*Gamma_air0)));%Specific thrust at nozzle exit
 S = f0/(F_mdot);%Uninstalled thrust specific fuel consumption
