@@ -4,9 +4,9 @@ close all
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %USE THIS TO CHECK THE FAIR FUNCTIONS USING PAGE 818 IN 'ELEMENTS OF PROPULSION'%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-T = [3300:20:3750]';
-h = linspace(964.60,1113.34,length(T));h = h';%don't forget to change these if you change fuel to air or temperature range
-Pr = linspace(2795,5174,length(T));Pr = Pr';
+T = [3300:20:4000]';
+h = linspace(964.60,1202.13,length(T));h = h';%don't forget to change these if you change fuel to air or temperature range
+Pr = linspace(2795,7227,length(T));Pr = Pr';
 h_out1 = [];
 Pr_out1 = [];
 T_out2 = [];
