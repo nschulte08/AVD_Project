@@ -12,7 +12,7 @@ gc = 32.174; %lbm-ft/lbf-s2 %Newtons gravitation constant
 
 h_f = h*(1+f)%pg 91 "Elements of Propulsion"[Btu/lbm]
 T = 0
-while (T<=0 || T>1000000)
+while (T<=0 || T>10000)
     T = fsolve(@(T) hfun_combined(T,h_f,f),1000);
 end
 
