@@ -233,7 +233,7 @@ A16_A6 = alphaM*sqrt(Tt16/Tt6)*(Pt16_Pt6^-1)*(MFP6/MFP16);%Area ratio of by-pass
 A6_A6A = 1/(1+A16_A6);%Area ratio of core stream mixxer to fan by-pass air mixxer exits
 Constant = sqrt(R6*T6/Gamma_air6)*((1+Gamma_air6*M6.^2)+A16_A6*(1+Gamma_air16*M16.^2))/(M6*(1+alphaM));
 
-M6Ai = .5;%initial guess of Mach number at mixxer exit
+M6Ai = .1;%initial guess of Mach number at mixxer exit
 
 Gate = 1;
 while Gate==1
