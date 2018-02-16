@@ -5,6 +5,9 @@ V = M*a/(1+((Gamma_air-1)/2)*M^2);
 Gate = 1;
 while (Gate==1)
 h = ht - V^2/(2*gc);
+if h<0;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    h = 0;%%%NOT SUGGESTED BY MATTINGLY%%
+end%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [T,Pr,Phi,cp,R,Gamma_air,a] = FAIR2(f,h);
 Vn = M*real(a);
 if V ~= 0
