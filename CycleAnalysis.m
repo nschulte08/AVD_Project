@@ -82,10 +82,10 @@ etamPL = 1;%Mech power takeoff from low pressure spool
 etamPH = .990;%Mech power takeoff from high pressure spool
 
 %---------------Design Choices---------------%
-%PRf = PRf;%Fan pressure ratio
+PRf = 3.8;%Fan pressure ratio
 PRcL = PRf;%Pressure ratio low pressure compressor 
-%PRcH = PRcH;%Pressure ratio high pressure compressor
-%alpha = alpha;%Bypass Ratio
+PRcH = 16;%Pressure ratio high pressure compressor
+alpha = .4;%Bypass Ratio
 Tt4 = 3200;% [R] Max temperature of the high pressure turbine entry
 Tt7 = 3600;% [R] Max temperature of the nozzle entry
 M6 = .4;%Mach number of core stream mixer entry
