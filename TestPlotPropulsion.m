@@ -1,9 +1,9 @@
 clear
 clc
 close all
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %USE THIS TO CHECK THE FAIR FUNCTIONS USING PAGE 818 IN 'ELEMENTS OF PROPULSION'%
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 T = [3300:20:3750]';
 h = linspace(878.77,1009.78,length(T));h = h';
 Pr = linspace(1413.4,2434,length(T));Pr = Pr';
@@ -15,7 +15,7 @@ T_out3 = [];
 h_out3 = [];
 
 for i = 1:length(T)
-    [h_out,Pr_out,~,~,~,~,~] = FAIR1(0,T(i));
+    [h_out,Pr_out,~,~,~,~,~] = FAIR1(0,T(i));%Change zero to change fuel to air ratio
     h_out1 = [h_out1;h_out];
     Pr_out1 = [Pr_out1;Pr_out];
 end
