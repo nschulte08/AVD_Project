@@ -157,7 +157,6 @@ f = (ht4-ht3)/(ht4-etab*hPR);%defining fuel/air ratio (pg. 376, eq.6.36 in EOP)
 if abs(f-f4i)>0.0001
      f4i=f;
 else
-    f = abs(f);%%%%%%%%%%%NOT IN MATTINGLY%%%%%%%%%%%%
     Gate = 0;
 end
 end
@@ -235,7 +234,7 @@ end          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 A16_A6 = alphaM*sqrt(Tt16/Tt6)*(Pt16_Pt6^-1)*(MFP6/MFP16);%Area ratio of by-pass duct to mixxer exits
 A6_A6A = 1/(1+A16_A6);%Area ratio of core stream mixxer to fan by-pass air mixxer exits
 % Constant = sqrt(R6*T6/Gamma_air6)*((1+Gamma_air6*M6.^2)+A16_A6*(1+Gamma_air16*M16.^2))/(M6*(1+alphaM));
-
+% 
 % M6Ai = .1;%initial guess of Mach number at mixxer exit
 % 
 % Gate = 1;
@@ -250,8 +249,8 @@ A6_A6A = 1/(1+A16_A6);%Area ratio of core stream mixxer to fan by-pass air mixxe
 %     Gate = 0;
 % end
 % end
-
-%PRMideal = (1+alphaM)*sqrt(tauM)*A6_A6A*(MFP6/MFP6A);%Ideal pressure ratio of the mixxer
+% 
+% PRMideal = (1+alphaM)*sqrt(tauM)*A6_A6A*(MFP6/MFP6A);%Ideal pressure ratio of the mixxer
 %PRM = PRMmax*PRMideal;%Pressure ratio of mixxer is pressure ratio ideal times pressure ratio due to only wall friction
 PRM = PRMmax
 
@@ -278,15 +277,15 @@ Prt9 = Prt7;%No pressure losses in nozzle
 
 %--------------------Nozzle exit-----------------------%
 
-TSPR9 = (P0_P9)*PRr*PRb*PRcL*PRcH*PRb*PRtH*PRtL*PRM*PRAB*PRn;%Total to static pressure ratio at nozzle exit
+TSPR9 = (P0_P9)*PRr*PRd*PRcL*PRcH*PRb*PRtH*PRtL*PRM*PRAB*PRn;%Total to static pressure ratio at nozzle exit
 Pr9 = Prt9*TSPR9;%Pressure at nozzle exit
 [T9,h9,~,~,R9,~,a9] = FAIR3(f0,Pr9);%Total temperature,total enthalpy,gas constant and speed of sound at nozzle exit
-V9 = sqrt(2*gc*(ht9-h9));%Velocity at nozzle exit
+V9 = sqrt(2*778*gc*(ht9-h9));%Velocity at nozzle exit
 M9 = V9/a9;%Mach number at nozzle exit
 F_mdot = (a0/gc)*((1+f0-Beta/(1+alpha))*(V9/a0)-M0+(1+f0-Beta/(1+alpha))*((R9*(T9/T0)*(1-(P0_P9)))/(R0*(V9/a0)*Gamma_air0)));%Specific thrust at nozzle exit
-S = f0/(F_mdot);%Uninstalled thrust specific fuel consumption
+S = (f0/(F_mdot))*60^2;%Uninstalled thrust specific fuel consumption
 etaP = ((2*gc*M0/a0)*F_mdot)/((1+f0-(Beta/(1+alpha)))*(V9/a0).^2-M0.^2);%Uninstalled propulsive efficiency
-etaTH = (1/2*gc)*(((1+f0-(Beta/(1+alpha)))*V9.^2-V0.^2)+(Ctol+Ctoh)*h0)/(f0*hPR);%Uninstalled thermal efficiency
+etaTH = (1/(2*778*gc))*(((1+f0-(Beta/(1+alpha)))*V9.^2-V0.^2)+(Ctol+Ctoh)*h0)/(f0*hPR);%Uninstalled thermal efficiency
 eta0 = etaTH*etaP;%Uninstalled total efficiency
 
 %-------------------------------------------------------------------%
