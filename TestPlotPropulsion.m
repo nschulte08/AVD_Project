@@ -53,8 +53,8 @@ FAIR3
 A_pure = [2.502005e-1,-5.1536879e-5,6.5519486e-8,-6.7178376e-12,-1.5128259e-14,7.6215767e-18,-1.4526770e-21,1.0115540e-25];
 A_vit = [7.3816638e-2,1.2258630e-3,-1.3771901e-6,9.9686793e-10,-4.2051104e-13,1.0212913e-16,-1.3335668e-20,7.2678710e-25];
 href_pure = -1.7558886;%Btu/lbm
-phi_ref_pure = 0.0454323;%[Btu/(lbm ? °R)]
 href_vit = 30.58153;%Btu/lbm
+phi_ref_pure = 0.0454323;%[Btu/(lbm ? °R)]
 phi_ref_vit = 0.6483398;%[Btu/(lbm ? °R)]
 phi_ref = 1.578437947;%%%%NOT IN MATTINGLY%%%%%DETERMINED FROM TABLE DATA%%%%%%
 gc = 32.174; %lbm-ft/lbf-s2 %Newtons gravitation constant
