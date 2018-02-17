@@ -14,7 +14,7 @@ if V ~= 0
     Verror = (V-Vn)/V;
 else Verror = V-Vn;
 end
-if abs(Verror)>0.01%%%%%%%%%%%%%%INCREASED TOLERANCE%%%%%%%%%%%%%%%%
+if abs(Verror)>0.0001
     V=Vn;
 else
     Gate=0;
