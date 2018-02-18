@@ -105,8 +105,8 @@ end
 %==========================================================================
 %% plot results:
 for n = 1:length(AR_unswept)
-fig_name = sprintf('Solution Space Plot, AR_unswept = %g',AR_unswept(n));
-figure('Name',fig_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
+figure_name = sprintf('Solution Space Plot, AR_unswept = %g',AR_unswept(n));
+figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
 hold on
 %--------------------------------------------------------------------------
 % Take-off
@@ -149,8 +149,6 @@ py = TW_Vmax_super(idx,n);
 design_pt(n,:) = [px,py,AR_unswept(n)];
 plot(px,py,'o','MarkerSize',12, 'MarkerEdgeColor','red','LineWidth',4)
 %--------------------------------------------------------------------------
-
-%--------------------------------------------------------------------------
 set(gca,'FontSize',16);
 xlabel('Wing Loading (lbf/ft^{2})','FontSize',18);
 ylabel('Thrust Loading','FontSize',18);
@@ -167,15 +165,15 @@ if ~exist('Figures','dir')
 end
 Figures = sprintf('%s/Figures/', current_folder);
 
-fig_name =  sprintf('%s.fig',fig_name);
-jpg_name =  sprintf('%s.jpg',fig_name);
+fig_name =  sprintf('%s.fig',figure_name);
+jpg_name =  sprintf('%s.jpg',figure_name);
 
 cd(Figures)
     savefig(fig_name);
     saveas(gcf,jpg_name)
     close(gcf)
 cd(current_folder);
-
+%--------------------------------------------------------------------------
 end
 %==========================================================================
 %% display design point results:
