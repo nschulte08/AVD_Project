@@ -1,6 +1,6 @@
 function [ output_args ] = AVD_Vn_Diagram( MTOW, S, altitude, M_cruise, M_max, CL_max )
 % Creates the V-n diagram of the vehicle
-% ALL INPUT VALUES MUST BE IN ENGLISH UNITS
+% ALL INPUT VALUES MUST BE IN ENGLISH UNITS (lbf, ft^2, ft)
 % First altitude input should be 0 ft (sea level)
 figure; hold on;
 line_styles = {'-','--',':','-.','--',':','-.'};
@@ -45,4 +45,5 @@ xlabel('True Airspeed, V [m/s]', 'FontSize', 16, 'FontWeight', 'bold');
 ylabel('Load Factor, n', 'FontSize', 16, 'FontWeight', 'bold');
 legend(LH, L, 'Location', 'NW', 'FontSize', 14, 'FontWeight', 'bold');
 ylim([n_min - 0.5, n_max + 0.5]);
+hold off;
 end
