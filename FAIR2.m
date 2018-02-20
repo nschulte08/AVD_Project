@@ -10,10 +10,10 @@ phi_ref_vit = 0.6483398;
 phi_ref = 1.578437947;%%%%NOT IN MATTINGLY%%%%%DETERMINED FROM TABLE DATA%%%%%%
 gc = 32.174; %lbm-ft/lbf-s2 %Newtons gravitation constant
 
-h_f = h*(1+f)%pg 91 "Elements of Propulsion"[Btu/lbm]
-T = 0
+h_f = h*(1+f);%pg 91 "Elements of Propulsion"[Btu/lbm]
+T = 0;
 while (T<=0 || T>10000)
-    T = fsolve(@(T) hfun_combined(T,h_f,f),1000);
+    T = fsolve(@(T) hfun_combined(T,h_f,f),1000,optimoptions('fsolve','Display','off'));
 end
 
 

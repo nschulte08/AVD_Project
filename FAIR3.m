@@ -15,9 +15,9 @@ R = 1.9857117/(28.97-f*0.946186);%pg 91 "Elements of Propulsion"
 phi = log(Pr)*R+phi_ref;%eq 2.55 pg 91 "Elements of Propulsion"
 phi_f = phi*(1+f);%eq 2.64d pg. 91 in "Elements of Propulsion"
 
-T=0
+T=0;
 while (T<=0 || T>100000)
-    T = fsolve(@(T) phifun_combined(T,phi_f,f),500);
+    T = fsolve(@(T) phifun_combined(T,phi_f,f),500,optimoptions('fsolve','Display','off'));
 end
 
 
