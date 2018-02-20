@@ -1,4 +1,4 @@
-function [S,F_mdot,Pt16_Pt6] = CycleAnalysis(alpha,PRf,PRcH)
+function [S,F_mdot,Pt16_Pt6] = CycleAnalysis(alpha,PRf,PRcH,Alt,M0)
 %{
 =====================================================================
 Parametric and Performance Analysis for Low By-pass Mixed Flow Turbofan.
@@ -45,7 +45,7 @@ gc = 32.174; %lbm-ft/lbf-s2 %Newtons gravitation constant
 [~,~,T0,~,~,~,~,~,~,~] = ATMO(35000, 'E');
 
 %---------Flight Conditions------------%
-M0 = 1.6;
+%M0 = 1.6;
 % T0 = 394.10;%R
 % P0 = 3.467;%psia
 
@@ -82,10 +82,10 @@ etamPL = 1;%Mech power takeoff from low pressure spool
 etamPH = .990;%Mech power takeoff from high pressure spool
 
 %---------------Design Choices---------------%
-PRf = 3.8;%Fan pressure ratio
+%PRf = 3.8;%Fan pressure ratio
 PRcL = PRf;%Pressure ratio low pressure compressor 
-PRcH = 16;%Pressure ratio high pressure compressor
-alpha = .4;%Bypass Ratio
+%PRcH = 16;%Pressure ratio high pressure compressor
+%alpha = .4;%Bypass Ratio
 Tt4 = 3200;% [R] Max temperature of the high pressure turbine entry
 Tt7 = 3600;% [R] Max temperature of the nozzle entry
 M6 = .4;%Mach number of core stream mixer entry
@@ -96,7 +96,7 @@ P0_P9 = 1;%pressure ratio free stream to nozzle exit
 %-------------------------------------------------------------------%
 
 %--------------------Free stream-----------------------%
-T0 = 394.1;%%%%%FOR TESTING ONLY%%%%%REMOVE%%%%%
+%T0 = 394.1;%%%%%FOR TESTING ONLY%%%%%REMOVE%%%%%
 f = 0; %fuel to air ratio
 [h0,Pr0,~,~,R0,Gamma_air0,a0] = FAIR1(f,T0);%h = [BTU/lbm],
 V0 = M0*a0;%Inlet streamtube velocity[ft/s]
@@ -287,30 +287,30 @@ eta0 = etaTH*etaP;%Uninstalled total efficiency
 %-------------------------------------------------------------------%
 %---------------------------OUTPUTS---------------------------------%
 %-------------------------------------------------------------------%
-Pt16_Pt6
-F_mdot
-S
-f0
-etaP
-etaTH
-V9_a0 = V9/a0
-TSPR9
-PRtH 
-PRtL 
-PRM
-tauf
-taucL
-taucH
-tautH
-tautL
-taulam
-taulamAB
-f
-fAB
-etaf
-etacL
-etacH
-etatH
-etatL
+% Pt16_Pt6
+% F_mdot
+% S
+% f0
+% etaP
+% etaTH
+% V9_a0 = V9/a0
+% TSPR9
+% PRtH 
+% PRtL 
+% PRM
+% tauf
+% taucL
+% taucH
+% tautH
+% tautL
+% taulam
+% taulamAB
+% f
+% fAB
+% etaf
+% etacL
+% etacH
+% etatH
+% etatL
 
 end
