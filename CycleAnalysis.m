@@ -1,4 +1,4 @@
-function [S,F_mdot,Pt16_Pt6] = CycleAnalysis(alpha,PRf,PRcH,Alt,M0)
+function [S,F_mdot,Pt16_Pt6] = CycleAnalysis(alpha,PRf,PRc,Alt,M0,AB)
 %{
 =====================================================================
 Parametric and Performance Analysis for Low By-pass Mixed Flow Turbofan.
@@ -71,20 +71,20 @@ ef = .890; %Fan
 ecL = .890;%Low pressure compressor
 ecH = .900;%High pressure compressor
 etH = .890;%High pressure turbine
-etL = .9;%%Low pressure turbine
+etL = .900;%%Low pressure turbine
 
 %---------Adiabatic Efficiencies-------%
 etab = .999;%Burner
 etaAB = .990;%Afterburner
-etamL = 1;%Mech low efficiency spool
-etamH = .990;%Mech high efficiency spool
-etamPL = 1;%Mech power takeoff from low pressure spool
-etamPH = .990;%Mech power takeoff from high pressure spool
+etamL = .990;%Mech low efficiency spool
+etamH = 1.000;%Mech high efficiency spool
+etamPL = .995;%Mech power takeoff from low pressure spool
+etamPH = .995;%Mech power takeoff from high pressure spool
 
 %---------------Design Choices---------------%
 %PRf = 3.8;%Fan pressure ratio
 PRcL = PRf;%Pressure ratio low pressure compressor 
-%PRcH = 16;%Pressure ratio high pressure compressor
+PRcH = PRc/PRf;%Pressure ratio high pressure compressor
 %alpha = .4;%Bypass Ratio
 Tt4 = 3200;% [R] Max temperature of the high pressure turbine entry
 Tt7 = 3600;% [R] Max temperature of the nozzle entry
@@ -163,7 +163,6 @@ end
 taulam = ht4/h0;%Total to static enthalpy ratio from inlet to burner exit
 
 %------------------------Coolant mixxer 1--------------------------%
-%%%%%%%%%%%%%TAUM1 and TAUTH ARE PROBLEMS MAYBE%%%%%%%%%%%%%%%%%%%%
 taum1 = ((1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam)/((1-Beta-eps1-eps2)*(1+f)+eps1);%Enthalpy ratio across coolant mixer 1. (EQ 4.20a pg.111 'Aircraft Engine Design')
 tautH = 1-((taur*taucL*(taucH-1)+(1+alpha)*(Ctoh/etamPH))/(etamH*taulam*((1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam)));%Enthalpy ratio across HPT (EQ 4.21a pg.112 'Aircraft Engine Design')
 ht41 = ht4*taum1;%Total enthalpy at mixxer 1 exit
@@ -216,7 +215,7 @@ T6 = Tt6/TSTR6;%Static temperature at mixxer exit
 
 %%%%%%%%%%%%%%%ADDED(NOT IN MATTINGLY)%%%%%%%%%%%%%%%%%%%%
 [~,~,~,~,R6,Gamma_air6,~] = FAIR1(f,T6);
-[Tt6A,~,~,~,~,~,~] = FAIR2(f6A,ht6A);
+[Tt6A,Prt6A,~,~,~,~,~] = FAIR2(f6A,ht6A);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %---------------------Fan by-pass air mixxer-------------------%
@@ -249,7 +248,8 @@ end
 PRMideal = (1+alphaM)*sqrt(tauM)*A6_A6A*(MFP6/MFP6A);%Ideal pressure ratio of the mixxer
 PRM = PRMmax*PRMideal;%Pressure ratio of mixxer is pressure ratio ideal times pressure ratio due to only wall friction
 
-
+if AB==1 %AB is functional input argument for afterburners
+        
 f7i = .5;%initial guess of fuel/air for afterburner
 
 Gate = 1;
@@ -263,7 +263,13 @@ while Gate==1
     else Gate = 0;
     end
 end
-
+else
+    f7 = f6A;
+    Tt7 = Tt6A;
+    ht7 = ht6A;
+    Prt7 = Prt6A;
+    PRAB = 1;
+end
 %--------------------Nozzle----------------------------%
 
 f0 = f7;
@@ -292,7 +298,7 @@ eta0 = etaTH*etaP;%Uninstalled total efficiency
 % S
 % f0
 % etaP
-% etaTH
+ etaTH;
 % V9_a0 = V9/a0
 % TSPR9
 % PRtH 
@@ -310,7 +316,11 @@ eta0 = etaTH*etaP;%Uninstalled total efficiency
 % etaf
 % etacL
 % etacH
-% etatH
-% etatL
+ etatH;
+ etatL
+Tt4_T0 = Tt4/T0;
+T9_T0 = T9/T0;
+V9_V0 = V9/V0;
+M9_M0 = M9/M0;
 
 end
