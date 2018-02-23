@@ -1,4 +1,4 @@
-function [ M_crit, CL_sub, CD_sub, LD_max, CD0_sub, CL_super, CD_super, CD0_super, CMa, sweep] = aerofunky(alpha, M_cr, AR, alt_cr, Sref, W_cs, W_cf )
+function [ M_crit, LD_max, CL, CD, CD0, CM, sweep] = aerofunky(alpha, M_cr, AR, alt_cr, Sref, W_cs, W_cf )
 
 % Accepts flight conditions and outputs aero coefficients
 % Required inputs: Cruise condition (Mach, altitude, Weight Fractions), t/cmax, 
@@ -7,12 +7,12 @@ function [ M_crit, CL_sub, CD_sub, LD_max, CD0_sub, CL_super, CD_super, CD0_supe
 Swet = 1.05*Sref;                       %Placeholder, Kinda a guess
 e = 0.85;
 K = 1/(pi*AR*e);                        %Drag K factor
-tcmax = 1.0;                            %Placeholder %Max t/c ratio 
+tcmax = .16;                            %Placeholder %Max t/c ratio 
 SM = .15;                               %Static Margin as % of mean geom chord
 cbar = 1.0;                             %Placeholder for mean geometric chord
-
+alpha = alpha*pi/180;                   %Convert to radians
 %Calculate sweep: sweep = f(M_cr); Mcrit = 
-sweep = 1.0;                            %Placeholder
+sweep = 60*pi/180;                            %Placeholder
 
 %We also need to calculate b_eff and AR_eff with the sweep angle
 
@@ -27,11 +27,12 @@ V_cr = M_cr*acr;                            %Cruise Speed (units?)
 %Calculate CL for steady, level cruise
 CL_cruise = 2*Wavg/(rhocr*V_cr^2*Sref);     %Ideal wing lift coefficient for cruise flight
 
+
 %% Subsonic Wing Aerodynamics
 
 %Subsonic wing lift curve slope
 Cla = 1.8*pi*(1 + 0.8*tcmax);                       %Airfoil Cl_alpha, Saedray pg 179  
-Beta_sub = sqrt(1-M_cr^2);
+Beta_sub = sqrt(abs(1-M_cr^2));
 nu = Cla/(2*pi/Beta_sub);
 
 CLa_sub = 2*pi*AR/(2+sqrt(4+((AR^2*Beta_sub^2)/nu^2)*(1+tan(sweep)^2/Beta_sub^2))); 
@@ -92,13 +93,21 @@ CD_super = CD0_super + CDi_super;                           %Total supersonic CD
 
 
 %% Pitching Moment Calculation
-if M_cr > 1
-    CLa = CLa_super;
-else
+if M_cr < 0.8
+    CL = CL_sub;
+    CD = CD_sub;
+    CD0 = CD0_sub;
     CLa = CLa_sub;
+    
+elseif M_cr > 1.1
+    CL = CL_super;
+    CD = CD_super;
+    CD0 = CD0_super;
+    CLa = CLa_super;
 end
 
 CMa = -CLa*SM;
+CM = alpha*CMa;
 
 %Do we want to have if M_cr < 1
             %CD = CD_sub and
