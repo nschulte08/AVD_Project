@@ -236,7 +236,7 @@ Gate = 1;
 while Gate==1
 [TSTR6A,~,MFP6A] = RGCOMPR1(Tt6A,f6A,M6Ai);
 T6A = Tt6A/TSTR6A;
-[~,~,~,~,R6A,Gamma_air6A,~] = FAIR1(f6A,T6A);
+[~,~,~,~,R6A,Gamma_air6A] = FAIR1(f6A,T6A);
 M6A = sqrt(R6A*T6A/Gamma_air6A)*((1+Gamma_air6A*M6Ai.^2)/Constant);
 if abs(M6A-M6Ai)>.001
     M6Ai = M6A;
@@ -244,7 +244,6 @@ else
     Gate = 0;
 end
 end
-
 PRMideal = (1+alphaM)*sqrt(tauM)*A6_A6A*(MFP6/MFP6A);%Ideal pressure ratio of the mixxer
 PRM = PRMmax*PRMideal;%Pressure ratio of mixxer is pressure ratio ideal times pressure ratio due to only wall friction
 
@@ -289,7 +288,6 @@ S = (f0/(F_mdot))*60^2;%Uninstalled thrust specific fuel consumption
 etaP = ((2*gc*M0/a0)*F_mdot)/((1+f0-(Beta/(1+alpha)))*(V9/a0).^2-M0.^2);%Uninstalled propulsive efficiency
 etaTH = (1/(2*778*gc))*(((1+f0-(Beta/(1+alpha)))*V9.^2-V0.^2)+(Ctol+Ctoh)*h0)/(f0*hPR);%Uninstalled thermal efficiency
 eta0 = etaTH*etaP;%Uninstalled total efficiency
-
 %-------------------------------------------------------------------%
 %---------------------------OUTPUTS---------------------------------%
 %-------------------------------------------------------------------%
@@ -298,7 +296,7 @@ eta0 = etaTH*etaP;%Uninstalled total efficiency
 % S
 % f0
 % etaP
- etaTH;
+%etaTH;
 % V9_a0 = V9/a0
 % TSPR9
 % PRtH 
@@ -316,11 +314,11 @@ eta0 = etaTH*etaP;%Uninstalled total efficiency
 % etaf
 % etacL
 % etacH
- etatH;
- etatL
-Tt4_T0 = Tt4/T0;
-T9_T0 = T9/T0;
-V9_V0 = V9/V0;
-M9_M0 = M9/M0;
+%  etatH;
+%  etatL;
+% Tt4_T0 = Tt4/T0;
+% T9_T0 = T9/T0;
+% V9_V0 = V9/V0;
+% M9_M0 = M9/M0;
 
 end
