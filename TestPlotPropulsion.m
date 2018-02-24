@@ -5,8 +5,11 @@ close all
 %USE THIS TO CHECK THE FAIR FUNCTIONS USING PAGE 818 IN 'ELEMENTS OF PROPULSION'%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 T = [3300:20:4000]';
-h = linspace(964.60,1202.13,length(T));h = h';%don't forget to change these if you change fuel to air or temperature range
-Pr = linspace(2795,7227,length(T));Pr = Pr';
+%h = linspace(964.60,1202.13,length(T));h = h';%don't forget to change these if you change fuel to air or temperature range
+%Pr = linspace(2795,7227,length(T));Pr = Pr';
+h = xlsread('TableValues.xlsx',1,'B1:B36');
+Pr = xlsread('TableValues.xlsx',1,'C1:C36');
+
 h_out1 = [];
 Pr_out1 = [];
 T_out2 = [];
