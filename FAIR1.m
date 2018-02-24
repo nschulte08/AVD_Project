@@ -7,7 +7,9 @@ href_vit = 30.58153;%Btu/lbm
 phi_ref_vit = 0.6483398;%[Btu/(lbm ? °R)]
 phi_ref = 1.578437947;%%%%NOT IN MATTINGLY%%%%%DETERMINED FROM TABLE DATA%%%%%%
 gc = 32.174; %lbm-ft/lbf-s2 %Newtons gravitation constant
-
+%------------Test--------------%
+%phi_ref = (phi_ref_pure+f*phi_ref_vit)/(1+f)
+%------------------------------%
 
 h_pure = href_pure + A_pure(1)*T+A_pure(2)/2*T.^2+A_pure(3)/3*T.^3+A_pure(4)/4*T.^4+A_pure(5)/5*T.^5+A_pure(6)/6*T.^6+A_pure(7)/7*T.^7+A_pure(8)/8*T.^8;
 h_vit = href_vit + A_vit(1)*T+A_vit(2)/2*T.^2+A_vit(3)/3*T.^3+A_vit(4)/4*T.^4+A_vit(5)/5*T.^5+A_vit(6)/6*T.^6+A_vit(7)/7*T.^7+A_vit(8)/8*T.^8;
