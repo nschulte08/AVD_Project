@@ -1,4 +1,4 @@
-function [S,F_mdot,Pt16_Pt6] = CycleAnalysis(alpha,PRf,PRcH)
+function [S,F_mdot,Pt16_Pt6] = CycleAnalysis(alpha,PRf,PRc,Alt,M0,AB)
 %{
 =====================================================================
 Parametric and Performance Analysis for Low By-pass Mixed Flow Turbofan.
@@ -45,7 +45,7 @@ gc = 32.174; %lbm-ft/lbf-s2 %Newtons gravitation constant
 [~,~,T0,~,~,~,~,~,~,~] = ATMO(35000, 'E');
 
 %---------Flight Conditions------------%
-M0 = 1.6;
+%M0 = 1.6;
 % T0 = 394.10;%R
 % P0 = 3.467;%psia
 
@@ -71,21 +71,21 @@ ef = .890; %Fan
 ecL = .890;%Low pressure compressor
 ecH = .900;%High pressure compressor
 etH = .890;%High pressure turbine
-etL = .9;%%Low pressure turbine
+etL = .900;%%Low pressure turbine
 
 %---------Adiabatic Efficiencies-------%
 etab = .999;%Burner
 etaAB = .990;%Afterburner
-etamL = 1;%Mech low efficiency spool
-etamH = .990;%Mech high efficiency spool
-etamPL = 1;%Mech power takeoff from low pressure spool
-etamPH = .990;%Mech power takeoff from high pressure spool
+etamL = .990;%Mech low efficiency spool
+etamH = 1.000;%Mech high efficiency spool
+etamPL = .995;%Mech power takeoff from low pressure spool
+etamPH = .995;%Mech power takeoff from high pressure spool
 
 %---------------Design Choices---------------%
-PRf = 3.8;%Fan pressure ratio
+%PRf = 3.8;%Fan pressure ratio
 PRcL = PRf;%Pressure ratio low pressure compressor 
-PRcH = 16;%Pressure ratio high pressure compressor
-alpha = .4;%Bypass Ratio
+PRcH = PRc/PRf;%Pressure ratio high pressure compressor
+%alpha = .4;%Bypass Ratio
 Tt4 = 3200;% [R] Max temperature of the high pressure turbine entry
 Tt7 = 3600;% [R] Max temperature of the nozzle entry
 M6 = .4;%Mach number of core stream mixer entry
@@ -96,7 +96,7 @@ P0_P9 = 1;%pressure ratio free stream to nozzle exit
 %-------------------------------------------------------------------%
 
 %--------------------Free stream-----------------------%
-T0 = 394.1;%%%%%FOR TESTING ONLY%%%%%REMOVE%%%%%
+%T0 = 394.1;%%%%%FOR TESTING ONLY%%%%%REMOVE%%%%%
 f = 0; %fuel to air ratio
 [h0,Pr0,~,~,R0,Gamma_air0,a0] = FAIR1(f,T0);%h = [BTU/lbm],
 V0 = M0*a0;%Inlet streamtube velocity[ft/s]
@@ -163,7 +163,6 @@ end
 taulam = ht4/h0;%Total to static enthalpy ratio from inlet to burner exit
 
 %------------------------Coolant mixxer 1--------------------------%
-%%%%%%%%%%%%%TAUM1 and TAUTH ARE PROBLEMS MAYBE%%%%%%%%%%%%%%%%%%%%
 taum1 = ((1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam)/((1-Beta-eps1-eps2)*(1+f)+eps1);%Enthalpy ratio across coolant mixer 1. (EQ 4.20a pg.111 'Aircraft Engine Design')
 tautH = 1-((taur*taucL*(taucH-1)+(1+alpha)*(Ctoh/etamPH))/(etamH*taulam*((1-Beta-eps1-eps2)*(1+f)+eps1*taur*taucL*taucH/taulam)));%Enthalpy ratio across HPT (EQ 4.21a pg.112 'Aircraft Engine Design')
 ht41 = ht4*taum1;%Total enthalpy at mixxer 1 exit
@@ -216,7 +215,7 @@ T6 = Tt6/TSTR6;%Static temperature at mixxer exit
 
 %%%%%%%%%%%%%%%ADDED(NOT IN MATTINGLY)%%%%%%%%%%%%%%%%%%%%
 [~,~,~,~,R6,Gamma_air6,~] = FAIR1(f,T6);
-[Tt6A,~,~,~,~,~,~] = FAIR2(f6A,ht6A);
+[Tt6A,Prt6A,~,~,~,~,~] = FAIR2(f6A,ht6A);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %---------------------Fan by-pass air mixxer-------------------%
@@ -237,7 +236,7 @@ Gate = 1;
 while Gate==1
 [TSTR6A,~,MFP6A] = RGCOMPR1(Tt6A,f6A,M6Ai);
 T6A = Tt6A/TSTR6A;
-[~,~,~,~,R6A,Gamma_air6A,~] = FAIR1(f6A,T6A);
+[~,~,~,~,R6A,Gamma_air6A] = FAIR1(f6A,T6A);
 M6A = sqrt(R6A*T6A/Gamma_air6A)*((1+Gamma_air6A*M6Ai.^2)/Constant);
 if abs(M6A-M6Ai)>.001
     M6Ai = M6A;
@@ -245,11 +244,11 @@ else
     Gate = 0;
 end
 end
-
 PRMideal = (1+alphaM)*sqrt(tauM)*A6_A6A*(MFP6/MFP6A);%Ideal pressure ratio of the mixxer
 PRM = PRMmax*PRMideal;%Pressure ratio of mixxer is pressure ratio ideal times pressure ratio due to only wall friction
 
-
+if AB==1 %AB is functional input argument for afterburners
+        
 f7i = .5;%initial guess of fuel/air for afterburner
 
 Gate = 1;
@@ -263,7 +262,13 @@ while Gate==1
     else Gate = 0;
     end
 end
-
+else
+    f7 = f6A;
+    Tt7 = Tt6A;
+    ht7 = ht6A;
+    Prt7 = Prt6A;
+    PRAB = 1;
+end
 %--------------------Nozzle----------------------------%
 
 f0 = f7;
@@ -283,34 +288,37 @@ S = (f0/(F_mdot))*60^2;%Uninstalled thrust specific fuel consumption
 etaP = ((2*gc*M0/a0)*F_mdot)/((1+f0-(Beta/(1+alpha)))*(V9/a0).^2-M0.^2);%Uninstalled propulsive efficiency
 etaTH = (1/(2*778*gc))*(((1+f0-(Beta/(1+alpha)))*V9.^2-V0.^2)+(Ctol+Ctoh)*h0)/(f0*hPR);%Uninstalled thermal efficiency
 eta0 = etaTH*etaP;%Uninstalled total efficiency
-
 %-------------------------------------------------------------------%
 %---------------------------OUTPUTS---------------------------------%
 %-------------------------------------------------------------------%
-Pt16_Pt6
-F_mdot
-S
-f0
-etaP
-etaTH
-V9_a0 = V9/a0
-TSPR9
-PRtH 
-PRtL 
-PRM
-tauf
-taucL
-taucH
-tautH
-tautL
-taulam
-taulamAB
-f
-fAB
-etaf
-etacL
-etacH
-etatH
-etatL
+% Pt16_Pt6
+% F_mdot
+% S
+% f0
+% etaP
+%etaTH;
+% V9_a0 = V9/a0
+% TSPR9
+% PRtH 
+% PRtL 
+% PRM
+% tauf
+% taucL
+% taucH
+% tautH
+% tautL
+% taulam
+% taulamAB
+% f
+% fAB
+% etaf
+% etacL
+% etacH
+%  etatH;
+%  etatL;
+% Tt4_T0 = Tt4/T0;
+% T9_T0 = T9/T0;
+% V9_V0 = V9/V0;
+% M9_M0 = M9/M0;
 
 end
