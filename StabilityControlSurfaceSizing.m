@@ -14,12 +14,12 @@ b_vt
 rho    
 CL_aoaw
 delL%Incremental change in the lift due to airleron deflection   
-y_a%CG to center aileron y-position 
+y_a%CG to aileron center location y-position 
 S_w%Wing Area    
 S_vt%Vertical Tail Area
 C_Dr%Drag Due to Roll
 y_D%Incremental drag y_position from CG point    
-I_xx    
+I_xx%Mass moment of inertia about x-axis    
 phi2     
 phi_req  
 Cmac_wf 
