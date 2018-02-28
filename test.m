@@ -31,15 +31,15 @@ M_max = 1.5;
 CL_max = 2.6;
 passengers = 12; % number of passengers
 crew = 4; % number of crew members
-V_cruise = 924; % MPH
-range = 4750; % miles
-SFC = 0.9;    % Emperical Placeholder for SFC based on Sadraey Table 4.6 for turbojet
-LD_cruise = 7; % Cruise lift/drag from Fig 5.3 Nicolai
+V_cruise = 923.85; % MPH
+range = 5468; % miles (supersonic)
+SFC = 1.0;    % Empirical Placeholder for SFC based on Sadraey Table 4.6 for turbojet
+LD_cruise = 9; % Cruise lift/drag from Fig 5.3 Nicolai
 b = 120; % wingspan, m
 lambda = 0.44; % wing taper ratio
 
 %Vn_Diagram(MTOW, S, altitude, M_cruise, M_max, CL_max);
 
-%[weights, weight_fractions] = Weight_Buildup(MTOW, passengers, crew, V_cruise, M_cruise, range, SFC, LD_cruise);
+[weights, weight_fractions] = Weight_Buildup(passengers, crew, V_cruise, M_cruise, range, SFC, LD_cruise);
 
-[max_load, min_load] = Wing_Loading(b, convforce(MTOW, 'lbf', 'N'), lambda);
+%[max_load, min_load] = Wing_Loading(b, convforce(MTOW, 'lbf', 'N'), lambda);
