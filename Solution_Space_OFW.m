@@ -1,6 +1,8 @@
 %{
     This script is designed to build the solution space for an OFW SSBJ
 
+% We need LD_to and CD0_sub and CD0_super
+
 ===========================================================================
 %}
 close all; clear; clc;
@@ -41,7 +43,7 @@ TW_to(:,i) = 37.5*WS_to(:,i)/(sigfact_SL*CL_max_to*S_to); % take off thrust load
 %--------------------------------------------------------------------------
 %% Eq 2 Req't: Landing
 V_app = 135;  % Approach speed in knots
-CL_app = 2.0; % Need this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CL_app = 2.0; % Per Roskam Table 3.1
 
 WS_arb = ones(VectorLength,1);
 WS_land(:,i) = WS_arb.*(V_app^2/(17.15^2)*sigfact_SL*CL_app);
@@ -50,9 +52,9 @@ TW_land(:,i) = transpose(linspace(TWmin, 1000, VectorLength));  % landing thrust
 %--------------------------------------------------------------------------
 %% Eq 3 Req't: Second Climb Gradient (FAR 25.121)
 CL_max = 1.5;          %From Roskam Table 3.1
-CL_sc = CL_max/1.25^2; % ????
+CL_sc = CL_max/1.25^2; % Calculated second climb lift coefficient
 L_D_to = 13.0;         % Need this for OFW
-CGR = 0.027;           % ?
+CGR = 0.027;           % Climb Gradient = deg/100
 N = 4;                 % number of engines
 
 WS_sc(:,i) = transpose(linspace(TWmin, 1000, VectorLength));
@@ -73,7 +75,7 @@ AR_sub = AR_unswept(i)*4*cosd(sweep_sub)^2; % Swept AR
 V_cr_sub = M_cr_sub*a_cr_sub;        % [ft/s] Velocity
 q_cr_sub = .5*rho_cr_sub*V_cr_sub^2; % [lbf/ft^2] Dyn pressure for cruise
 
-CD0_sub = 0.022; % Need this for OFW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CD0_sub = 0.008;                    % Subsonic CD0 from Concorde analysis
 
 TW_cr_reqd(:,i) = CD0_sub*q_cr_sub./(WS_cr_to(:,i)) + WS_cr_to(:,i)/(q_cr_sub*pi*AR_sub*e);
 
@@ -84,7 +86,7 @@ AR_super = AR_unswept(i)*4*cosd(sweep_super)^2; % Swept AR
 V_cr_super = M_cr_super*a_cr_super;        % [ft/s] Velocity
 q_cr_super = .5*rho_cr_super*V_cr_super^2; % [lbf/ft^2] Dyn pressure for cruise
 
-CD0_super = 0.027; % Need this for OFW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CD0_super = 0.0104;                 % Supersonic CD0 from Concorde analysis
 
 TW_cr_reqd_super(:,i) = CD0_super*q_cr_super./(WS_cr_to(:,i)) + WS_cr_to(:,i)/(q_cr_super*pi*AR_super*e);
 

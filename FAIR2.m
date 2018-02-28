@@ -1,5 +1,4 @@
 function [T,Pr,phi,cp,R,Gamma_air,a] = FAIR2(f,h)
-
 %Coefficient and Reference values pg 91 "Elements of Propulsion"
 A_pure = [2.502005e-1,-5.1536879e-5,6.5519486e-8,-6.7178376e-12,-1.5128259e-14,7.6215767e-18,-1.4526770e-21,1.0115540e-25];
 A_vit = [7.3816638e-2,1.2258630e-3,-1.3771901e-6,9.9686793e-10,-4.2051104e-13,1.0212913e-16,-1.3335668e-20,7.2678710e-25];
@@ -10,11 +9,10 @@ phi_ref_vit = 0.6483398;
 phi_ref = 1.578437947;%%%%NOT IN MATTINGLY%%%%%DETERMINED FROM TABLE DATA%%%%%%
 gc = 32.174; %lbm-ft/lbf-s2 %Newtons gravitation constant
 
-h_f = h*(1+f)%pg 91 "Elements of Propulsion"[Btu/lbm]
-T = 0
-while (T<=0 || T>10000)
-    T = fsolve(@(T) hfun_combined(T,h_f,f),1000);
-end
+h_f = h*(1+f);%pg 91 "Elements of Propulsion"[Btu/lbm]
+
+
+[T,~,exitflag] = fsolve(@(T) hfun_combined(T,h_f,f),2000,optimoptions('fsolve','Display','off','MaxIteration',50));
 
 
 phi_pure = phi_ref_pure + A_pure(1)*log(T)+A_pure(2)*T+A_pure(3)/2*T.^2+A_pure(4)/3*T.^3+A_pure(5)/4*T.^4+A_pure(6)/5*T.^5+A_pure(7)/6*T.^6+A_pure(8)/7*T.^7;

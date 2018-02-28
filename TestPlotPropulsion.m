@@ -5,8 +5,11 @@ close all
 %USE THIS TO CHECK THE FAIR FUNCTIONS USING PAGE 818 IN 'ELEMENTS OF PROPULSION'%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 T = [3300:20:4000]';
-h = linspace(964.60,1202.13,length(T));h = h';%don't forget to change these if you change fuel to air or temperature range
-Pr = linspace(2795,7227,length(T));Pr = Pr';
+%h = linspace(964.60,1202.13,length(T));h = h';%don't forget to change these if you change fuel to air or temperature range
+%Pr = linspace(2795,7227,length(T));Pr = Pr';
+h = xlsread('TableValues.xlsx',1,'B1:B36');
+Pr = xlsread('TableValues.xlsx',1,'C1:C36');
+
 h_out1 = [];
 Pr_out1 = [];
 T_out2 = [];
@@ -48,6 +51,9 @@ FAIR1
 FAIR2
 FAIR3
 
+F_1 = [T,h_out1,Pr_out1];
+F_2 = [T_out2,h,Pr_out2];
+F_3 = [T_out3,h_out3,Pr];
 %% Plots of functions used
 
 A_pure = [2.502005e-1,-5.1536879e-5,6.5519486e-8,-6.7178376e-12,-1.5128259e-14,7.6215767e-18,-1.4526770e-21,1.0115540e-25];
@@ -68,4 +74,4 @@ cp_vit = @(T) A_vit(1)+A_vit(2)*T+A_vit(3)*T.^2+A_vit(4)*T.^3+A_vit(5)*T.^4+A_vi
 
 
 T = [3300:20:10000];
-plot(T,h_pure(T))
+plot(T,h_pure(T));

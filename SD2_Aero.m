@@ -10,6 +10,7 @@ K = 1/(pi*AR*e);                        %Drag K factor
 tcmax = 1.0;                            %Placeholder %Max t/c ratio 
 altcr = 1.0;                            %Cruise Altitude (units?)
 Sref = 1.0;                             %Wing Area, (units?)
+SM = .15;                               %Static Margin as % of mean geom chord
 
 %% Airfoil Cl_alpha
 
@@ -60,6 +61,7 @@ M_cr = Mach_dd - (0.1/80)^(1/3);                                            %Cri
 
 %Supersonic CLa
 CLa_super = 4/(sqrt(Mc^2-1));
+%CLa_super = 4/(sqrt(Mc^2-1))*(1-1/(2*AR*sqrt(Mc^2-1));     %Straight,tapered wings in supersonic flow
 
 %Supersonic Drag
 Cfw_super = Cfw/(1 + .144*Mc^2)^0.65;                       %Corrected Skin Friction Coefficient for Compressibility
@@ -67,7 +69,7 @@ CDf_super = Cfw_super*Swet/Sref;                            %Supersonic friction
 
 clms = 1.0;                         %Placeholder %Camber Line Mean Square
 tdms = 1.0;                         %Placeholder %Thickness distribution mean square
-Cd_wave = 4*alpha/(Mc^2 - 1)^0.5*(alpha^2 + clms + tdms;    %Section Wave drag coefficient
+Cd_wave = 4*alpha/(Mc^2 - 1)^0.5*(alpha^2 + clms + tdms);    %Section Wave drag coefficient
 
 CD0_super = CDf_super + CD_wave;                            %Supersonic zero-lift drag coefficient
 
@@ -78,3 +80,11 @@ CDL_super = (0.24/AR + Kw*(Mc^2-1)^.5)*CL^2;                %Supersonic induced 
 CD_super = CD0_super + CDL_super;                           %Total supersonic CD:Sum of zero-lift + lift-induced drag
 
 
+%% Pitching Moment Calculation
+if Mc > 1
+    CLa = CLa_super
+else
+    CLa = CLa_sub
+end
+
+CMa = -CLa*SM;
