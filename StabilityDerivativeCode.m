@@ -35,21 +35,21 @@ x
 V_VT%Vertical Tail Volume
 c_r%RootChord
 %WingGeometery=============================================================
-c_bar       = ((2/3)*c_r*((1+TR+TR^2)/(1+TR)));
-vwt         = (0.724+((3.06*(S_vtpr/S_ref))/(1+cos(sweep)))+(0.4*(z_w/d))+(0.009*AR))
+c_bar       = ((2/3)*c_r*((1+TR+TR^2)/(1+TR)));  %Nicolai Pg580
+vwt         = (0.724+((3.06*(S_vtpr/S_ref))/(1+cos(sweep)))+(0.4*(z_w/d))+(0.009*AR)) %Nicolai 21.15
 %Longitudinal==============================================================
 %N           = (L*cos(AOA))+(D*sin(AOA));
 %C           = (D*cos(AOA))-(L*sin(AOA));
-Cm_cg       = (-CL*(x_wing/c_bar))+(CD*(z/c_bar))+Cm_acwing+((T*z_t)/(q*S*tau));
-Cm_alpha    = ((-x_wing/c_bar)*Cl_alphaw);
+Cm_cg       = (-CL*(x_wing/c_bar))+(CD*(z/c_bar))+Cm_acwing+((T*z_t)/(q*S*c_bar)); %Nicolai Eq 21.3
+Cm_alpha    = ((-x_wing/c_bar)*Cl_alphaw); %Nicolai 21.6
 %Lateral===================================================================
-Cl_betaLam  = -0.25*CL_alpha*Lambda*((2+(1+2*TR))/(3*(1+TR)));
-Cl_betawing = Cl_betabasic+Cl_betaD+Cl_betaLam
-Cl_betaVT   = (-CL_alphaVT*(S_VT/S_ref)*(z_v/b)*(vwt));
-Cl_beta     = Cl_betawing+Cl_betaVT;
+Cl_betaLam  = -0.25*CL_alpha*Lambda*((2+(1+2*TR))/(3*(1+TR))); %Nicolai 21.12
+Cl_betawing = Cl_betabasic+Cl_betaD+Cl_betaLam %Nicolai 21.11
+Cl_betaVT   = (-CL_alphaVT*(S_VT/S_ref)*(z_v/b)*(vwt)); %Nicolai 21.14
+Cl_beta     = Cl_betawing+Cl_betaVT; %Nicolai 21.10
 %Directional===============================================================
-N           = l_VT*L_VT+N_power+N_wing;
-Cn          = N/(q*S_ref*b);
-Cn_betawing = (CL^2*((1/4*pi*AR)-(tan(sweep)/pi*AR*(AR+4*cos(sweep)))*(cos(sweep)-(AR/2)-(AR^2/8*cos(sweep))+((6*x/c_bar)*(sin(sweep)/AR)))));
-Cn_betaVT   = (V_VT*CL_alphaVT*(vwt));
-Cn_beta     = Cn_betawing+Cn_betaVT;
+N           = l_VT*L_VT+N_power+N_wing; %Nicolai 21.18
+Cn          = N/(q*S_ref*b); %Nicolai 21.19
+Cn_betawing = (CL^2*((1/4*pi*AR)-(tan(sweep)/pi*AR*(AR+4*cos(sweep)))*(cos(sweep)-(AR/2)-(AR^2/8*cos(sweep))+((6*x/c_bar)*(sin(sweep)/AR))))); %Nicolai 21.22
+Cn_betaVT   = (V_VT*CL_alphaVT*(vwt)); %Nicolai 21.21
+Cn_beta     = Cn_betawing+Cn_betaVT; %Nicolai 21.20
