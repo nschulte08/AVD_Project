@@ -75,7 +75,7 @@ AR_sub = AR_unswept(i)*4*cosd(sweep_sub)^2; % Swept AR
 V_cr_sub = M_cr_sub*a_cr_sub;        % [ft/s] Velocity
 q_cr_sub = .5*rho_cr_sub*V_cr_sub^2; % [lbf/ft^2] Dyn pressure for cruise
 
-CD0_sub = 0.022; % Need this for OFW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CD0_sub = 0.008;                    % Subsonic CD0 from Concorde analysis
 
 TW_cr_reqd(:,i) = CD0_sub*q_cr_sub./(WS_cr_to(:,i)) + WS_cr_to(:,i)/(q_cr_sub*pi*AR_sub*e);
 
@@ -86,7 +86,7 @@ AR_super = AR_unswept(i)*4*cosd(sweep_super)^2; % Swept AR
 V_cr_super = M_cr_super*a_cr_super;        % [ft/s] Velocity
 q_cr_super = .5*rho_cr_super*V_cr_super^2; % [lbf/ft^2] Dyn pressure for cruise
 
-CD0_super = 0.027; % Need this for OFW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CD0_super = 0.0104;                 % Supersonic CD0 from Concorde analysis
 
 TW_cr_reqd_super(:,i) = CD0_super*q_cr_super./(WS_cr_to(:,i)) + WS_cr_to(:,i)/(q_cr_super*pi*AR_super*e);
 
