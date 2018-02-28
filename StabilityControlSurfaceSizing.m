@@ -14,60 +14,55 @@ b_vt
 rho    
 CL_aoaw
 delL%Incremental change in the lift due to airleron deflection   
-y_a%Centerline to center aileron distance
+y_a%CG to center aileron y-position 
 S_w%Wing Area    
 S_vt%Vertical Tail Area
 C_Dr%Drag Due to Roll
-y_D%Incremental drag distance from CG point    
+y_D%Incremental drag y_position from CG point    
 I_xx    
-%phi2     
-%phi_req  
-rho 
+phi2     
+phi_req  
 Cmac_wf 
-mac 
+mac
 T 
 D 
-miu 
-N 
-m 
-W 
-x_mg
-x_cg
-z_D 
-z_mg 
-z_T 
-L_wf 
-x_acwf
-a 
-z_cg 
-I_yymg 
+miu%Ground Friction Coefficient 
+N%Normal Force 
+m%mass 
+W%Weight 
+x_mg%Main gear x-position
+x_cg%Center of Gravity x-position
+z_D%Incremental drag z_position from CG point 
+z_mg%Main gear z-position 
+z_T%Thrust vector z-position 
+L_wf%Lift due to wing-fuesl 
+x_acwf%Aerodynamic Center x-position
+a%accelteration 
+z_cg%Center of Gravity z-position 
+I_yymg%Mass moment of inertia about the main gear 
 theta_ddot
-x_ach 
-S_h
+x_ach%Aerodynamic Center x-position of H.tail 
+S_h%Horizontal Tail Area
 CL_aoah
 aoa_h
-dynpres_h
+dynpres_h%H. Tail dynamic pressure ratio
 V_h
-T
-z_T
 q_bar
 mac
 CL_aoa
-CL_1
+CL_1%Steady-State aircraft lift coefficient at cruising flight
 CL_0
 Cm_aoa
-T_L  
-y_T   
-b_v  
-CL_aoav 
-V_v    
-dynpres_v
+T_L%operative Engine Thrust  
+y_T%Engine y_position from centerline   
+CL_aoav =2*pi
+dynpres_v%V. Tail dynamic pressure ratio
 b_r      
 U1
-CD_y 
+CD_y%Side Drag Coefficient 
 K_f1 
-l_vt
-S_v  
+l_vt%Vertical Tail Arm
+S_v%Vertical Tail Area  
 K_f2 
 %% Aileron=================================================================
 ba_frac   = 0.2
@@ -115,9 +110,10 @@ delr_max  = 30;
 V_conmin  = 16 
 N_A       = -T_L*y_T;
 Cn_delr   = N_A/(q*S*b*delr_max);
-tau_r     = (Cn_delr*b_v/(-CL_aoav*V_v*dynpres_v*b_r));
+tau_r     = (Cn_delr*b_vt/(-CL_aoav*V_v*dynpres_v*b_r));
 cr_frac   = 0.5
 %Cross-wind Landing========================================================
+V_v       = ((l_vt*S_v)/(b*S));
 V_w       = 28
 V_t       = sqrt((U1^2)+(V_w^2));
 S_s       = 84
