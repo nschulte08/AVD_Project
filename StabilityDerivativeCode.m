@@ -1,21 +1,21 @@
 %% StabilityDerivatives====================================================
 %Variables=================================================================
-S_vtpr
+S_vtpr%Vertical Tail area extended to fuselage
 S_ref%Referance Area
 sweep;%Sweep Angle
-z_w
-d
+z_w%z-axis root chord distance from centerline
+d%Minimum fuselage depth
 AR%Aspect Ratio
 TR%Taper Ratio
 x_wing
 z
 Cm_acwing
-T
-z_t
+T%Thrust
+z_t%Thrust vector distance to centerline z-axis
 q
 S
 tau
-Cl_alphaw
+Cl_alphaw%Wing-body lift curve slope
 Cl_betabasic
 Cl_betaD
 CL_alpha
@@ -41,7 +41,7 @@ vwt         = (0.724+((3.06*(S_vtpr/S_ref))/(1+cos(sweep)))+(0.4*(z_w/d))+(0.009
 %N           = (L*cos(AOA))+(D*sin(AOA));
 %C           = (D*cos(AOA))-(L*sin(AOA));
 Cm_cg       = (-CL*(x_wing/c_bar))+(CD*(z/c_bar))+Cm_acwing+((T*z_t)/(q*S*c_bar)); %Nicolai Eq 21.3
-Cm_alpha    = ((-x_wing/c_bar)*Cl_alphaw); %Nicolai 21.6
+Cm_aoa    = ((-x_wing/c_bar)*Cl_alphaw); %Nicolai 21.6
 %Lateral===================================================================
 Cl_betaLam  = -0.25*CL_alpha*Lambda*((2+(1+2*TR))/(3*(1+TR))); %Nicolai 21.12
 Cl_betawing = Cl_betabasic+Cl_betaD+Cl_betaLam %Nicolai 21.11
