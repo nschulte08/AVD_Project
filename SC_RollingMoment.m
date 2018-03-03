@@ -1,0 +1,58 @@
+%% LateralStability========================================================
+%% Variables===========================================================
+Cl_betabasic
+Cl_betaD
+z_v
+delL
+I_xx
+y_D
+phi2
+phi_req
+C_Dr                                                      %Drag Due to Roll
+    %% WingGeometry========================================================
+Lambda
+TR
+S
+S_vt
+S_vtpr
+S_w
+S_ref
+b
+c_r
+d
+sweep
+AR
+z_w
+    %% AeroCoefficients====================================================
+Cl_aoa
+Cl_aoavt
+    %% Atmospheric=========================================================
+rho
+    %% CommonTerms=========================================================
+vwt         = (0.724+((3.06*(S_vtpr/S_ref))/(1+cos(sweep)))+(0.4*(z_w/d))+(0.009*AR)) %Nicolai 21.15
+%% StabilityDerivativeCalculations=========================================
+Cl_betaLam  = -0.25*Cl_aoa*Lambda*((2+(1+2*TR))/(3*(1+TR))); %Nicolai 21.12
+Cl_betawing = Cl_betabasic+Cl_betaD+Cl_betaLam %Nicolai 21.11
+Cl_betavt   = (-Cl_aoavt*(S_vt/S_ref)*(z_v/b)*(vwt)); %Nicolai 21.14
+Cl_beta     = Cl_betawing+Cl_betavt; %Nicolai 21.10
+%% RollControlSurfaceSizing================================================
+ba_frac   = input('Please input the Aileron to wing span ratio:');
+ca_frac   = input('Please input the Aileron to chord length ratio:'); 
+tau_a     = ((1.5278*ca_frac^3)-(2.7083*ca_frac^2)+(2.2139*ca_frac)+0.0543);
+y_i       = input('Please input the Aileron inboard y-position:');
+y_o       = input('Please input the Aileron outboard y-position:');
+in1       = (((y_o^2*(4*(TR-1)*y_o+3*b))-((4*(TR-1)*y_i^3)-(3*b*y_i^2)))/(6*b));
+Cl_dela   = ((2*Cl_aoaw*tau_a*c_r)/(S*b))*(in1);
+dela_max  = input('Please input the Maximum Aileron Deflection Angle [degrees]: ');
+Cl        = Cl_dela*dela_max;
+L_A       = 2*delL*y_a;
+P_ss      = sqrt((2*L_A)/(rho*(S_w+S_vt)*C_Dr*(y_D^3)));
+phi1      = ((I_xx)/(rho*(y_D^3)*(S_w+S_vt)*C_Dr))*(log(P_ss^2));
+P_dot     = (P_ss^2)/(2*phi1);
+if phi1 > phi_req
+t2        = sqrt((2*phi_des)/(P_dot));
+    else  phi1 < phi_req
+t2        = sqrt((2*phi1)/(P_dot))+((phi2-phi1)/(P_ss));
+end
+%% Plots===================================================================
+    
