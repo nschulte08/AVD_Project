@@ -78,13 +78,12 @@ Cl_dele    = Cl_aoah*dynpres_h*(S_h/S)*be_frac*tau_e;
 Cl_hdele   = Cl_aoah*tau_e;
 dele_trim  = -((((((T*z_t)/(q_bar*S*mac))*Cl_aoa)+(Cl_1-Cl_0)*Cm_aoa))/((Cl_aoa*Cm_dele)-(Cm_aoa*Cl_dele)))
 %%  Plots====================================================================
-n = 1;
-for dele = -25:5:25
-    j = 1;
-    for aoa = -4:2:24 
-        AOA(j) = (aoa(j)*(pi/180));
-        Cm(n,j)  = (Cm_0+(Cm_aoa*AOA(j))+(Cm_dele*dele(n)));
-        j = j+1;
+
+dele = -25:5:25;
+aoa = -4:2:24; 
+    for n = 1:length(dele)
+        for j = 1:length(aoa)
+            AOA(j) = (aoa(j)*(pi/180));
+            Cm(n,j)  = (Cm_0+(Cm_aoa*AOA(j))+(Cm_dele*dele(n)));
+        end
     end
-    n = n+1;
-end
