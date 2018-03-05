@@ -1,12 +1,11 @@
 %% DirectionalStability====================================================
 %% Variables===============================================================
-x
-K_f1
-K_f2
+x%distance from the aircraft c.g.to the wing aerodynamic center
+K_f1%contribution of the fuselage to the derivative Cn?
+K_f2%contribution of the fuselage to the derivative Cy? 
 U1%Forward Velocity
 V_conmin%Minimum Control Velocity
 V_w%Cross-wind Velocity
-
     %% WingGeometry========================================================
 S%Wing Area
 S_v%Vertical Tail Area
