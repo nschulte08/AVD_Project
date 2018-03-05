@@ -30,7 +30,7 @@ c_bar       = ((2/3)*c_r*((1+TR+TR^2)/(1+TR)));
 %Cl_aoavt                %Lift Coefficient due to AOA of the verticcal tail
 %Cd_y                                                %Side Drag Coefficient
     %% PropusionCharacteristics============================================
-%T_L                                        %Thrust of the operative engine
+%T_L                                         %Thrust of operative engine(s)
 %y_T                               %y-axis engine placement from centerline
     %% Atmospheric=========================================================
 %rho                                                           %Air Density 
