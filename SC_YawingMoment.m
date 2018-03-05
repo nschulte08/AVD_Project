@@ -5,27 +5,27 @@ K_f1
 K_f2
 U1
     %% WingGeometry========================================================
-S
-S_v
-S_vtpr
-S_ref
-S_s
-sweep
-z_w
-b
-d
-l_vt
-AR
-TR
-V_vt
-c_r
+S%Wing Area
+S_v%Vertical Tail Area
+S_vtpr%V. Tail Area extended to fuselage
+S_ref%Referance Area
+S_s%Projected Side Area
+sweep%Wing Sweep Angle
+z_w%Distance b/w root chord and centerline along z-zxis
+b%Wing Span
+d%Max. Fuselage Depth
+l_vt%x-axis distance b/w cg and V.Tail ac
+AR%Aspect Ratio
+TR%Taper Ratio
+V_vt%Vertical Tail Volume
+c_r%Root Chord
 c_bar       = ((2/3)*c_r*((1+TR+TR^2)/(1+TR)));
     %% AeroCoefficients====================================================
-Cl_aoavt
-Cd_y
+Cl_aoavt%Lift Coefficient due to AOA of the verticcal tail
+Cd_y%Side Drag Coefficient
     %% Atmospheric=========================================================
-rho
-dynpres_v
+rho%Air Density 
+dynpres_v%Vertical Tail Dynamic Pressure Ratio
     %% Commonterms=========================================================
 vwt         = (0.724+((3.06*(S_vtpr/S_ref))/(1+cos(sweep)))+(0.4*(z_w/d))+(0.009*AR)) %Nicolai 21.15
 %% StabilityDerivativeCalculations=========================================

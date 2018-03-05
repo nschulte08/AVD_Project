@@ -1,33 +1,33 @@
 %% LateralStability========================================================
 %% Variables===========================================================
-Cl_betabasic
-Cl_betaD
-z_v
-delL
-I_xx
-y_D
+Cl_betabasic%Nicholai Figure 21.10
+Cl_betaD%Nicholai Figure 21.10
+z_v%distance from mean aerodynamic chord of vertical stabilizer to Vertical CG Position
+delL%incremental change in the lift due to aileron deflection
+I_xx%Mass Moment of Inertia
+y_D%y-axis position of incremental drag (as averaged b/w control surfaces)
 phi2
-phi_req
-C_Dr                                                      %Drag Due to Roll
+phi_req%Required Bank Angle
+C_Dr%Drag Due to Roll
     %% WingGeometry========================================================
-Lambda
-TR
-S
-S_vt
-S_vtpr
-S_w
-S_ref
-b
-c_r
-d
-sweep
-AR
-z_w
+Lambda%Dihedral Angle
+TR%Taper Ratio
+S%Wing Area
+S_vt%Vertical Tail Area
+S_vtpr%V. Tail Area extended to fuselage
+S_w%Wing Area
+S_ref%Reference Area
+b%Wing Span
+c_r%Root Chord
+d%Max. Fuselage Depth
+sweep%Wing Sweep Angle
+AR%Aspect Ratio
+z_w%Distance b/w root chord and centerline along z-zxis
     %% AeroCoefficients====================================================
-Cl_aoa
-Cl_aoavt
+Cl_aoa%Lift Coefficient due to angle of attack
+Cl_aoavt%Lift Coefficient due to angle of attack of the Vertical Tail
     %% Atmospheric=========================================================
-rho
+rho%Air Density
     %% CommonTerms=========================================================
 vwt         = (0.724+((3.06*(S_vtpr/S_ref))/(1+cos(sweep)))+(0.4*(z_w/d))+(0.009*AR)) %Nicolai 21.15
 %% StabilityDerivativeCalculations=========================================
