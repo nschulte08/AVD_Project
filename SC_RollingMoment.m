@@ -6,8 +6,7 @@ z_v%distance from mean aerodynamic chord of vertical stabilizer to Vertical CG P
 delL%incremental change in the lift due to aileron deflection
 I_xx%Mass Moment of Inertia
 y_D%y-axis position of incremental drag (as averaged b/w control surfaces)
-phi2
-phi_req%Required Bank Angle
+phi2%Required Bank Angle
 C_Dr%Drag Due to Roll
     %% WingGeometry========================================================
 Lambda%Dihedral Angle
@@ -50,15 +49,15 @@ L_A         = 2*delL*y_a;
 P_ss        = sqrt((2*L_A)/(rho*(S_w+S_vt)*C_Dr*(y_D^3)));
 phi1        = ((I_xx)/(rho*(y_D^3)*(S_w+S_vt)*C_Dr))*(log(P_ss^2));
 P_dot       = (P_ss^2)/(2*phi1);
-if phi1 > phi_req
-t2          = sqrt((2*phi_des)/(P_dot));
-    else  phi1 < phi_req
-t2          = sqrt((2*phi1)/(P_dot))+((phi2-phi1)/(P_ss));
+if phi1 > phi2
+    t2      = sqrt((2*phi_des)/(P_dot));
+    else  phi1 < phi2
+        t2  = sqrt((2*phi1)/(P_dot))+((phi2-phi1)/(P_ss));
 end
 %% Plots===================================================================
 dela = -25:5:25;
 beta = -4:2:24; 
-    for n = 1:length(dele)
+    for n = 1:length(dela)
         for j = 1:length(aoa)
             BETA(j) = (beta(j)*(pi/180));
             Cl(n,j) = (Cl_0+(Cl_beta*BETA(j))+(Cl_dela*dela(n))+(Cl_dela*delr));
