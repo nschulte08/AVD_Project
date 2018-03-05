@@ -2,46 +2,46 @@
 %% Functionizing===========================================================
 function [Cn_beta, Cn, br_frac, br_frac1, cr_frac, cr_frac1, Cn_delr, Cn_delr1, Cn, Cy_delr] = SC_YawingMoment(S, S_v, S_vtpr, S_ref, S_s, sweep, z_w, b, b_vt, d, l_vt, AR, TR, V_vt, c_bar, Cl_aoavt, Cd_y, T_L, y_T, rho)
 %% Variables===============================================================
-x         = input('Please input the value for "":');%distance from the aircraft c.g.to the wing aerodynamic center
-K_f1      = input('Please input the value for "":');%contribution of the fuselage to the derivative Cn_beta
-K_f2      = input('Please input the value for "":');%contribution of the fuselage to the derivative Cy_beta 
-U1        = input('Please input the value for "":');%Forward Velocity
-V_conmin  = input('Please input the value for "":');%Minimum Control Velocity
-V_w       = input('Please input the value for "":');%Cross-wind Velocity
-dynpres_v = input('Please input the value for "":');%Vertical Tail Dynamic Pressure Ratio
+x         = input('Please input the value for "":');                       %distance from the aircraft c.g.to the wing aerodynamic center
+K_f1      = input('Please input the value for "":');                       %contribution of the fuselage to the derivative Cn_beta
+K_f2      = input('Please input the value for "":');                       %contribution of the fuselage to the derivative Cy_beta 
+U1        = input('Please input the value for "":');                       %Forward Velocity
+V_conmin  = input('Please input the value for "":');                       %Minimum Control Velocity
+V_w       = input('Please input the value for "":');                       %Cross-wind Velocity
+dynpres_v = input('Please input the value for "":');                       %Vertical Tail Dynamic Pressure Ratio
     %% WingGeometry========================================================
-S%Wing Area
-S_v%Vertical Tail Area
-S_vtpr%V. Tail Area extended to fuselage
-S_ref%Referance Area
-S_s%Projected Side Area
-sweep%Wing Sweep Angle
-z_w%Distance b/w root chord and centerline along z-zxis
-b%Wing Span
-b_vt%Span of vertical Tail
-d%Max. Fuselage Depth
-l_vt%x-axis distance b/w cg and V.Tail ac
-AR%Aspect Ratio
-TR%Taper Ratio
-V_vt%Vertical Tail Volume
-c_r%Root Chord
+%S                                                               %Wing Area
+%S_v                                                    %Vertical Tail Area
+%S_vtpr                                  %V. Tail Area extended to fuselage
+%S_ref                                                      %Referance Area
+%S_s                                                   %Projected Side Area
+%sweep                                                    %Wing Sweep Angle
+%z_w                   %Distance b/w root chord and centerline along z-zxis
+%b                                                               %Wing Span
+%b_vt                                                %Span of vertical Tail
+%d                                                     %Max. Fuselage Depth
+%l_vt                                 %x-axis distance b/w cg and V.Tail ac
+%AR                                                           %Aspect Ratio
+%TR                                                            %Taper Ratio
+%V_vt                                                 %Vertical Tail Volume
+%c_r                                                            %Root Chord
 c_bar       = ((2/3)*c_r*((1+TR+TR^2)/(1+TR)));
     %% AeroCoefficients====================================================
-Cl_aoavt%Lift Coefficient due to AOA of the verticcal tail
-Cd_y%Side Drag Coefficient
+%Cl_aoavt                %Lift Coefficient due to AOA of the verticcal tail
+%Cd_y                                                %Side Drag Coefficient
     %% PropusionCharacteristics============================================
-T_L%Thrust of the operative engine
-y_T%y-axis engine placement from centerline
+%T_L                                        %Thrust of the operative engine
+%y_T                               %y-axis engine placement from centerline
     %% Atmospheric=========================================================
-rho%Air Density 
+%rho                                                           %Air Density 
     %% Commonterms=========================================================
 vwt         = (0.724+((3.06*(S_vtpr/S_ref))/(1+cos(sweep)))+(0.4*(z_w/d))+(0.009*AR)) %Nicolai 21.15
-%% StabilityDerivativeCalculations=========================================
+%% StabilityDerivativeCalculations(Nicolai)================================
 Cn_betawing = (Cl^2*((1/4*pi*AR)-(tan(sweep)/pi*AR*(AR+4*cos(sweep)))*(cos(sweep)-(AR/2)-(AR^2/8*cos(sweep))+((6*x/c_bar)*(sin(sweep)/AR))))); %Nicolai 21.22
 Cn_betavt   = (V_vt*Cl_aoavt*(vwt)); %Nicolai 21.21
 Cn_beta     = Cn_betawing+Cn_betavt; %Nicolai 21.20
 Cn_0        = 0 %Just a Placeholder
-%% YawControlSurfaceSizing=================================================
+%% YawControlSurfaceSizing(Sadrey)=========================================
     %% Asymmetric Thrust===================================================
 br_frac     = input('Please input the Rudder to wing span ratio:');
 delr_max    = input('Please input the Maximum Rudder Deflection Angle [degrees]: ');
