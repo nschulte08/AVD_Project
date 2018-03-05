@@ -7,7 +7,7 @@ Cl_betaD%Nicholai Figure 21.10
 z_v%distance from mean aerodynamic chord of vertical stabilizer to Vertical CG Position
 delL%incremental change in the lift due to aileron deflection
 I_xx%Mass Moment of Inertia
-y_D%y-axis position of incremental drag (as averaged b/w control surfaces)
+y_D%y-axis position of incremental drag (as averaged b/w surfaces(Wing and V.Tail))
 phi2%Required Bank Angle
 C_Dr%Drag Due to Roll
     %% WingGeometry========================================================
