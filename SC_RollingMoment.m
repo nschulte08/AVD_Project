@@ -1,5 +1,7 @@
 %% LateralStability========================================================
-%% Variables===========================================================
+%% Functionizing===========================================================
+function [Cl_beta, Cl, ba_frac, ca_frac, Cl_dela, t2, phi1] = SC_RollingMoment(Lambda, TR, S, S_vt, S_vtpr, S_w, S_ref, b, c_r, d, sweep, AR, z_w, Cl_aoa, Cl_aoavt, rho)
+%% Variables===============================================================
 Cl_betabasic%Nicholai Figure 21.10
 Cl_betaD%Nicholai Figure 21.10
 z_v%distance from mean aerodynamic chord of vertical stabilizer to Vertical CG Position

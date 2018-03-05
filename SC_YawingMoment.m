@@ -1,6 +1,6 @@
 %% DirectionalStability====================================================
 %% Functionizing===========================================================
-function [Cn_beta, Cn, br_frac, br_frac1, cr_frac, cr_frac1, Cn_delr, Cn_delr1, Cn, Cy_delr] = aerofunky(S, S_v, S_vtpr, S_ref, S_s, sweep, z_w, b, b_vt, d, l_vt, AR, TR, V_vt, c_bar, Cl_aoavt, Cd_y, T_L, y_T, rho)
+function [Cn_beta, Cn, br_frac, br_frac1, cr_frac, cr_frac1, Cn_delr, Cn_delr1, Cn, Cy_delr] = SC_YawingMoment(S, S_v, S_vtpr, S_ref, S_s, sweep, z_w, b, b_vt, d, l_vt, AR, TR, V_vt, c_bar, Cl_aoavt, Cd_y, T_L, y_T, rho)
 %% Variables===============================================================
 x%distance from the aircraft c.g.to the wing aerodynamic center
 K_f1%contribution of the fuselage to the derivative Cn_beta
