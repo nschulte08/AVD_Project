@@ -2,12 +2,12 @@
 %% Functionizing===========================================================
 function [Cn_beta, Cn, br_frac, br_frac1, cr_frac, cr_frac1, Cn_delr, Cn_delr1, Cn, Cy_delr] = SC_YawingMoment(S, S_v, S_vtpr, S_ref, S_s, sweep, z_w, b, b_vt, d, l_vt, AR, TR, V_vt, c_bar, Cl_aoavt, Cd_y, T_L, y_T, rho)
 %% Variables===============================================================
-x = input('Please input the value for "":');%distance from the aircraft c.g.to the wing aerodynamic center
-K_f1 = input('Please input the value for "":');%contribution of the fuselage to the derivative Cn_beta
-K_f2 = input('Please input the value for "":');%contribution of the fuselage to the derivative Cy_beta 
-U1 = input('Please input the value for "":');%Forward Velocity
-V_conmin = input('Please input the value for "":');%Minimum Control Velocity
-V_w = input('Please input the value for "":');%Cross-wind Velocity
+x         = input('Please input the value for "":');%distance from the aircraft c.g.to the wing aerodynamic center
+K_f1      = input('Please input the value for "":');%contribution of the fuselage to the derivative Cn_beta
+K_f2      = input('Please input the value for "":');%contribution of the fuselage to the derivative Cy_beta 
+U1        = input('Please input the value for "":');%Forward Velocity
+V_conmin  = input('Please input the value for "":');%Minimum Control Velocity
+V_w       = input('Please input the value for "":');%Cross-wind Velocity
 dynpres_v = input('Please input the value for "":');%Vertical Tail Dynamic Pressure Ratio
     %% WingGeometry========================================================
 S%Wing Area
@@ -53,14 +53,14 @@ cr_frac     = ((1.1873*(tau_r^2))-(0.1602*tau_r)+0.0678);
 V_v         = ((l_vt*S_v)/(b*S));
 V_t         = sqrt((U1^2)+(V_w^2));
 F_w         = 0.5*rho*(V_w^2)*S_s*Cd_y;
-br_frac1     = input('Please input the Rudder to wing span ratio:');
-cr_frac1     = input('Please input the Rudder to chord length ratio:');
+br_frac1    = input('Please input the Rudder to wing span ratio:');
+cr_frac1    = input('Please input the Rudder to chord length ratio:');
 beta        = atan(V_w/U1);
 Cn_beta     = K_f1*Cl_aoav*(vwt)*((l_vt*S_v)/S)
 Cy_beta     = K_f2*Cl_aoav*(vwt)*((S_v)/S)
 tau_r       = ((1.5278*cr_frac1^3)-(2.7083*cr_frac1^2)+(2.2139*cr_frac1)+0.0543);
 Cy_delr     = Cl_aoav*dynpres_v*tau_r*br_frac1*(S_v/S);
-Cn_delr1     = -Cl_aoav*V_v*dynpres_v*tau_r*br_frac1; 
+Cn_delr1    = -Cl_aoav*V_v*dynpres_v*tau_r*br_frac1; 
 %% Plots===================================================================
 delr = -25:5:25;
 beta1 = -4:2:24; 
