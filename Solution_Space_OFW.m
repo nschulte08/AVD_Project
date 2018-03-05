@@ -139,53 +139,31 @@ axis([WSmin, WSmax, 0, TWmax])
 plot(WS_cr_to(:,n), TW_cr_reqd_super(:,n), 'm--' ,'LineWidth',3);
 axis([WSmin, WSmax, 0, TWmax])
 %--------------------------------------------------------------------------
-% find design point: (which curves to use was identified manually)
-Curve_Fit = polyfit(WS_to(:,n), TW_to(:,n), 1); % get the slope and Y intercept of the straight line (takeoff)
-Slope_TO = Curve_Fit(1);
-Y_Intercept_TO = Curve_Fit(2);
-% plot each "x" of the curved line to get a "y" and subtract it from the real "y":
-delta_TW(:,n) = abs(TW_Vmax_super(:,n) - (Slope_TO*WS_Vmax + Y_Intercept_TO)); 
-[m,idx] = min(delta_TW(:,n)); % index where difference is minimum
-px = WS_Vmax(idx,1);
-py = TW_Vmax_super(idx,n);
-design_pt(n,:) = [px,py,AR_unswept(n)];
-plot(px,py,'o','MarkerSize',12, 'MarkerEdgeColor','red','LineWidth',4)
-%--------------------------------------------------------------------------
 set(gca,'FontSize',16);
 xlabel('Wing Loading (lbf/ft^{2})','FontSize',18);
 ylabel('Thrust Loading','FontSize',18);
 title_name = sprintf('Parametric Sizing Chart for SSBJ (Unswept AR = %g)',AR_unswept(n));
 title(title_name,'FontSize',18);
-legend('Take-off','Landing','2nd Climb Gradient','Subsonic Max Speed','Supersonic Max Speed','Subsonic Cruise','Supersonic Cruise','Design Point','Location','best');
+legend('Take-off','Landing','2nd Climb Gradient','Subsonic Max Speed','Supersonic Max Speed','Subsonic Cruise','Supersonic Cruise','Location','best');
 grid on
 hold off
 %--------------------------------------------------------------------------
 % save figure to file:
-current_folder = pwd;
-if ~exist('Figures','dir')
-    mkdir('Figures')
-end
-Figures = sprintf('%s/Figures/', current_folder);
-
-fig_name =  sprintf('%s.fig',figure_name);
-jpg_name =  sprintf('%s.jpg',figure_name);
-
-cd(Figures)
-    savefig(fig_name);
-    saveas(gcf,jpg_name)
-    close(gcf)
-cd(current_folder);
+% current_folder = pwd;
+% if ~exist('Figures','dir')
+%     mkdir('Figures')
+% end
+% Figures = sprintf('%s/Figures/', current_folder);
+% 
+% fig_name =  sprintf('%s.fig',figure_name);
+% jpg_name =  sprintf('%s.jpg',figure_name);
+% 
+% cd(Figures)
+%     savefig(fig_name);
+%     saveas(gcf,jpg_name)
+%     close(gcf)
+% cd(current_folder);
 %--------------------------------------------------------------------------
 end
 %==========================================================================
-%% display design point results:
-%design_pt(n,:) = [px,py,AR_unswept(n)];
-fprintf('\n\n ========================== Solution Space Results  ========================== \n\n');
-for m = 1:length(design_pt(:,1));
-fprintf('\n\n ------------------------------------------------------------- \n');
-fprintf('\n for an unswept aspect ratio: \n AR_unswept = %g', design_pt(m,3));
-fprintf('\n\n Design point: ');
-fprintf('\n T/W = %g [lbf/lbf]',   design_pt(m,2));
-fprintf('\n W/S = %g  [lbf/ft^2]', design_pt(m,1));
-end
-fprintf('\n\n ============================================================= \n');
+

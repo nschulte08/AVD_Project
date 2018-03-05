@@ -1,5 +1,5 @@
-function [weights, weight_fractions] = AVD_Weight_Buildup( num_pass, num_crew, V_cr, M_cr, range, SFC, LD_cr )
-% This script is to parametrically determine the weight build up for the vehicle
+function [weights, weight_fractions] = Weight_Buildup( num_pass, num_crew, V_cr, M_cr, range, SFC, LD_cr )
+% Purpose: parametrically determine the weight build-up for the vehicle using weight fraction analysis
 % ALL WEIGHTS IN LBF. CRUISE VELOCITY IN MPH. RANGE IN MILES.
 
 % Fixed weight calculation
@@ -27,10 +27,9 @@ WF_total = WF_to*WF_climb*WF_accel*WF_cruise*WF_des*WF_land;
 % Fuel weight to takeoff weight ratio from the calculated weight ratios with reserve fuel
 Wf_Wto = 1.05*(1-WF_total);
 % Empty weight to MTOW ratio, from Plumley (range must be in between 0.39 and 0.45
-We_Wto = 0.43;
+We_Wto = 0.425;
 if Wf_Wto + We_Wto > 1
-    % If the fuel weight fraction + empty weight fraction is more than 1,
-    % bad things will happen. 
+    % If the fuel weight fraction + empty weight fraction is more than 1, the script won't work 
     err_msg = sprintf('Modify the fuel weight fraction or the empty weight fraction!');
     error('sytnax:requirements','\n\n %s \n\n',err_msg);
 end
