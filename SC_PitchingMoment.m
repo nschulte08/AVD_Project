@@ -1,7 +1,7 @@
 %% LongitudinalStability===================================================
 %% Variables===========================================================
-x_cg                                                            %CG x-axis
-x_acwf                                          %AerodynamicCenter x-axis
+x_cg                                                             %CG x-axis
+x_acwf                                            %AerodynamicCenter x-axis
 x_mg
 x_wing
 x_ach
@@ -28,7 +28,6 @@ V_h
 TR                                                          %Taper Ratio
 mac                                           %Mean Aerodynamic Chord
     %% AeroCoefficients====================================================
-D
 Cl
 Cl_aoaw
 Cl_0wf
@@ -38,6 +37,7 @@ Cl_aoa
 Cl_aoah
 Cl_1
 Cl_0
+D
 Cd
 Cd_TO
 Cm_acw
