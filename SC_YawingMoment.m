@@ -2,13 +2,13 @@
 %% Functionizing===========================================================
 function [Cn_beta, Cn, br_frac, br_frac1, cr_frac, cr_frac1, Cn_delr, Cn_delr1, Cn, Cy_delr] = SC_YawingMoment(S, S_v, S_vtpr, S_ref, S_s, sweep, z_w, b, b_vt, d, l_vt, AR, TR, V_vt, c_bar, Cl_aoavt, Cd_y, T_L, y_T, rho)
 %% Variables===============================================================
-x%distance from the aircraft c.g.to the wing aerodynamic center
-K_f1%contribution of the fuselage to the derivative Cn_beta
-K_f2%contribution of the fuselage to the derivative Cy_beta 
-U1%Forward Velocity
-V_conmin%Minimum Control Velocity
-V_w%Cross-wind Velocity
-dynpres_v%Vertical Tail Dynamic Pressure Ratio
+x = input('Please input the value for "":');%distance from the aircraft c.g.to the wing aerodynamic center
+K_f1 = input('Please input the value for "":');%contribution of the fuselage to the derivative Cn_beta
+K_f2 = input('Please input the value for "":');%contribution of the fuselage to the derivative Cy_beta 
+U1 = input('Please input the value for "":');%Forward Velocity
+V_conmin = input('Please input the value for "":');%Minimum Control Velocity
+V_w = input('Please input the value for "":');%Cross-wind Velocity
+dynpres_v = input('Please input the value for "":');%Vertical Tail Dynamic Pressure Ratio
     %% WingGeometry========================================================
 S%Wing Area
 S_v%Vertical Tail Area

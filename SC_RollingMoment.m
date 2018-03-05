@@ -2,14 +2,14 @@
 %% Functionizing===========================================================
 function [Cl_beta, Cl, ba_frac, ca_frac, Cl_dela, t2, phi1] = SC_RollingMoment(Lambda, TR, S, S_vt, S_vtpr, S_w, S_ref, b, c_r, d, sweep, AR, z_w, Cl_aoa, Cl_aoavt, rho)
 %% Variables===============================================================
-Cl_betabasic%Nicholai Figure 21.10
-Cl_betaD%Nicholai Figure 21.10
-z_v%distance from mean aerodynamic chord of vertical stabilizer to Vertical CG Position
-delL%incremental change in the lift due to aileron deflection
-I_xx%Mass Moment of Inertia
-y_D%y-axis position of incremental drag (as averaged b/w surfaces(Wing and V.Tail))
-phi2%Required Bank Angle
-C_Dr%Drag Due to Roll
+Cl_betabasic = input('Please input the value for "":');%Nicholai Figure 21.10 
+Cl_betaD = input('Please input the value for "":');%Nicholai Figure 21.10
+z_v = input('Please input the value for "":');%distance from mean aerodynamic chord of vertical stabilizer to Vertical CG Position
+delL = input('Please input the value for "":');%incremental change in the lift due to aileron deflection
+I_xx = input('Please input the value for "":');%Mass Moment of Inertia
+y_D = input('Please input the value for "":');%y-axis position of incremental drag (as averaged b/w surfaces(Wing and V.Tail))
+phi2 = input('Please input the value for "":');%Required Bank Angle
+C_Dr = input('Please input the value for "":');%Drag Due to Roll
     %% WingGeometry========================================================
 Lambda%Dihedral Angle
 TR%Taper Ratio
