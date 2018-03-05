@@ -35,7 +35,7 @@ Cl_betaLam  = -0.25*Cl_aoa*Lambda*((2+(1+2*TR))/(3*(1+TR))); %Nicolai 21.12
 Cl_betawing = Cl_betabasic+Cl_betaD+Cl_betaLam %Nicolai 21.11
 Cl_betavt   = (-Cl_aoavt*(S_vt/S_ref)*(z_v/b)*(vwt)); %Nicolai 21.14
 Cl_beta     = Cl_betawing+Cl_betavt; %Nicolai 21.10
-Cl_0        = 
+Cl_0        = 0 %Just a Placeholder
 %% RollControlSurfaceSizing================================================
 ba_frac     = input('Please input the Aileron to wing span ratio:');
 ca_frac     = input('Please input the Aileron to chord length ratio:'); 
