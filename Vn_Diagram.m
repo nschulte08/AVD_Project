@@ -1,8 +1,9 @@
-function [ output_args ] = AVD_Vn_Diagram( MTOW, S, altitude, M_cruise, M_max, CL_max )
+function [ output_args ] = Vn_Diagram( MTOW, S, altitude, M_cruise, M_max, CL_max )
 % Creates the V-n diagram of the vehicle
 % ALL INPUT VALUES MUST BE IN ENGLISH UNITS (lbf, ft^2, ft)
 % First altitude input should be 0 ft (sea level)
-figure; hold on;
+figure;
+hold on;
 line_styles = {'-','--',':','-.','--',':','-.'};
 
 % Get max positive and negative load factors
@@ -16,7 +17,7 @@ max_negative_n_index = find(curve(:,1) <= abs(n_min), 1, 'last');
 iterations = numel(curve);
 
 for i = 1 : numel(altitude) % create a V-n diagram for each altitude
-    [h, P, T, rho, a] = ATMO(altitude(i), 'E');
+    [~, ~, ~, rho, a] = ATMO(altitude(i), 'E');
     for j = 1 : iterations
         V_stall = sqrt((2 * curve(j,1) * MTOW) / (rho * S * CL_max));
         curve(j, i+1) = convvel(V_stall, 'ft/s', 'm/s');

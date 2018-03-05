@@ -37,6 +37,7 @@ SFC = 1.0;    % Empirical Placeholder for SFC based on Sadraey Table 4.6 for tur
 LD_cruise = 9; % Cruise lift/drag from Fig 5.3 Nicolai
 b = 120; % wingspan, m
 lambda = 0.44; % wing taper ratio
+
 K_ng = 1.017; % for pylon-mounted nacelle
 N_Lt = 11; % nacelle length, ft
 N_w = 4.5; % nacelle width, ft

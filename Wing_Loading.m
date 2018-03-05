@@ -14,6 +14,7 @@ for i = 1 : numel(span)
     loads(i, 3) = (loads(i, 1) + loads(i, 2)) / 2; % average
 end
 
+figure;
 hold on;
 plot(span(:,1), loads(:,1), 'k :', 'LineWidth', 2.5); % trapezoidal
 plot(span(:,1), loads(:,2), 'k --', 'LineWidth', 2.5); % elliptical
