@@ -60,7 +60,7 @@ end
 dela = -25:5:25;
 beta = -4:2:24; 
     for n = 1:length(dela)
-        for j = 1:length(aoa)
+        for j = 1:length(beta)
             BETA(j) = (beta(j)*(pi/180));
             Cl(n,j) = (Cl_0+(Cl_beta*BETA(j))+(Cl_dela*dela(n))+(Cl_dela*delr));
         end

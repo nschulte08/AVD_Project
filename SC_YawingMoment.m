@@ -65,8 +65,17 @@ Cn_delr1     = -Cl_aoav*V_v*dynpres_v*tau_r*br_frac1;
 delr = -25:5:25;
 beta1 = -4:2:24; 
     for n = 1:length(delr)
-        for j = 1:length(aoa)
-            BETA(j) = (beta1(j)*(pi/180));
-            Cn(n,j) = (Cn_0+(Cn_beta*BETA(j))+(Cn_delr*delr(n))+(Cl_dela*dela));
+        for j = 1:length(beta1)
+            BETA1(j) = (beta1(j)*(pi/180));
+            Cn(n,j) = (Cn_0+(Cn_beta*BETA1(j))+(Cn_delr*delr(n))+(Cl_dela*dela));
+        end
+    end
+    
+delr1 = -25:5:25;
+beta2 = -4:2:24; 
+    for k = 1:length(delr1)
+        for i = 1:length(beta2)
+            BETA1(i) = (beta2(i)*(pi/180));
+            Cn(k,i) = (Cn_0+(Cn_beta*BETA1(i))+(Cn_delr*delr1(k))+(Cl_dela*dela));
         end
     end
