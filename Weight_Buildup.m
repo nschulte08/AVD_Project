@@ -3,7 +3,7 @@ function [weights, weight_fractions] = Weight_Buildup( num_pass, num_crew, V_cr,
 % ALL WEIGHTS IN LBF. CRUISE VELOCITY IN MPH. RANGE IN MILES.
 
 % Fixed weight calculation
-W_pass = 205 * num_pass;                                % lbf, based on Sadrey p. 97
+W_pass = 205 * num_pass;                                % lbf, based on Sadraey p. 97
 W_lug = 140 * num_pass;
 W_pl = W_pass + W_lug;
 W_crew = num_crew * 200;
