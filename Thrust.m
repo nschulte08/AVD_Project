@@ -20,7 +20,7 @@ T = thrust [N]
 %}
 ===========================================================================
 %}
-function [T] = Thrust(h, M)
+function [T, T_max] = Thrust(h, M)
 %--------------------------------------------------------------------------
 T_max = 1234;      % [N] max installed thrust
 Theta_break = 1;   % theta break
