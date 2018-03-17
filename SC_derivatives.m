@@ -69,6 +69,7 @@ fprintf('\n\n ============================================================= \n')
 %% ========================================================================
 % Longitudinal stability: (determined from aero function)
 %--------------------------------------------------------------------------
+a_de    = 
 % CM_de = ; % elevator control power -------------------> need to add this
 % CM_da = ; % effect of ailerons on pitching moment ----> need to add this
 
@@ -95,14 +96,45 @@ Cl_b_VT = -CL_a_VT*var_2115*(S_VT/S_ref)*(z_v/b);
 
 Cl_beta = Cl_b_wing + Cl_b_VT; % lateral stability derivative
 
-%Cl_da = ; % aileron control power ---> use Roskam
+y_i = 0;
+y_o = 1;
+ca_frac = 0.25;
+da_left = 25 %degrees
+da_left = -da_right
+a_da = 
+cl_d = 
+Cl_a = ((Cl_dleft+Cl_dright)/2)*(da_left-da_right);
+da = 0.5*(da_left-da_right);
+Cl_da = ; % aileron control power ---> use Roskam
 
 fprintf('\n\n ============================================================= \n');
 fprintf('\n Lateral Stability Derivatives:');
 fprintf('\n\n Cl_beta = %g [1/rad]', Cl_beta);
 fprintf('\n Cl_beta = %g [1/deg]'  , Cl_beta*pi/180);
 fprintf('\n\n ============================================================= \n');
+%--------------------------------------------------------------------------
+da_plot = 0:2:10;     % [deg] rudder deflection
+beta_plot = -10:10; % [deg] side slip
 
+figure_name = 'Lateral Stability';
+figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
+hold on
+for n = 1:length(dr_plot)
+    Cl_plot(:,n) = Cl_beta.*beta_plot.*pi./180 + Cl_da*da_plot(n)*pi/180;
+end
+plot(beta_plot, Cl_plot(:,1),  'k', 'LineWidth',3);
+plot(beta_plot, Cl_plot(:,2),  'b', 'LineWidth',3);
+plot(beta_plot, Cl_plot(:,3),  'c', 'LineWidth',3);
+plot(beta_plot, Cl_plot(:,4),  'r', 'LineWidth',3);
+plot(beta_plot, Cl_plot(:,5),  'm', 'LineWidth',3);
+plot(beta_plot, Cl_plot(:,6),  'g', 'LineWidth',3);
+
+hold off
+xlabel('\beta (deg)'  ,'FontSize',18);
+ylabel('C_n','FontSize',18);
+title('Yawing Moment vs Sideslip','FontSize',18);
+legend('\delta_a = 0 [deg]','\delta_a = 2 [deg]','\delta_a = 4 [deg]','\delta_a = 6 [deg]','\delta_a = 8 [deg]','\delta_a = 10 [deg]','Location', 'best');
+grid on
 %% ========================================================================
 % Directional stability:
 %--------------------------------------------------------------------------
@@ -157,6 +189,9 @@ title('Yawing Moment vs Sideslip','FontSize',18);
 legend('\delta_r = 0 [deg]','\delta_r = 2 [deg]','\delta_r = 4 [deg]','\delta_r = 6 [deg]','\delta_r = 8 [deg]','\delta_r = 10 [deg]','Location', 'best');
 grid on
 
+da_plot = -25:5:25;     % [deg] rudder deflection
+beta_plot = -10:10; % [deg] side slip
+    
 %% ========================================================================
 
 end
