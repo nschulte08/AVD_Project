@@ -23,7 +23,7 @@ S_VT    = total required vertical tail area [m^2]
 l_VT    = distance (in x-direction) between cg location and 1/4 chord of VT mac [m]
 ===========================================================================
 %}
-%function [CMa, Cl_beta, Cn_beta, Cn_dr, S_VT, l_VT] = SC_derivatives(h, M, AR, Lambda, S_ref, b, c_r, TR)
+function [CMa, Cl_beta, Cn_beta, Cn_dr, S_VT, l_VT] = SC_derivatives(h, M, AR, Lambda, S_ref, b, c_r, TR)
 %--------------------------------------------------------------------------
 % geometry:
 c_bar = ((2/3)*c_r*((1 + TR + TR^2)/(1 + TR)));  % Nicolai Pg 580
@@ -200,4 +200,4 @@ legend('\delta_r = -5 [deg]','\delta_r = 0 [deg]','\delta_r = 5 [deg]'),%'\delta
 grid on
 
 %% ========================================================================
-%end
+end
