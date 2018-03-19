@@ -1,17 +1,17 @@
 
-%===========================================================================
+%==========================================================================
 %Stability Derivatives function
 
-%===========================================================================
+%==========================================================================
 %INPUTS:
-h = 13000
-M = 0.95
-b = 52.4
-S_ref = 371.6
-AR = (b^2)/S_ref
-Lambda = 24 
-c_r = 11.4
-TR = 9.33/37.5
+%h = 13000
+%M = 0.95
+%b = 52.4
+%S_ref = 371.6
+%AR = (b^2)/S_ref
+%Lambda = 24 
+%c_r = 11.4
+%TR = 9.33/37.5
 %{
 ===========================================================================
 OUTPUTS:
@@ -70,11 +70,13 @@ fprintf('\n\n ============================================================= \n')
 %% ========================================================================
 % Longitudinal stability: (determined from aero function)
 %--------------------------------------------------------------------------
-K_b   = 1; %Roskam VI Figure 8.52
-cl_dfrac = 0.625; %Roskam VI Figure 8.15
-cl_dth = 4.2; %Roskam VI Figure 8.14
-k_prime = 0.7; %Rskam VI Figure 8.13
-a_dfrac = 1.3; %Roskam VI Figure 8.53
+CMa = -1.2
+
+K_b   = 1; %Roskam VI Figure 8.52 (placeholder)
+cl_dfrac = 0.625; %Roskam VI Figure 8.15 (placeholder)
+cl_dth = 4.2; %Roskam VI Figure 8.14(placeholder)
+k_prime = 0.7; %Rskam VI Figure 8.13(placeholder)
+a_dfrac = 1.3; %Roskam VI Figure 8.53(placeholder)
 CL_a  = 0.2
 a_de  = K_b*cl_dfrac*cl_dth*(k_prime/CL_a)*a_dfrac
 Cm_ih = -CL_a
@@ -83,14 +85,35 @@ CM_de = a_de*Cm_ih; % elevator control power -------------------> need to add th
 
 fprintf('\n\n ============================================================= \n');
 fprintf('\n Longitudinal Stability Derivatives:');
-%fprintf('\n\n CM_alpha = %g [1/rad]', CMa);
-%fprintf('\n CM_alpha = %g [1/deg]'  , CMa*pi/180);
+%fprintf('\n\n CMa = %g [1/rad]', CMa);
+%fprintf('\n CMa = %g [1/deg]'  , CMa*pi/180);
 %fprintf('\n\n CL_alpha = %g [1/rad]', CLa);
 %fprintf('\n CL_alpha = %g [1/deg]'  , CLa*pi/180);
 fprintf('\n\n elevator control power:');
-fprintf('\n CM_de = %g [1/rad]', Cn_dr);
-fprintf('\n CM_de = %g [1/deg]', Cn_dr*pi/180);
+fprintf('\n CM_de = %g [1/rad]', CM_de);
+fprintf('\n CM_de = %g [1/deg]', CM_de*pi/180);
 fprintf('\n\n ============================================================= \n');
+%--------------------------------------------------------------------------
+de_plot = -5:5:5;     % [deg] elevator deflection
+alpha_plot = -10:10; % [deg] side slip
+
+figure_name = 'Longitudinal Stability';
+figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
+hold on
+for i = 1:length(de_plot)
+    CM_plot(:,i) = CMa.*alpha_plot.*pi./180 + CM_de*de_plot(i)*pi/180;
+end
+plot(alpha_plot, CM_plot(:,1),  'k', 'LineWidth',3);
+plot(alpha_plot, CM_plot(:,2),  'b', 'LineWidth',3);
+plot(alpha_plot, CM_plot(:,3),  'c', 'LineWidth',3);
+
+
+hold off
+xlabel('\alpha (deg)'  ,'FontSize',18);
+ylabel('CM','FontSize',18);
+title('Pitching Moment vs Angle of Attack','FontSize',18);
+legend('\delta_e = -5 [deg]','\delta_e = 0 [deg]','\delta_e = 5 [deg]');
+grid on
 %% ========================================================================
 % Lateral stability:
 %--------------------------------------------------------------------------
@@ -122,8 +145,8 @@ fprintf('\n Lateral Stability Derivatives:');
 fprintf('\n\n Cl_beta = %g [1/rad]', Cl_beta);
 fprintf('\n Cl_beta = %g [1/deg]'  , Cl_beta*pi/180);
 fprintf('\n\n aileron control power:');
-fprintf('\n Cl_da = %g [1/rad]', Cn_dr);
-fprintf('\n Cl_da = %g [1/deg]', Cn_dr*pi/180);
+fprintf('\n Cl_da = %g [1/rad]', Cl_da);
+fprintf('\n Cl_da = %g [1/deg]', Cl_da*pi/180);
 fprintf('\n\n ============================================================= \n');
 %--------------------------------------------------------------------------
 da_plot = -5:5:5;     % [deg] rudder deflection
