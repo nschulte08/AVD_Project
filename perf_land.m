@@ -1,27 +1,38 @@
-function [S_land, FAR_land] = perf_land(alt_land, Sref, W_descend_avg, AR_low, W_land, CL_max, T_max )
-%This function outputs the performance parameters for the landing phase\
+%{
+This function outputs the performance during landing
+---------------------------------------------------------------------------
+Inputs:
+alt_land:   altitude of landing runway [m]
+Sref:       referrence area [m^2]
+AR_low:     aspect ratio
+W_land:     landing weight [N]  
+CL_max:     max lift coefficient
+T_max:      max thrust
+TR:         taper ratio
+M_land:     landing Mach number
+---------------------------------------------------------------------------
+Outputs:
+S_land:     landing distance [m]
+FAR_land:   FAR landing distance [m]
+===========================================================================
+%}
+function [S_land, FAR_land] = perf_land(M_land, alt_land, Sref, AR_low, W_land, CL_max, T_max, TR)
 
-%Inputs:
+[~, ~, ~, rho_land, son_land, ~, ~, ~, ~, ~] = ATMO(alt_land, 'M');
 
-%Outputs:
-
-%Local Inputs:
-M_land = 0.3;
-g = 9.81;
-h_obst = 35*0.3048; % [m] 35ft obstacle
-
-% Landing:
-%--------------------------------------------------------------------------
-[~, ~, ~, rho_land, son_land, ~, ~, DELTA_land, THETA_land, ~] = ATMO(alt_land, 'M');
-V_land = son_land * M_land;                     % Landing Velocity (m/s)
-CL_Land = W_descend_avg/(Sref*0.5*rho_land*V_land^2);
-[CD_Land, CD0_Land] = aerofunk_drag(alt_land, M_land, Sref, CL_Land, alpha, AR_low);
-gamma_land = 3;                                 % [deg] approach angle
-V_stall = sqrt(2*W_land/(rho_TO*Sref*CL_max));  % [m/s] stall speed
-V_approach = 1.2*V_stall;                       % [m/s] approach velocity
-V_TD = 1.15*V_stall;                            % [m/s] touch down velocity
-
+V_land = son_land*M_land; % Landing Velocity (m/s)
+g = 9.81;                 % [m/s^2] gravity
+h_obst = 35*0.3048;       % [m] 35ft obstacle
+AoA = 8;                  % [deg] angle of attack
+AoA = AoA*pi/180;         % [rad]
+gamma_land = 3;                                  % [deg] approach angle
+V_stall = sqrt(2*W_land/(rho_land*Sref*CL_max)); % [m/s] stall speed
+V_approach = 1.2*V_stall;                        % [m/s] approach velocity
+V_TD = 1.15*V_stall;                             % [m/s] touch down velocity
 T_land = 0.01*T_max; % [N] landing thrust = idle thrust
+
+CL_Land = W_land/(Sref*0.5*rho_land*V_land^2); % Landing Velocity (m/s)
+[CD_Land, ~] = aerofunk_drag(alt_land, M_land, Sref, CL_Land, AoA, AR_low, TR);
 %--------------------------------------------------------------------------
 % flare:
 V_flare = (V_approach + V_TD)/2;                  % [m/s]
@@ -63,7 +74,4 @@ fprintf('\n Breaking Distance:               S_Breaking  = %g [m] = %g [ft]', S_
 fprintf('\n\n Total Landing Distance:        S_Land = %g [m] = %g [ft]', S_land, S_land*3.2808399);
 fprintf('\n\n FAR Landing Distance:          S_FAR  = %g [m] = %g [ft]', FAR_land, FAR_land*3.2808399);
 fprintf('\n\n =============================================================================== \n');
-
-
 end
-
