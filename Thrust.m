@@ -13,6 +13,7 @@
 INPUTS:
 h = altitude [m]
 M = Mach number
+T_max = max thrust [N]
 ---------------------------------------------------------------------------
 OUTPUTS:
 T = thrust [N]
@@ -20,9 +21,9 @@ T = thrust [N]
 %}
 ===========================================================================
 %}
-function [T, T_max] = Thrust(h, M)
+function [T] = Thrust(h, M, T_max)
 %--------------------------------------------------------------------------
-T_max = 1234;      % [N] max installed thrust
+%T_max = 12345;     % [N] max installed thrust (total with all engines)
 Theta_break = 1;   % theta break
 TR = Theta_break;  % throttle ratio
 %--------------------------------------------------------------------------
