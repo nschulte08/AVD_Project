@@ -224,8 +224,10 @@ fprintf('\n Maximum direct operating cost of depreciation  = %g [USD/nmi]', DOC_
 DOC_dom0 = DOC_fly + DOC_maint + DOC_depr;  % Domestic Direct operating cost [USD/nmi] {1 - p80}
 DOC_int0 = DOC_fly + DOC_maint + DOC_depr;  % International Direct operating cost [USD/nmi] {1 - p80}
 fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Domestic Direct operating cost  = %g [USD/nmi]', DOC_dom0);
-fprintf('\n International Direct operating cost [USD/nmi]  = %g [USD/nmi]', DOC_int0);
+fprintf('\n Minimum Domestic Direct operating cost  = %g [USD/nmi]', min(DOC_dom0));
+fprintf('\n Maximum Domestic Direct operating cost  = %g [USD/nmi]', max(DOC_dom0));
+fprintf('\n Minimum International Direct operating cost [USD/nmi]  = %g [USD/nmi]', min(DOC_int0));
+fprintf('\n Maximum International Direct operating cost [USD/nmi]  = %g [USD/nmi]', max(DOC_int0));
 %-----------------------------------------------------------------------------------------------%
 % Direct Operating Cost of Landing, Navigation, and Registry Fees:
 
@@ -251,12 +253,12 @@ C_rt_int = f_rt*DOC_int0;   % DOC of registry taxes [USD/nmi] {1 - p109}
 DOC_lnr_dom_min = min(C_lf) + min(C_nf_dom) + min(C_rt_dom);
 % Maximum domestic direct operating cost of landing fees [USD/nmi] {1 - p107}:
 DOC_lnr_dom_max = max(C_lf) + max(C_nf_dom) + max(C_rt_dom);
-DOC_lnr_dom = [DOC_lnr_dom_min DOC_lnr_dom_max];
+DOC_lnr_dom = [DOC_lnr_dom_min, DOC_lnr_dom_max];
 % Minimum international direct operating cost of landing fees [USD/nmi] {1 - p107}:
 DOC_lnr_int_min = min(C_lf) + min(C_nf_int) + min(C_rt_int);
 % Maximum international direct operating cost of landing fees [USD/nmi] {1 - p107}:
 DOC_lnr_int_max = max(C_lf) + max(C_nf_int) + max(C_rt_int); 
-DOC_lnr_int = [DOC_lnr_int_min DOC_lnr_int_max];
+DOC_lnr_int = [DOC_lnr_int_min, DOC_lnr_int_max];
 fprintf('\n -------------------------------------------------------------------------------- ');
 fprintf('\n Minimum domestic direct operating cost of landing fees  = %g [USD/nmi]', DOC_lnr_dom_min);
 fprintf('\n Maximum domestic direct operating cost of landing fees  = %g [USD/nmi]', DOC_lnr_dom_max);
@@ -275,8 +277,10 @@ DOC_dom = DOC_fly + DOC_maint + DOC_depr + DOC_lnr_dom + DOC_fin_dom;
 DOC_int = DOC_fly + DOC_maint + DOC_depr + DOC_lnr_int + DOC_fin_int;
 
 fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Domestic Direct operating cost  = %g [USD/nmi]', DOC_dom);
-fprintf('\n International Direct operating cost  = %g [USD/nmi]', DOC_int);
+fprintf('\n Minimum Domestic Direct operating cost of Financing:  = %g [USD/nmi]', min(DOC_dom));
+fprintf('\n Maximum Domestic Direct operating cost of Financing:  = %g [USD/nmi]', max(DOC_dom));
+fprintf('\n Minimum International Direct operating cost of Financing:  = %g [USD/nmi]', min(DOC_int));
+fprintf('\n Maximum International Direct operating cost of Financing:  = %g [USD/nmi]', max(DOC_int));
 
 %% Program Operating Cost
 
@@ -288,8 +292,10 @@ R_ann = V_bl*U_ann;     % Total annual miles flown [nmi] {1}
 C_OPS_dom = DOC_dom.*R_ann*N_yr;    % Domestic Direct Program Operating Costs [USD] {1}
 C_OPS_int = DOC_int.*R_ann*N_yr;    % International Direct Program Operating Costs [USD] {1}
 fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Domestic Direct Program Operating Costs  = %g [USD/nmi]', C_OPS_dom);
-fprintf('\n International Direct Program Operating Costs  = %g [USD/nmi]', C_OPS_int);
+fprintf('\n Minimum Domestic Direct Program Operating Costs  = %g [USD/nmi]', min(C_OPS_dom));
+fprintf('\n Maximum Domestic Direct Program Operating Costs  = %g [USD/nmi]', max(C_OPS_dom));
+fprintf('\n Minimum International Direct Program Operating Costs  = %g [USD/nmi]', min(C_OPS_int));
+fprintf('\n Maximum International Direct Program Operating Costs  = %g [USD/nmi]', max(C_OPS_int));
 fprintf('\n -------------------------------------------------------------------------------- ');
 fprintf('\n\n ================================================================================ \n');
 
