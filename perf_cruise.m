@@ -7,7 +7,7 @@ alt_cr:       Altitude for cruise
 W_cr_start:   Weight at beginning of cruise
 W_cr_end:     Weight at end of cruise
 Sref:         Reference wing area (m^2)
-alpha_cr:     Angle of attack to make CL = CL_cruise
+SM:           static margin
 AR:           Aspect Ratio
 TSFC:         TSFC from propulsion
 ---------------------------------------------------------------------------
@@ -18,13 +18,13 @@ TOF_constH    Constant altitude time of flight
 TOF_CC        Cruise climb time of flight
 ===========================================================================
 %}
-function [R_constH, R_CC, TOF_constH, TOF_CC] = perf_cruise(M_cr, alt_cr, W_cr_start, W_cr_end, Sref, alpha_cr, AR, TSFC, TR)
+function [R_constH, R_CC, TOF_constH, TOF_CC] = perf_cruise(M_cr, alt_cr, W_cr_start, W_cr_end, Sref, SM, AR, TSFC, TR)
 
 [~, ~, ~, rho_cr, son_cr, ~, ~, ~, ~, ~] = ATMO(alt_cr, 'M');
 V_cr = M_cr*son_cr; % [m/s]
 
 CL_cr = W_cr_start/(Sref*0.5*rho_cr*V_cr^2);     % lift coefficient cruise
-[CD_cr, ~] = aerofunk_drag(alt_cr, M_cr, Sref, CL_cr, alpha_cr, AR, TR);
+[CD_cr, ~] = aerofunk_drag_2(alt_cr, M_cr, Sref, CL_cr, SM, AR, TR);
 
 %% ========================================================================
 % Constant altitude cruise:
