@@ -7,7 +7,7 @@ Team: ARROW
 Team members: 
 Shawn McCullough, Ben Holden, Nick Schulte, Rustin Farris, Christian Allen
 %--------------------------------------------------------------------------
-Last modified: 03/20/2018
+Last modified: 03/22/2018
 % =========================================================================
 %}
 clear; clc; close all;
@@ -18,8 +18,8 @@ supersonic = 0; % Enter 1 if analyzing supersonic cruise, 0 for subsonic
 %--------------------------------------------------------------------------
 M_cr_sub = 0.9;              % Subsonic cruise Mach number
 M_cr_super = 1.4;            % Supersonic cruise Mach number
-range_sub = 9800*10^3;       % Subsonic range, (m)
-range_super = 8800*10^3;     % Supersonic range, (m)
+range_sub = 9800e3;          % Subsonic range, (m)
+range_super = 8800e3;        % Supersonic range, (m)
 alt_sub_cr = 13000;          % Subsonic cruise altitude (m)
 alt_super_cr = 15550;        % Supersonic cruise altitude (m)
 
@@ -32,7 +32,7 @@ if supersonic == 0
     alt_cr = alt_sub_cr;
     M_cr = M_cr_sub;
     R_cr = range_sub;
-else 
+elseif supersonic == 1
     alt_cr = alt_super_cr;
     M_cr = M_cr_super;
     R_cr = range_super;
@@ -40,17 +40,27 @@ end
 %% ========================================================================
 % Empirical inputs
 %--------------------------------------------------------------------------
-TSFC = 1.0;    % Empirical Placeholder for SFC based on Sadraey Table 4.6 for turbojet
-LD_cruise = 9; % Cruise lift/drag from Fig 5.3 Nicolai
-CL_max = 2.6;  % Placeholder, max CL
+TSFC = 0.9;     % [1/hr] Empirical Placeholder for SFC (based on Sadraey Table 4.6 for turbojet = 1.0, turbofan = ???, )
+LD_cruise = 9;  % Cruise lift/drag from Fig 5.3 Nicolai
+CL_max = 2.9;   % Placeholder, max CL
 
 %% ========================================================================
 % Interdisciplinary inputs (Design inputs) 
 %--------------------------------------------------------------------------
-AR = 10;            % Placeholder, unswept aspect ratio
-AR_low = AR;        % Low speed, unswept AR
-TR = 0.44;          % Placeholder wing taper ratio
-tmax = 2.3;         % Maximum thickness, based on AS2 cabin dimensions (m)
+AR = 10;                % Placeholder, unswept aspect ratio
+AR_lowspeed = AR;       % Low speed, unswept AR
+TR = 0.44;              % Placeholder wing taper ratio
+%--------------------------------------------------------------------------
+tmax = 2.3;             % Maximum thickness, based on AS2 cabin dimensions (m)
+tcmax = 0.16;           % T/c max; variable to iterate
+c_r = tmax/tcmax;       % [m] Root chord = max thickness / tcmax ratio
+c_t = TR*c_r;           % [m] Root chord = max thickness / tcmax ratio
+                        %--------------------------------------------------
+b = (AR/2)*(c_r + c_t); % [m] wing span
+b_ft = b*3.2808399;     % [ft] wing span for vn diagram
+Sref = b^2/AR;          % [m^2] wing area
+S = Sref*10.763913;     % [ft^2] wing area
+%--------------------------------------------------------------------------
 e = 0.85;           % Oswald
 K = 1/(pi*AR*e);	% Drag K factor
 ne = 4;             % number of engines
@@ -67,12 +77,12 @@ ThrustLoading = design_point(2); % T/W (lbf/lbf)
 %% ========================================================================
 % Weights
 %--------------------------------------------------------------------------
-[~, ~, ~, ~, a] = ATMO(cruise_altitude, 'M');
+[~, ~, ~, ~, a, ~, ~, ~, ~, ~] = ATMO(cruise_altitude, 'M');
 num_pass = 19;                  % number of passengers
 num_crew = 4;                   % number of crew members
-R_miles = R_cr*0.000621;        % range in miles
+R_miles = R_cr*0.00062137274;   % range in miles
 V_cr = M_cr*a;                  % cruise velocity, (m/s) 
-V_cr_mph = V_cr*2.23694;        % Cruise vel (mph) for weight script
+V_cr_mph = V_cr*2.2369419;      % Cruise vel (mph) for weight script
 %--------------------------------------------------------------------------
 [weights, wt_frac] = Weight_Buildup(num_pass, num_crew, V_cr_mph, M_cr, R_miles, TSFC, LD_cruise);
 
@@ -80,10 +90,9 @@ MTOW = 4.44822*weights.W_to;    % Max takeoff weight, (N)
 W_to_end = MTOW*wt_frac.WF_to;  % Wt at end of TO, start of climb (N)
 
 W_climb_end = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel; % Wt at end of climb, start of cruise (N)
-
 W_climb_avg = 0.5*(W_to_end + W_climb_end);
 
-W_cruise_start = 4.44822*W_climb_end; % Wt at beginning of cruise (N)
+W_cruise_start = W_climb_end; % Wt at beginning of cruise (N)
 W_cruise_end = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel*wt_frac.WF_cruise; % Wt at end of cruise (N)
 W_cruise_avg = 0.5*(W_climb_end + W_cruise_end); % Average cruise wt (N)
 
@@ -95,16 +104,16 @@ W_land = 4.44822*weights.W_land; % Landing Weight (N)
 %% ========================================================================
 % required wing area and takeoff thrust
 %--------------------------------------------------------------------------
-S = weights.W_to/WingLoading; % (ft^2) for V-n diagram
-Sref = S*0.092903;            % Wing area in (m^2) for everything else
+%S = weights.W_to/WingLoading; % (ft^2) for V-n diagram
+%Sref = S*0.092903017;         % Wing area in (m^2) for everything else
 
-T_max = 4*ThrustLoading*MTOW; % (N) required take off thrust
+T_max = ThrustLoading*MTOW; % (N) required take off thrust
 
 %% ========================================================================
 % more Interdisciplinary inputs
 %--------------------------------------------------------------------------
-b_ft = sqrt(AR*S);  % (ft) for wing loading 
-b = b_ft*0.3048;    % Wing span, (m) for everything else
+% b_ft = sqrt(AR*S);  % (ft) for wing loading 
+% b = b_ft*0.3048;    % Wing span, (m) for everything else
 %--------------------------------------------------------------------------
 % Calculate sweep:
 M_perp = 0.7;                       % perp Mach #, variable to iterate
@@ -113,12 +122,13 @@ if sweep_deg > 70                   % Limit the sweep angle
     sweep_deg = 70;
 end
 sweep_rad = sweep_deg*pi/180;       % Convert to radians for formulas
-b_swept = b*cosd(sweep_deg);        % Span at sweep angle
+b_swept = b*cosd(sweep_deg);        % Span at sweep angle [m]
 AR_swept = b_swept^2/AR;            % Swept aspect ratio
 %--------------------------------------------------------------------------
 if M_cr > 0.69
     AR = AR_swept;
-    b = b_swept;
+    b = b_swept; % [m]
+    b_ft = b_swept*3.2808399; % [ft]
 end
 %--------------------------------------------------------------------------
 
@@ -126,18 +136,14 @@ end
 % display initial design parameters:
 %--------------------------------------------------------------------------
 fprintf('\n\n ============================= Initial Design Parameters ============================= \n');
-fprintf('\n Required wing area: S  = %g [m^2] = %g [ft^2] ', Sref, S);
-fprintf('\n Wing span:          b   = %g [m] = %g [ft]', b, b_ft);
-fprintf('\n Cruise Wing sweep:  Lambda = %g [deg] \n', sweep_deg);
+fprintf('\n Required wing area:         S  = %g [m^2] = %g [ft^2] ', Sref, S);
+fprintf('\n Total unswept wing span:    b  = %g [m] = %g [ft]', b_swept/cosd(sweep_deg), 3.2808399*b_swept/cosd(sweep_deg));
+fprintf('\n Effective wing span:        b_eff  = %g [m] = %g [ft]', b, b_ft);
+fprintf('\n Cruise wing sweep:          Lambda = %g [deg] \n', sweep_deg);
 fprintf('\n -------------------------------------------------------------------------------- ');
 fprintf('\n Required takeoff thrust:   T  = %g [N] = %g [lbf] ', T_max, T_max*0.22480902);
 fprintf('\n Max takeoff weight:        MTOW  = %g [N] = %g [lbf] ', MTOW, MTOW*0.22480902);
 fprintf('\n\n ===================================================================================== \n');
-
-%% ========================================================================
-% Preliminary Analysis ????????????????????????????????????????????????????
-%--------------------------------------------------------------------------
-% Structures, W&B
 
 %% ========================================================================
 % V-n diagram
@@ -164,7 +170,7 @@ CL_TO = 2*MTOW/(0.5*rho_TO*V_TO^2*Sref);   % N/N
 
 %--------------------------------------------------------------------------
 % S&C:
-[CMa, Cl_beta, Cn_beta, Cn_dr, S_VT, l_VT] = stability(M_TO, AR, 24, Sref, b, TR, CL_TO, SM, 'Takeoff');
+[CMa, Cl_beta, Cn_beta, Cn_dr, S_VT, l_VT] = stability(M_TO, AR_lowspeed, 24, Sref, b, TR, CL_TO, SM, 'Takeoff');
 
 %% ========================================================================
 % Climb Phase
@@ -184,7 +190,6 @@ else
     alt_climb = alt_super_cr;
 end
 
-AoA_climb = 0; % fix this!
 [CD_climb, CD0_climb] = aerofunk_drag_2(alt_climb, M_climb, Sref, CL_climb, SM, AR, TR);
 
 [ROC, gamma_climb, S_climb, dt_climb] = perf_climb(CL_climb, CD_climb, V_stall, V_sub, rho_TO, T_max, W_climb_avg, alt_climb, Sref);
@@ -215,11 +220,11 @@ V_descend = V_cr;
 M_land = 0.3;             % landing Mach number
 alt_land = 0;
 
-[S_land, FAR_land] = perf_land(M_land, alt_land, Sref, AR_low, W_land, CL_max, T_max, TR, SM);
+[S_land, FAR_land] = perf_land(M_land, alt_land, Sref, AR_lowspeed, W_land, CL_max, T_max, TR, SM);
 
 %--------------------------------------------------------------------------
 % S&C:
-[CMa, Cl_beta, Cn_beta, Cn_dr, S_VT, l_VT] = stability(M_land, AR, 24, Sref, b, TR, CL_max, SM, 'Landing');
+[CMa, Cl_beta, Cn_beta, Cn_dr, S_VT, l_VT] = stability(M_land, AR_lowspeed, 24, Sref, b, TR, CL_max, SM, 'Landing');
 
 
 %% ========================================================================
@@ -238,6 +243,7 @@ fprintf('\n --------------------------------------------------------------------
 fprintf('\n Cruise Altitude: h  = %g [m] = %g [ft] \n', alt_cr, alt_cr*3.2808399);
 fprintf('\n Range Covered During Climb:        R_climb   = %g [km] = %g [miles]', S_climb/1000, S_climb*0.000621371);
 fprintf('\n Constant Altitude Cruise Range:    R_cruise  = %g [km] = %g [miles]', R_constH/1000, R_constH*0.000621371);
+fprintf('\n Cruise Climb Range:                R_cruise  = %g [km] = %g [miles]', R_CC/1000, R_CC*0.000621371);
 fprintf('\n Range Covered During Descent:      R_descend = %g [km] = %g [miles]', S_descend/1000, S_descend*0.000621371);
 fprintf('\n\n Total Range:  R = %g [km] = %g [miles] \n', R_total_1/1000, R_total_1*0.000621371);
 fprintf('\n Time to Climb:    dt_climb   = %g [min]', dt_climb/60);
@@ -256,5 +262,3 @@ op_envelope(W_cruise_avg, T_max, Sref, SM, AR, TR, CL_max)
 %--------------------------------------------------------------------------
 W_A = 0; % what is this?
 [ RTDE_Cost ] = costfunky( weights.W_empty, V_cr, T_max, M_max, MTOW, weights.W_fuel, R_total_1*0.000621371, dt_climb/3600, dt_descend/3600, TOF_constH/3600, W_A, ne);
-
-%% >>>>>>> .r145 <----what is this??
