@@ -21,9 +21,10 @@ function op_envelope(W_cruise_avg, T_max, Sref, SM, AR, TR, CL_max)
 q_max = 86184.414; % [Pa] max. dyn. pressure (p.104 Nicolai) = 1800 psf 
 %--------------------------------------------------------------------------
 % Altitude and Velocity range:
-h = 0:500:25000; % [m]
+h = 0:1000:10e4; % [m]
 %V = 0:5:800;     % [m/s]
-M = [0:0.01:0.9,1.1:0.01:3];
+M = [0.01:0.01:0.9,1.1:0.01:3];
+%M = 1.1:0.01:3;
 %--------------------------------------------------------------------------
 for n = 1:length(h)
 
@@ -42,7 +43,7 @@ hh = hh*0.3048;     % [m]
 
 Thrust_A = interp2(MM,hh,T_A_data, M(m), h(n)); % [N] thrust available
 %}
-T_A = Thrust(h(n), M(m), T_max);
+T_A = 1000*Thrust(h(n), M(m), T_max);
 %--------------------------------------------------------------------------
 CL(n,m) = W_cruise_avg/(0.5*rho*V(m)^2*Sref); % steady level flight
 %--------------------------------------------------------------------------
@@ -61,6 +62,7 @@ end;
 figure('Name','Operational Envelope','NumberTitle','off');
 hold on;
 vals = [1,1];
+%vals = 0:50;
 [C1, h1] = contour(M,h,Ps,vals);
 set(h1, 'LineWidth', 2.5)
 set(h1, 'Color', 'k')
@@ -73,5 +75,6 @@ plot (M_stall_op,h,':k','LineWidth',2.5);
 plot (M_q_lim,h,'--k','LineWidth',2.5);
 %plot (M_sub_R,h_sub_R,'k+','LineWidth',2.5,'LineStyle','None','MarkerSize',16);
 %plot (M_super_R,h_super_R,'k*','LineWidth',2.5,'LineStyle','None','MarkerSize',16);
-legend('Thrust Limit','Stall Boundary', 'Dyn. Press. Limit', 'Subsonic Cruise', 'Supersonic Cruise','Location','best');
+%legend('Thrust Limit','Stall Boundary', 'Dyn. Press. Limit', 'Subsonic Cruise', 'Supersonic Cruise','Location','best');
+legend('Thrust Limit','Stall Boundary', 'Dyn. Press. Limit', 'Location','best');
 %--------------------------------------------------------------------------
