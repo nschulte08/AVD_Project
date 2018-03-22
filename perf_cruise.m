@@ -9,7 +9,7 @@ W_cr_end:     Weight at end of cruise
 Sref:         Reference wing area (m^2)
 SM:           static margin
 AR:           Aspect Ratio
-TSFC:         TSFC from propulsion
+TSFC:         TSFC from propulsion (1/hr)
 ---------------------------------------------------------------------------
 Outputs:
 R_constH:     Constant altitude range (m)
@@ -19,6 +19,8 @@ TOF_CC        Cruise climb time of flight
 ===========================================================================
 %}
 function [R_constH, R_CC, TOF_constH, TOF_CC] = perf_cruise(M_cr, alt_cr, W_cr_start, W_cr_end, Sref, SM, AR, TSFC, TR)
+
+TSFC =  TSFC/3600; % [1/s]
 
 [~, ~, ~, rho_cr, son_cr, ~, ~, ~, ~, ~] = ATMO(alt_cr, 'M');
 V_cr = M_cr*son_cr; % [m/s]
