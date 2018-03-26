@@ -98,8 +98,8 @@ elseif M >= 1.1
     Cfw_super = Cfw/(1 + .144 * M^2)^0.65;                   % Corrected Skin Friction Coefficient for Compressibility
     CDf_super = Cfw_super * Swet/Sref;                       % Supersonic friction drag coefficient
 
-    clms = 1.0;                                              % Placeholder %Camber Line Mean Square (pg 65 Nicolai)
-    tdms = 1.0;                                              % Placeholder %Thickness distribution mean square (pg 65 Nicolai)
+    clms = 0.0;                                              % Placeholder %Camber Line Mean Square (pg 65 Nicolai)
+    tdms = 0.18;                                              % Placeholder %Thickness distribution mean square (pg 65 Nicolai)
     CD_wave = 4 * AoA/(M^2 - 1)^0.5 * (AoA^2 + clms + tdms); % Section Wave drag coefficient, AOA in radians
 
     CD0_super = CDf_super + CD_wave;                         % Supersonic zero-lift drag coefficient
