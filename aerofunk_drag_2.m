@@ -1,6 +1,10 @@
 %{
 This function returns the drag coefficients based on CL and flight phase
 ---------------------------------------------------------------------------
+
+Modified 3/26: Added AOA calculation based on CL required and CLa
+calculated. Changed CLa for supersonic to match fig 12.5 from Raymer
+
 Inputs:
 h:     Altitude, (m)
 M:     Mach number for flight phase
@@ -28,12 +32,14 @@ e = 0.85;           % Oswald
 K = 1/(pi*AR*e);	% Drag K factor
 
 % Calculate sweep:
-% This has to be limited to 70 ish degrees!
-M_perp = 0.7; % perpendicular Mach #, variable to iterate
-sweep_deg = acosd(M_perp/M);
-
-if sweep_deg > 70	% Limit the sweep angle
-    sweep_deg = 70;
+% This has to be limited to 65 ish degrees!
+M_perp = 0.7;   % perpendicular Mach #, only if M_cr > M_perp will we sweep
+sweep_deg = 0;  % zero sweep until Mcruise high enough
+if M > M_perp
+    sweep_deg = acosd(M_perp/M);
+end
+if sweep_deg > 65	% Limit the sweep angle
+    sweep_deg = 65;
 end
 sweep_rad = sweep_deg*pi/180;
 
@@ -45,21 +51,23 @@ Cfw = 0.455/(log10(Re)^2.58);	% Turbulent flat plate friction coefficient of win
 %==========================================================================
 %% find required AoA
 
-CM0 = 1.0; % Placeholder, CM0 comes from airfoil
+%CM0 = -.04; % Placeholder, CM0 comes from airfoil
 
 if M < 1
+    sweep_rad = pi/3;
     Cla = 1.8*pi*(1 + 0.8*tcmax); %Airfoil Cl_alpha, Saedray pg 179  
     Beta_sub = sqrt(abs(1-M^2));
-    nu = Cla/(2*pi/Beta_sub);
-    CLa_sub = 2*pi*AR/(2+sqrt(4+((AR^2*Beta_sub^2)/nu^2)*(1+tan(sweep_rad)^2/Beta_sub^2))); 
+    nu = Cla/(2*pi);
+    CLa_sub = 2*pi*AR/(2+sqrt(4+AR^2*Beta_sub^2/nu^2*(1+tan(sweep_rad)^2/Beta_sub^2))); 
     CMa_sub = -CLa_sub*SM;
-    AoA = -CM0/CMa_sub; % [rad]
+    AoA = CL/CLa_sub; % [rad]
 
 elseif M >= 1
-    CLa_super = 4/(sqrt(M^2-1))*(1-1/(2*AR*sqrt(M^2-1))); %Straight,tapered wings in supersonic flow
-    % Calculate Angle of Attack for Trim
+    %CLa_super = 4/(sqrt(M^2-1))*(1-1/(2*AR*sqrt(M^2-1))); %Straight,tapered wings in supersonic flow
+    CLa_super = 2.99;           % per rad, This is from Raymer's plot that we verified with subsonic
     CMa_super = -CLa_super*SM;
-    AoA = -CM0/CMa_super; % [rad]
+    % Calculate aoa for the required CL:
+    AoA = CL/CLa_super; % [rad]        % CL = CLa * aoa so aoa = CL/CLa
 
 end
 
@@ -92,7 +100,7 @@ elseif M >= 1.1
 
     clms = 1.0;                                              % Placeholder %Camber Line Mean Square (pg 65 Nicolai)
     tdms = 1.0;                                              % Placeholder %Thickness distribution mean square (pg 65 Nicolai)
-    CD_wave = 4 * AoA/(M^2 - 1)^0.5 * (AoA^2 + clms + tdms); % Section Wave drag coefficient
+    CD_wave = 4 * AoA/(M^2 - 1)^0.5 * (AoA^2 + clms + tdms); % Section Wave drag coefficient, AOA in radians
 
     CD0_super = CDf_super + CD_wave;                         % Supersonic zero-lift drag coefficient
 
