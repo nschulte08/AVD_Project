@@ -55,7 +55,7 @@ TW_sc = TW_arb.*(N/(N-1))*(L_D_to^-1 + CGR);  % 2nd climb gradient thrust loadin
 
 %--------------------------------------------------------------------------
 %% Eq 4 Req't: Cruise Matching
-k = 0.93756; % Fraction of cruise weight/gross weight
+k = 0.5533; % Fraction of cruise weight/gross weight
 WS_cr = transpose(linspace(TWmin, 1000, VectorLength));
 WS_cr_to = WS_cr./k; % generic vector (Sets W/S as "x" in T/W equation)
 
@@ -74,7 +74,7 @@ sweep_super = acosd(0.7/M_cr_super);            % Subsonic sweep angle as f(M)
 AR_super = AR_unswept*4*cosd(sweep_super)^2; % Swept AR
 V_cr_super = M_cr_super*a_cr_super;             % [ft/s] Velocity
 q_cr_super = .5*rho_cr_super*V_cr_super^2;      % [lbf/ft^2] Dyn pressure for cruise
-CD0_super = 0.0104; % Supersonic CD0 from Concorde analysis
+CD0_super = 0.015; % Supersonic CD0 from Concorde analysis
 TW_cr_reqd_super = CD0_super*q_cr_super./(WS_cr_to) + WS_cr_to/(q_cr_super*pi*AR_super*e);
 
 %--------------------------------------------------------------------------
