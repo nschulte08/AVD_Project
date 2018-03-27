@@ -2,10 +2,23 @@
     This script is designed to build the solution space for an OFW SSBJ
 
 % We need LD_to and CD0_sub and CD0_super
+---------------------------------------------------------------------------
+Inputs:
+AR_unswept:     unspet aspect ratio
+CL_max:         max lift coefficient
+e:              Oswlad
+alt_cr_sub:     subsonic cruise altitude [m]
+M_cr_sub:       subsonic cruise Mach number
+alt_cr_super:   supersonic cruise altitude [m]
+M_cr_super:     supersonic cruise Mach number
+ne:             number of engines
+---------------------------------------------------------------------------
+Outputs:
+design_point = [wing_loading, thrust_loading, AR_unswept]
 
 ===========================================================================
 %}
-function [design_point] = Solution_Space_OFW_integrated(AR_unswept)
+function [design_point] = Solution_Space_OFW_integrated(AR_unswept, CL_max, e, alt_cr_sub, M_cr_sub, alt_cr_super, M_cr_super, ne)
 %% ------------------------------------------------------------------------
 % Initialize linear requirements for plotting
 VectorLength = 500; % generic length          (for plots)
@@ -14,27 +27,20 @@ WSmax = 150;         % max wing loading       (for plots)
 TWmin = 0.01;        % minimum thrust loading (for plots)
 TWmax = 0.5;         % max thrust loading     (for plots)
 %--------------------------------------------------------------------------
-% other inputs:
-e = 0.85;                        % oswald
-alt_cr_sub = 13000;              % [m]  subsonic cruise altitude
+% convert to english units:
 alt_cr_sub = alt_cr_sub*3.28084; % [ft] subsonic cruise altitude
 [~, ~, ~, rho_cr_sub, a_cr_sub, ~, ~, ~, ~, sigfact_cr_sub] = ATMO(alt_cr_sub, 'E'); % 'E' = english units
-M_cr_sub = 0.95;
-% rho_cr = slug/ft^3
-% a_cr = ft/s
-% sigfact2 = density ratio = rho/rho_SL
-alt_cr_super = 15500;                % [m]  supersonic cruise altitude
+
 alt_cr_super = alt_cr_super*3.28084; % [ft] supersonic cruise altitude
 [~, ~, ~, rho_cr_super, a_cr_super, ~, ~, ~, ~, sigfact_cr_super] = ATMO(alt_cr_super, 'E'); % 'E' = english units
-M_cr_super = 1.4;
 
 %% ========================================================================
 %% Eq 1 Req't: Takeoff
 [~, ~, ~, ~, ~, ~, ~, ~, ~, sigma_SL] = ATMO(0, 'E'); % 'E' = english units
 S_to = 10000;    % [ft] takeoff distance, per Shawn, not me
-CL_max_to = 1.8; % max Take off CL , Roskam Part 1, Table 3.1
+%CL_max = 1.8; % max Take off CL , Roskam Part 1, Table 3.1
 WS_to = transpose(linspace(0, 1000, VectorLength)); % generic column vector
-TW_to = 37.5*WS_to/(sigma_SL*CL_max_to*S_to); % take off thrust loading
+TW_to = 37.5*WS_to/(sigma_SL*CL_max*S_to); % take off thrust loading
 
 %--------------------------------------------------------------------------
 %% Eq 2 Req't: Landing
@@ -47,11 +53,10 @@ TW_land = transpose(linspace(TWmin, 1000, VectorLength));  % landing thrust load
 %--------------------------------------------------------------------------
 %% Eq 3 Req't: Second Climb Gradient (FAR 25.121)
 L_D_to = 13.0;         % Need this for OFW
-CGR = 0.027;           % Climb Gradient = deg/100
-N = 4;                 % number of engines
+CGR = 0.0297;           % Climb Gradient = deg/100
 WS_sc = transpose(linspace(TWmin, 1000, VectorLength));
 TW_arb = ones(VectorLength,1);
-TW_sc = TW_arb.*(N/(N-1))*(L_D_to^-1 + CGR);  % 2nd climb gradient thrust loading
+TW_sc = TW_arb.*(ne/(ne-1))*(L_D_to^-1 + CGR);  % 2nd climb gradient thrust loading
 
 %--------------------------------------------------------------------------
 %% Eq 4 Req't: Cruise Matching
@@ -62,19 +67,19 @@ WS_cr_to = WS_cr./k; % generic vector (Sets W/S as "x" in T/W equation)
 %--------------------------------------------------------------------------
 %Subsonic Cruise
 sweep_sub = acosd(0.7/M_cr_sub);            % Subsonic sweep angle as f(M)
-AR_sub = AR_unswept*4*cosd(sweep_sub)^2; % Swept AR
+AR_sub = AR_unswept*4*cosd(sweep_sub)^2;    % Swept AR
 V_cr_sub = M_cr_sub*a_cr_sub;               % [ft/s] Velocity
-q_cr_sub = .5*rho_cr_sub*V_cr_sub^2;        % [lbf/ft^2] Dyn pressure for cruise
-CD0_sub = 0.008; % Subsonic CD0 from Concorde analysis
+q_cr_sub = 0.5*rho_cr_sub*V_cr_sub^2;       % [lbf/ft^2] Dyn pressure for cruise
+CD0_sub = 0.008;                            % Subsonic CD0 from Concorde analysis
 TW_cr_reqd = CD0_sub*q_cr_sub./(WS_cr_to) + WS_cr_to/(q_cr_sub*pi*AR_sub*e);
 
 %--------------------------------------------------------------------------
 %Supersonic Cruise
 sweep_super = acosd(0.7/M_cr_super);            % Subsonic sweep angle as f(M)
-AR_super = AR_unswept*4*cosd(sweep_super)^2; % Swept AR
+AR_super = AR_unswept*4*cosd(sweep_super)^2;    % Swept AR
 V_cr_super = M_cr_super*a_cr_super;             % [ft/s] Velocity
-q_cr_super = .5*rho_cr_super*V_cr_super^2;      % [lbf/ft^2] Dyn pressure for cruise
-CD0_super = 0.015; % Supersonic CD0 from Concorde analysis
+q_cr_super = 0.5*rho_cr_super*V_cr_super^2;     % [lbf/ft^2] Dyn pressure for cruise
+CD0_super = 0.015;                              % Supersonic CD0 from Concorde analysis
 TW_cr_reqd_super = CD0_super*q_cr_super./(WS_cr_to) + WS_cr_to/(q_cr_super*pi*AR_super*e);
 
 %--------------------------------------------------------------------------
@@ -103,10 +108,10 @@ Y_Intercept_TO = Curve_Fit(2);
 % plot each "x" of the curved line to get a "y" and subtract it from the real "y":
 delta_TW = abs(TW_Vmax_super - (Slope_TO*WS_Vmax + Y_Intercept_TO)); 
 [~,idx] = min(delta_TW); % index where difference is minimum
-px = WS_Vmax(idx);
-py = TW_Vmax_super(idx);
-design_point = [px,py,AR_unswept];
-plot(px,py,'o','MarkerSize',12, 'MarkerEdgeColor','red','LineWidth',4)
+wing_loading = WS_Vmax(idx);
+thrust_loading = TW_Vmax_super(idx);
+design_point = [wing_loading,thrust_loading,AR_unswept];
+plot(wing_loading,thrust_loading,'o','MarkerSize',12, 'MarkerEdgeColor','red','LineWidth',4)
 %--------------------------------------------------------------------------
 % Take-off
 plot(WS_to, TW_to, 'g-', 'LineWidth',3);
