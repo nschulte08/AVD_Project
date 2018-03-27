@@ -39,7 +39,7 @@ for i = 1 : numel(altitude) % create a V-n diagram for each altitude
     L{i} = sprintf('%0.0f %s', convlength(altitude(i), 'ft', 'm'), 'm');
 end
 
-grid on; grid minor;
+grid on;
 set(gca, 'fontsize', 12, 'fontweight', 'bold');
 title('V-n Diagram', 'FontSize', 16, 'FontWeight', 'bold');
 xlabel('True Airspeed, V [m/s]', 'FontSize', 16, 'FontWeight', 'bold');
