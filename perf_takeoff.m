@@ -5,7 +5,7 @@
 Inputs:
 ne:        Number of engines
 V_TO:      Take off velocity (m/s)
-T_max:     Max Thrust at sea level (N)
+T_TO:      Thrust at takeoff (N)
 alt_to:    Airport runway altitude (m)
 MTOW:      Aircraft maximum takeoff weight (N)
 Sref:      Reference wing area (m^2)
@@ -21,15 +21,15 @@ S_TO:      Takeoff distance (total) (m)
 BFL:       Balanced field length (m)
 ===========================================================================
 %}
-function [V_stall, V_TO, S_G, S_TO, BFL] = perf_takeoff(ne, V_TO, T_max, alt_to, MTOW, Sref, CL_max, CD0, K)
+function [S_G, S_TO, BFL] = perf_takeoff(ne, V_stall, V_TO, T_TO, alt_to, MTOW, Sref, CL_TO, CD_TO)
 % General Inputs:
 g = 9.81;           % Gravity accel
 OEI = 0;            % One engine out scenario, if yes [1] if no [0]
 %--------------------------------------------------------------------------
 if OEI == 0
-    T_TO = T_max;
+    T_TO = T_TO;
 elseif OEI == 1
-    T_TO = ((ne-1)/ne)*T_max; % [N] OEI scenario
+    T_TO = ((ne-1)/ne)*T_TO; % [N] OEI scenario
 end
 
 %% ========================================================================
@@ -38,16 +38,23 @@ end
 [~, ~, ~, rho_TO, ~, ~, ~, ~, ~, SIGMA_TO] = ATMO(alt_to, 'M');
 
 % ground roll:
-mu = (0.02 + 0.3)/2;                                  % friction coefficient [average value] (Yechout p.99)
-V_stall = sqrt(2*MTOW/(rho_TO*Sref*CL_max));          % [m/s]
-q_TO = 0.5*rho_TO*V_TO^2;                             % [N/m^2] dynamic pressure
-CL_opt = mu/(2*K);                                    % optimum lift coefficient for T.O.
-CD_avg = CD0 + K*CL_opt^2;                            % example 3.5 from Yechout (p.103)
-D_avg = CD_avg*Sref*q_TO;                             % [N] average drag
-L_avg = CL_opt*Sref*q_TO;                             % [N] average lift
-F_r = mu * (MTOW - L_avg);                            % [N] rolling resistance
-a_TO = (g/MTOW)*(T_TO - D_avg - F_r);                 % [m/s^2] average acceleration
-S_G = V_TO^2/(2*a_TO);                                % [m] ground distance
+mu = (0.02 + 0.3)/2;                 % friction coefficient [average value] (Yechout p.99)
+q_TO = 0.5*rho_TO*V_TO^2;            % [N/m^2] dynamic pressure
+%CL_TO = mu/(2*K);                   % optimum lift coefficient for T.O.
+%CD_TO = CD0 + K*CL_opt^2;           % example 3.5 from Yechout (p.103)
+D_TO = CD_TO*Sref*q_TO;              % [N] drag
+
+if D_TO >= T_TO
+	err_msg_1 = sprintf(' Drag at takeoff exceeds thrust at takeoff!! Cannot fly.... \n');
+    err_msg_2 = sprintf('\n T_TO = %g [N] \n D_TO = %g [N]',T_TO, D_TO);
+    err_msg = sprintf('%s %s',err_msg_1,err_msg_2);
+	error('sytnax:requirements','\n\n %s \n\n',err_msg)
+end
+
+L_TO = CL_TO*Sref*q_TO;              % [N] lift
+F_r = mu*(MTOW - L_TO);              % [N] rolling resistance
+a_TO = (g/MTOW)*(T_TO - D_TO - F_r); % [m/s^2] average acceleration
+S_G = V_TO^2/(2*a_TO);               % [m] ground distance
 %--------------------------------------------------------------------------
 % rotation:
 t_R = 2.5;      % [s] rotation time
@@ -57,7 +64,7 @@ S_R = t_R*V_TO; % [m] distance covered during rotation
 n = 1.2;                               % load factor
 V_TR = 1.5*V_stall;                    % [m/s] transition velocity
 Radius_TO = V_TR^2/(g*(n-1));          % [m] radius of transition
-gamma_c = asind((T_TO - D_avg)/MTOW);  % [deg] climb angle
+gamma_c = asind((T_TO - D_TO)/MTOW);   % [deg] climb angle
 S_TR = Radius_TO*sind(gamma_c);        % [m] transition distance
 h_TR = Radius_TO*(1 - cosd(gamma_c));  % [m] altitude gained during transition
 %--------------------------------------------------------------------------
@@ -75,8 +82,8 @@ S_TO = S_G + S_R + S_TR + S_C; % [m]
 % balanced field length: (Raymer eq. 17.110)
 gamma_min = 0.027; % [deg]
 G = (gamma_c - gamma_min)*pi/180;
-U = 0.01*CL_max + 0.02;
-BFL = (0.863/(1+2.3*G))*((MTOW/Sref)/(rho_TO*g*CL_opt) + h_obst)*(1/((T_TO/MTOW) - U) + 2.7*0.3048) + (655*0.3048/sqrt(SIGMA_TO)); % [m] balanced field length
+U = 0.01*CL_TO + 0.02;
+BFL = (0.863/(1+2.3*G))*((MTOW/Sref)/(rho_TO*g*CL_TO) + h_obst)*(1/((T_TO/MTOW) - U) + 2.7*0.3048) + (655*0.3048/sqrt(SIGMA_TO)); % [m] balanced field length
 %--------------------------------------------------------------------------
 fprintf('\n\n =========================== Take-off Results  =========================== \n');
 fprintf('\n Max Take-off Gross Weight: MTOW = %g [N] = %g [lbf] \n', MTOW, MTOW*0.22480902);
