@@ -19,7 +19,7 @@ hold on;
 plot(span(:,1), loads(:,1), 'k :', 'LineWidth', 2.5); % trapezoidal
 plot(span(:,1), loads(:,2), 'k --', 'LineWidth', 2.5); % elliptical
 plot(span(:,1), loads(:,3), 'k -', 'LineWidth', 2.5); % average
-grid on; grid minor;
+grid on;
 xlabel('Wing Half-Span [m]', 'FontSize', 16, 'FontWeight', 'bold');
 ylabel('Lift/Span [N/m]', 'FontSize', 16, 'FontWeight', 'bold');
 title('Wing Loading Distribution', 'FontSize', 16, 'FontWeight', 'bold');

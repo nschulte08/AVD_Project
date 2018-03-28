@@ -96,7 +96,7 @@ W_cruise_start = W_climb_end; % Wt at beginning of cruise (N)
 W_cruise_end = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel*wt_frac.WF_cruise; % Wt at end of cruise (N)
 W_cruise_avg = 0.5*(W_climb_end + W_cruise_end); % Average cruise wt (N)
 
-W_descend_end = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel*wt_frac.WF_cruise*wt_frac.WF_des; % Wt at end of descent (lbf)
+W_descend_end = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel*wt_frac.WF_cruise*wt_frac.WF_des; % Wt at end of descent (N)
 W_descend_avg = 0.5*(W_cruise_end + W_descend_end); % Average descent wt (N)
 
 W_land = convforce(weights.W_land,'lbf','N'); % Landing Weight (N)

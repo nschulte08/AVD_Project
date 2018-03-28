@@ -101,18 +101,6 @@ figure_name = sprintf('Solution Space Plot, AR_unswept = %g',AR_unswept);
 figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
 hold on
 %--------------------------------------------------------------------------
-% design point:
-Curve_Fit = polyfit(WS_sc, TW_sc, 1); % get the slope and Y intercept of the straight line (takeoff)
-Slope_TO = Curve_Fit(1);
-Y_Intercept_TO = Curve_Fit(2);
-% plot each "x" of the curved line to get a "y" and subtract it from the real "y":
-delta_TW = abs(TW_Vmax_super - (Slope_TO*WS_Vmax + Y_Intercept_TO)); 
-[~,idx] = min(delta_TW); % index where difference is minimum
-wing_loading = WS_Vmax(idx);
-thrust_loading = TW_Vmax_super(idx);
-design_point = [wing_loading,thrust_loading,AR_unswept];
-plot(wing_loading,thrust_loading,'o','MarkerSize',12, 'MarkerEdgeColor','red','LineWidth',4)
-%--------------------------------------------------------------------------
 % Take-off
 plot(WS_to, TW_to, 'g-', 'LineWidth',3);
 axis([WSmin, WSmax, 0, TWmax])
@@ -141,12 +129,24 @@ axis([WSmin, WSmax, 0, TWmax])
 plot(WS_cr_to, TW_cr_reqd_super, 'm--' ,'LineWidth',3);
 axis([WSmin, WSmax, 0, TWmax])
 %--------------------------------------------------------------------------
+% design point:
+Curve_Fit = polyfit(WS_sc, TW_sc, 1); % get the slope and Y intercept of the straight line
+Slope = Curve_Fit(1);
+Y_Intercept = Curve_Fit(2);
+% plot each "x" of the curved line to get a "y" and subtract it from the real "y":
+delta_TW = abs(TW_Vmax_super - (Slope*WS_Vmax + Y_Intercept)); 
+[~,idx] = min(delta_TW(1:250,:)); % index where difference is minimum. The fix "delta_TW(1:250,:)" limits the search to less than ~75 for the value for wing loading. (this isn't optimal, but the lines intersect twice, so finding a minimum is ambiguous)
+wing_loading = WS_Vmax(idx);
+thrust_loading = TW_Vmax_super(idx);
+design_point = [wing_loading,thrust_loading,AR_unswept];
+plot(wing_loading,thrust_loading,'o','MarkerSize',12, 'MarkerEdgeColor','red','LineWidth',4)
+%--------------------------------------------------------------------------
 set(gca,'FontSize',16);
 xlabel('Wing Loading (lbf/ft^{2})','FontSize',18);
 ylabel('Thrust Loading','FontSize',18);
 title_name = sprintf('Parametric Sizing Chart for SSBJ (Unswept AR = %g)',AR_unswept);
 title(title_name,'FontSize',18);
-legend('Design Point','Take-off','Landing','2nd Climb Gradient','Subsonic Max Speed','Supersonic Max Speed','Subsonic Cruise','Supersonic Cruise','Location','best');
+legend('Take-off','Landing','2nd Climb Gradient','Subsonic Max Speed','Supersonic Max Speed','Subsonic Cruise','Supersonic Cruise','Design Point','Location','best');
 grid on
 hold off
 %--------------------------------------------------------------------------
