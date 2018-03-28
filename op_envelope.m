@@ -6,24 +6,25 @@ W_cruise_avg    = average cruise weight [N]
 T_max           = max thrust
 Sref            = reference area [m^2]
 SM              = static margin
-AR              = aspec ratio
+b_unswept       = unswept span [m]
 TR              = taper ratio
 CL_max          = max lift coefficient
+ne              = number of engines
 ---------------------------------------------------------------------------
 OUTPUTS:
 
 ===========================================================================
 %}
-function op_envelope(W_cruise_avg, T_max, Sref, SM, AR, TR, CL_max)
+function op_envelope(W_cruise_avg, Sref, SM, b_unswept, TR, CL_max, ne)
 %% ========================================================================
 % Operational Envelope
 %--------------------------------------------------------------------------
 q_max = 86184.414; % [Pa] max. dyn. pressure (p.104 Nicolai) = 1800 psf 
 %--------------------------------------------------------------------------
 % Altitude and Velocity range:
-h = 0:1000:10e4; % [m]
+h = 0:5000:10e4; % [m]
 %V = 0:5:800;     % [m/s]
-M = [0.01:0.01:0.9,1.1:0.01:3];
+M = [0.1:0.1:0.9,1.1:0.1:3];
 %M = 1.1:0.01:3;
 %--------------------------------------------------------------------------
 for n = 1:length(h)
@@ -34,18 +35,19 @@ for m = 1:length(M)
      V(m) = M(m)*a;
 %--------------------------------------------------------------------------
 % Thrust available:
-%{
-T_A_data = csvread('Thrust_NEW.csv'); % [lbf] per engine
-T_A_data = T_A_data*4.44822*3;        % [N] all three engines
-MM = 0:0.1:2;
-hh = 0:1000:100000; % [ft]
-hh = hh*0.3048;     % [m]
-
-Thrust_A = interp2(MM,hh,T_A_data, M(m), h(n)); % [N] thrust available
-%}
-T_A = 1000*Thrust(h(n), M(m), T_max);
+[T_A_single_engine, ~] = Propulsion(M(m), h(n));
+T_A = T_A_single_engine*ne; % [N] total takeoff thrust
 %--------------------------------------------------------------------------
 CL(n,m) = W_cruise_avg/(0.5*rho*V(m)^2*Sref); % steady level flight
+%--------------------------------------------------------------------------
+% Calculate sweep:
+M_perp = 0.7;                        % perp Mach #, variable to iterate(?)
+sweep_deg = acosd(M_perp/M(m));      % This has to be limited to 70 ish degrees!
+if sweep_deg > 70                    % Limit the sweep angle
+    sweep_deg = 70;
+end
+b_swept = b_unswept*cosd(sweep_deg); % Span at sweep angle [m]
+AR = b_swept^2/Sref;           % Swept aspect ratio
 %--------------------------------------------------------------------------
 [CD, CD0] = aerofunk_drag_2(h(n), M(m), Sref, CL(n,m), SM, AR, TR);
 D = CD*0.5*rho*V(m)^2*Sref; % [N] Drag (sluf)
