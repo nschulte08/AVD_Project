@@ -44,7 +44,7 @@ end
 % Empirical inputs
 %--------------------------------------------------------------------------
 %TSFC = 0.9;     % [1/hr] Empirical Placeholder for SFC (based on Sadraey Table 4.6 for turbojet = 1.0, turbofan = ???, )
-LD_cruise = 6;  % Cruise lift/drag from Fig 5.3 Nicolai
+LD_cruise = 9;  % Cruise lift/drag from Fig 5.3 Nicolai
 CL_max = 1.8;   % Placeholder, max CL
 
 %% ========================================================================
@@ -78,8 +78,8 @@ ne = 4; % number of engines
 %WingLoading   = design_point(1); % W/S (lbf/ft^2)
 %ThrustLoading = design_point(2); % T/W (lbf/lbf)
 
-WingLoading   = 20;   % W/S (lbf/ft^2)
-ThrustLoading = 0.3;  % T/W (lbf/lbf)
+WingLoading   = 35.18;   % W/S (lbf/ft^2)
+ThrustLoading = 0.1718;  % T/W (lbf/lbf)
 
 fprintf('\n -------------------------------------------------------------------------------- ');
 fprintf('\n Chosen Design point:');
@@ -116,8 +116,8 @@ W_Passengers = convforce(weights.W_payload.Passengers,'lbf','N'); % (N)
 W_Luggage = convforce(weights.W_payload.Luggage,'lbf','N');       % (N)
 W_Crew = convforce(weights.W_payload.Crew,'lbf','N');             % (N)
 W_payload_total = sum([W_Passengers, W_Luggage, W_Crew]); % (N)
-W_empty = weights.W_empty; % (N)
-W_fuel = weights.W_fuel;   % (N)
+W_empty = convforce(weights.W_empty,'lbf','N'); % (N)
+W_fuel = convforce(weights.W_fuel,'lbf','N');   % (N)
 
 %% ========================================================================
 % Display initial design parameters:
@@ -149,7 +149,7 @@ fprintf('\n Climb ending:             W_climb_end  = %g [N] = %g [lbf] ', W_clim
 fprintf('\n Climb average:            W_climb_avg  = %g [N] = %g [lbf] ', W_climb_avg,      convforce(W_climb_avg,'N','lbf'));
 fprintf('\n Cruise start:          W_cruise_start  = %g [N] = %g [lbf] ', W_cruise_start,   convforce(W_cruise_start,'N','lbf'));
 fprintf('\n Cruise end:              W_cruise_end  = %g [N] = %g [lbf] ', W_cruise_end,     convforce(W_cruise_end,'N','lbf'));
-fprintf('\n Cruise avgerage:         W_cruise_avg  = %g [N] = %g [lbf] ', W_cruise_avg,     convforce(W_cruise_avg,'N','lbf'));
+fprintf('\n Cruise average:         W_cruise_avg  = %g [N] = %g [lbf] ', W_cruise_avg,     convforce(W_cruise_avg,'N','lbf'));
 fprintf('\n Descent ending:         W_descend_end  = %g [N] = %g [lbf] ', W_descend_end,    convforce(W_descend_end,'N','lbf'));
 fprintf('\n Descent average:        W_descend_avg  = %g [N] = %g [lbf] ', W_descend_avg,    convforce(W_descend_avg,'N','lbf'));
 fprintf('\n Landing:                       W_land  = %g [N] = %g [lbf] ', W_land,           convforce(W_land,'N','lbf'));

@@ -4,7 +4,7 @@ function [weights, weight_fractions] = Weight_Buildup( W_to, num_pass, num_crew,
 %--------------------------------------------------------------------------
 % Fixed weight calculation
 W_pass = 205 * num_pass; % lbf, based on Sadraey p. 97
-W_lug = 50 * num_pass;
+W_lug = 140 * num_pass;
 W_pl = W_pass + W_lug;
 W_crew = num_crew * 200;
 W_fixed = W_pl + W_crew;
@@ -27,11 +27,16 @@ WF_total = WF_to*WF_climb*WF_accel*WF_cruise*WF_des*WF_land;
 W_land = WF_total*W_to;     
 %--------------------------------------------------------------------------
 % Fuel weight to takeoff weight ratio from the calculated weight ratios with reserve fuel
-Wf_Wto = 1.05*(1-WF_total);
+Wf_Wto = 1.01*(1-WF_total);
 W_fuel = Wf_Wto*W_to;  
 %--------------------------------------------------------------------------
 % Empty weight = MTOW - fuel weight - payload weight                        
 W_empty = W_to - W_fuel - W_fixed; % Roskam Table 2.14 Vol 1
+if W_empty < 0	
+    % If the empty weight is less than 0, stop the script 	
+    err_msg = sprintf('The empty weight is less than 0! Increase the input MTOW');	
+    error('sytnax:requirements','\n\n %s \n\n',err_msg);	
+end
 %--------------------------------------------------------------------------
 W_payload = struct('Passengers', W_pass,'Luggage', W_lug, 'Crew', W_crew);
 weights = struct('W_empty', W_empty, 'W_payload', W_payload, 'W_fuel', W_fuel, 'W_to', W_to, 'W_land', W_land);
