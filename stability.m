@@ -8,22 +8,24 @@ M       = Mach number
 b       = span [m] (52.4)
 S_ref   = referrence area [m^2] (371.6)
 AR      = aspect ratio
-Lambda  = ??? (24 )
+Lambda  = sweep angle [deg]
 TR      = taper ratio (9.33/37.5)
 CL      = lift coefficient
 SM      = static margin
 flight_phase = string for plot naming
 ===========================================================================
 OUTPUTS:
-CMa     = longitudinal stability derivative
-Cl_beta = lateral stability derivative
-Cn_beta = directional stability derivative
-Cn_dr   = rudder control power
+CMa     = longitudinal stability derivative [1/rad]
+Cl_beta = lateral stability derivative [1/rad]
+Cn_beta = directional stability derivative [1/rad]
+CM_de   = elevator control power [1/rad]
+Cl_da   = aileron control power [1/rad]
+Cn_dr   = rudder control power [1/rad]
 S_VT    = total required vertical tail area [m^2]
 l_VT    = distance (in x-direction) between cg location and 1/4 chord of VT mac [m]
 ===========================================================================
 %}
-function [CMa, Cl_beta, Cn_beta, Cn_dr, S_VT, l_VT] = stability(M, AR, Lambda, S_ref, b, TR, CL, SM, flight_phase)
+function [CMa, Cl_beta, Cn_beta, CM_de, Cl_da, Cn_dr, S_VT, l_VT] = stability(M, AR, Lambda, S_ref, b, TR, CL, SM, flight_phase)
 %--------------------------------------------------------------------------
 % geometry:
 tmax = 2.3;         % Maximum Thickness
@@ -54,7 +56,7 @@ fig_save('Figures', figure_name)
 l_VT = (3/8)*b*cosd(Lambda); % this is a function of sweep
 S_VT = lVT_SVT/l_VT;
 CL_a_VT = 2*pi; % [1/rad] vertical tail lift curve slope (approximation for now)
-
+%{
 fprintf('\n\n ============================================================= \n');
 fprintf('\n %s Vertical tail size estimate:', flight_phase);
 fprintf('\n\n Total required vertical tail area:');
@@ -62,7 +64,7 @@ fprintf('\n S_VT = %g [m^2]', S_VT);
 fprintf('\n\n Distance between cg location and 1/4 chord of VT mac:');
 fprintf('\n l_VT = %g [m]', l_VT);
 fprintf('\n\n ============================================================= \n');
-
+%}
 %% ========================================================================
 % Longitudinal stability:
 %--------------------------------------------------------------------------
@@ -94,7 +96,7 @@ a_de  = K_b*cl_dfrac*cl_dth*(k_prime/CLa)*a_dfrac;
 Cm_ih = -CLa;
 CM_de = a_de*Cm_ih; % elevator control power -------------------> need to add this
  %CM_da = 0; % effect of ailerons on pitching moment ----> need to add this
-
+%{
 fprintf('\n\n ============================================================= \n');
 fprintf('\n %s Longitudinal Stability Derivatives:', flight_phase);
 fprintf('\n\n CMa = %g [1/rad]', CMa);
@@ -105,6 +107,7 @@ fprintf('\n\n elevator control power:');
 fprintf('\n CM_de = %g [1/rad]', CM_de);
 fprintf('\n CM_de = %g [1/deg]', CM_de*pi/180);
 fprintf('\n\n ============================================================= \n');
+ %}
 %--------------------------------------------------------------------------
 de_plot = -5:5:5;    % [deg] elevator deflection
 alpha_plot = -10:10; % [deg] side slip
@@ -151,7 +154,7 @@ a_da = (cl_dfrac*cl_dth)/(0.2);
 Cprimel_d = (k/beta)*(0.3);
 Cl_d = a_da*Cprimel_d;
 Cl_da = 2*Cl_d; % aileron control power ---> use Roskam
-
+%{
 fprintf('\n\n ============================================================= \n');
 fprintf('\n %s Lateral Stability Derivatives:', flight_phase);
 fprintf('\n\n Cl_beta = %g [1/rad]', Cl_beta);
@@ -160,6 +163,7 @@ fprintf('\n\n aileron control power:');
 fprintf('\n Cl_da = %g [1/rad]', Cl_da);
 fprintf('\n Cl_da = %g [1/deg]', Cl_da*pi/180);
 fprintf('\n\n ============================================================= \n');
+%}
 %--------------------------------------------------------------------------
 da_plot = -5:5:5;   % [deg] rudder deflection
 beta_plot = -10:10; % [deg] side slip
@@ -196,7 +200,7 @@ Cn_beta = Cn_b_wing + Cn_b_VT; % Nicolai eq. 21.20
 
 tau = 0.6; % placeholder (Nicolai Figure 21.14) ---> this fig could be digitized and the data interpolated
 Cn_dr = 0.9*CL_a_VT*C_VT*tau; % rudder control power (Nicolai eq. 21.26)
-
+%{
 fprintf('\n\n ============================================================= \n');
 fprintf('\n %s Directional Stability Derivatives:', flight_phase);
 fprintf('\n\n total:');
@@ -209,6 +213,7 @@ fprintf('\n\n rudder control power:');
 fprintf('\n Cn_dr = %g [1/rad]', Cn_dr);
 fprintf('\n Cn_dr = %g [1/deg]', Cn_dr*pi/180);
 fprintf('\n\n ============================================================= \n');
+%}
 %--------------------------------------------------------------------------
 dr_plot = -5:5:5;   % [deg] rudder deflection
 beta_plot = -10:10; % [deg] side slip
