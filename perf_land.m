@@ -16,20 +16,21 @@ S_land:     landing distance [m]
 FAR_land:   FAR landing distance [m]
 ===========================================================================
 %}
-function [S_land, FAR_land] = perf_land(M_land, alt_land, Sref, AR_low, W_land, CL_max, T_max, TR, SM)
+function [S_land, FAR_land] = perf_land(alt_land, Sref, AR_low, W_land, CL_max, T_land, TR, SM)
 
 [~, ~, ~, rho_land, son_land, ~, ~, ~, ~, ~] = ATMO(alt_land, 'M');
 
-V_land = son_land*M_land; % Landing Velocity (m/s)
 g = 9.81;                 % [m/s^2] gravity
 h_obst = 35*0.3048;       % [m] 35ft obstacle
-gamma_land = 3;                                  % [deg] approach angle
+gamma_land = 3;           % [deg] approach angle
+
 V_stall = sqrt(2*W_land/(rho_land*Sref*CL_max)); % [m/s] stall speed
 V_approach = 1.2*V_stall;                        % [m/s] approach velocity
 V_TD = 1.15*V_stall;                             % [m/s] touch down velocity
-T_land = 0.01*T_max; % [N] landing thrust = idle thrust
 
-CL_Land = W_land/(Sref*0.5*rho_land*V_land^2); % Landing Velocity (m/s)
+M_land = V_approach/son_land; % landing Mach number
+
+CL_Land = W_land/(Sref*0.5*rho_land*V_approach^2);
 [CD_Land, ~] = aerofunk_drag_2(alt_land, M_land, Sref, CL_Land, SM, AR_low, TR);
 %--------------------------------------------------------------------------
 % flare:
