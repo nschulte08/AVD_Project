@@ -2,6 +2,7 @@
 function to build the operational envelope
 ---------------------------------------------------------------------------
 INPUTS:
+cruise          = cruise points = [M_sub,h_sub, M_super,h_super];
 W_cruise_avg    = average cruise weight [N]
 T_max           = max thrust
 Sref            = reference area [m^2]
@@ -15,14 +16,20 @@ OUTPUTS:
 
 ===========================================================================
 %}
-function op_envelope(W_cruise_avg, Sref, SM, b_unswept, TR, CL_max, ne)
+function op_envelope(cruise, W_cruise_avg, Sref, SM, b_unswept, TR, CL_max, ne)
+%% ========================================================================
+M_sub   = cruise(1); 
+h_sub   = cruise(2); % [m]
+M_super = cruise(3); 
+h_super = cruise(4); % [m]
+
 %% ========================================================================
 % Operational Envelope
 %--------------------------------------------------------------------------
 q_max = 86184.414; % [Pa] max. dyn. pressure (p.104 Nicolai) = 1800 psf 
 %--------------------------------------------------------------------------
 % Altitude and Velocity range:
-h = 0:5000:10e4; % [m]
+h = 0:5000:3e4; % [m]
 %V = 0:5:800;     % [m/s]
 M = [0.1:0.1:0.9,1.1:0.1:3];
 %M = 1.1:0.01:3;
@@ -73,10 +80,11 @@ xlabel('Mach Number','FontSize',12);
 ylabel('Altitude (m)','FontSize',12);
 % xlim([0, 2.5]);
 % ylim([0, 2e4]);
-plot (M_stall_op,h,':k','LineWidth',2.5);
+plot (M_stall_op,h,'-.k','LineWidth',2.5);
 plot (M_q_lim,h,'--k','LineWidth',2.5);
-%plot (M_sub_R,h_sub_R,'k+','LineWidth',2.5,'LineStyle','None','MarkerSize',16);
-%plot (M_super_R,h_super_R,'k*','LineWidth',2.5,'LineStyle','None','MarkerSize',16);
-%legend('Thrust Limit','Stall Boundary', 'Dyn. Press. Limit', 'Subsonic Cruise', 'Supersonic Cruise','Location','best');
-legend('Thrust Limit','Stall Boundary', 'Dyn. Press. Limit', 'Location','best');
+plot (M_sub,h_sub,'k+','LineWidth',2.5,'LineStyle','None','MarkerSize',14);
+plot (M_super,h_super,'k*','LineWidth',2.5,'LineStyle','None','MarkerSize',14);
+legend('Thrust Limit','Stall Boundary', 'Dyn. Press. Limit', 'AS2 Subsonic Cruise', 'AS2 Supersonic Cruise','Location','best');
+%legend('Thrust Limit','Stall Boundary', 'Dyn. Press. Limit', 'Location','best');
+%grid minor
 %--------------------------------------------------------------------------
