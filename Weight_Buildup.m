@@ -4,7 +4,7 @@ function [weights, weight_fractions] = Weight_Buildup( W_to, num_pass, num_crew,
 %--------------------------------------------------------------------------
 % Fixed weight calculation
 W_pass = 205 * num_pass; % lbf, based on Sadraey p. 97
-W_lug = 140 * num_pass;
+W_lug = 50 * num_pass;
 W_pl = W_pass + W_lug;
 W_crew = num_crew * 200;
 W_fixed = W_pl + W_crew;
