@@ -5,11 +5,11 @@ Stability Derivatives function
 INPUTS:
 h       = altitude [m]
 M       = Mach number
-b       = span [m] (52.4)
-S_ref   = referrence area [m^2] (371.6)
-AR      = aspect ratio
+b       = effective span [m]
+S_ref   = referrence area [m^2]
+AR      = effective aspect ratio
 Lambda  = sweep angle [deg]
-TR      = taper ratio (9.33/37.5)
+TR      = taper ratio
 CL      = lift coefficient
 SM      = static margin
 flight_phase = string for plot naming
@@ -39,7 +39,7 @@ C_VT = 0.09;            % Nicolai table 11.8 (buisness aircraft)
 lVT_SVT = C_VT*b*S_ref; % [m^3] product of l_VT and S_VT (Nicolai p.286)
 %--------------------------------------------------------------------------
 % plot solutions:
-l_VT_plot = 1:0.1:5;            % [m] distance (in x-direction) between cg location and 1/4 chord of VT mac
+l_VT_plot = 1:0.1:b;            % [m] distance (in x-direction) between cg location and 1/4 chord of VT mac
 S_VT_plot = lVT_SVT./l_VT_plot; % [m^2] VT area
 
 figure_name = sprintf('Required Total Vertical Tail Area vs Distance of Vertical Tail mac to cg Location, for %s', flight_phase);
@@ -47,6 +47,7 @@ figure('Name',figure_name,'NumberTitle','off','units','normalized','outerpositio
 plot(l_VT_plot,S_VT_plot, 'k', 'LineWidth',3);
 xlabel('l_V_T (m)'  ,'FontSize',18);
 ylabel('S_V_T (m^2)','FontSize',18);
+xlim([1,b]);
 title_string = sprintf('%s Required Total Vertical Tail Area vs Distance of Vertical Tail mac to cg Location',flight_phase);
 title(title_string,'FontSize',18);
 grid on
@@ -189,7 +190,7 @@ fig_save('Figures', figure_name)
 % Directional stability:
 %--------------------------------------------------------------------------
 % wing contribution:
-x = 1; % [m] distance between cg location and wing ac (place holder)
+x = SM*c_bar; % [m] distance between cg location and wing ac
 Cn_b_wing = CL^2*(1/(4*pi*AR) - tand(Lambda)/(pi*AR*(AR + 4*cosd(Lambda)))*(cosd(Lambda) - AR/2 - AR^2/(8*cosd(Lambda)) + 6*x*sind(Lambda)/(c_bar*AR))); % Nicolai eq. 21.22
 
 % vertical tail contribution:
