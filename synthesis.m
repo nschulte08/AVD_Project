@@ -211,7 +211,7 @@ T_TO = T_TO_single_engine*ne; % [N] total takeoff thrust
 
 %--------------------------------------------------------------------------
 % S&C:
-[CMa_TO, Cl_beta_TO, Cn_beta_TO, CM_de_TO, Cl_da_TO, Cn_dr_TO, S_VT_TO, l_VT_TO] = stability(M_TO, AR_swept_TO, sweep_deg_TO, Sref, b_swept_TO, TR, CL_TO, SM, 'Takeoff');
+[CMa_TO, Cl_beta_TO, Cn_beta_TO, CM_de_TO, Cl_da_TO, Cn_dr_TO, S_VT_TO, l_VT_TO, VT_plot_TO] = stability(M_TO, AR_swept_TO, sweep_deg_TO, Sref, b_swept_TO, TR, CL_TO, SM, 'Takeoff');
 
 %% ========================================================================
 % Climb Phase
@@ -251,7 +251,7 @@ CL_cr = W_cruise_start/(Sref*0.5*rho_cr*V_cr^2); % lift coefficient cruise
 [R_constH, R_CC, TOF_constH, TOF_CC] = perf_cruise(M_cr, alt_cr, W_cruise_start, W_cruise_end, Sref, SM, AR_swept_cr, TSFC, TR);
 %--------------------------------------------------------------------------
 % S&C:
-[CMa_cr, Cl_beta_cr, Cn_beta_cr, CM_de_cr, Cl_da_cr, Cn_dr_cr, S_VT_cr, l_VT_cr] = stability(M_cr, AR_swept_cr, sweep_deg_cr, Sref, b_swept_cr, TR, CL_cr, SM, 'Cruise');
+[CMa_cr, Cl_beta_cr, Cn_beta_cr, CM_de_cr, Cl_da_cr, Cn_dr_cr, S_VT_cr, l_VT_cr, VT_plot_cr] = stability(M_cr, AR_swept_cr, sweep_deg_cr, Sref, b_swept_cr, TR, CL_cr, SM, 'Cruise');
 
 %% ========================================================================
 % Descent Phase
@@ -293,7 +293,7 @@ end
 [S_land, FAR_land] = perf_land(alt_land, Sref, AR_swept_Land, W_land, CL_max, T_land, TR, SM);
 %--------------------------------------------------------------------------
 % S&C:
-[CMa_L, Cl_beta_L, Cn_beta_L, CM_de_L, Cl_da_L, Cn_dr_L, S_VT_L, l_VT_L] = stability(M_Land, AR_swept_Land, sweep_deg_Land, Sref, b_swept_Land, TR, CL_max, SM, 'Landing');
+[CMa_L, Cl_beta_L, Cn_beta_L, CM_de_L, Cl_da_L, Cn_dr_L, S_VT_L, l_VT_L, VT_plot_land] = stability(M_Land, AR_swept_Land, sweep_deg_Land, Sref, b_swept_Land, TR, CL_max, SM, 'Landing');
 
 %% ========================================================================
 % Total Performance Summary:
@@ -370,7 +370,7 @@ disp(SC_long);
 fprintf('\n -------------------------------------------------------------------------------- ');
 fprintf('\n -------------------------------------------------------------------------------- ');
 % lateral stability:
-ROWNAME = {'Cl_beta [1/rad]';'Cl_betaa [1/deg]';'Aileron control power, Cl_da [1/rad]';'Elevator control power [1/deg]';};
+ROWNAME = {'Cl_beta [1/rad]';'Cl_betaa [1/deg]';'Aileron control power, Cl_da [1/rad]';'Aileron control power [1/deg]';};
 Take_off = [Cl_beta_TO; Cl_beta_TO*pi/180; Cl_da_TO; Cl_da_TO*pi/180];
 Cruise   = [Cl_beta_cr; Cl_beta_cr*pi/180; Cl_da_cr; Cl_da_cr*pi/180];
 Landing  = [Cl_beta_L; Cl_beta_L*pi/180; Cl_da_L; Cl_da_L*pi/180];
@@ -380,7 +380,7 @@ disp(SC_lat);
 fprintf('\n -------------------------------------------------------------------------------- ');
 fprintf('\n -------------------------------------------------------------------------------- ');
 % directional stability:
-ROWNAME = {'Cl_beta [1/rad]';'Cl_betaa [1/deg]';'Aileron control power, Cl_da [1/rad]';'Elevator control power [1/deg]';};
+ROWNAME = {'Cn_beta [1/rad]';'Cn_beta [1/deg]';'Rudder control power, Cl_da [1/rad]';'Rudder control power [1/deg]';};
 Take_off = [Cn_beta_L; Cn_beta_L*pi/180; Cn_dr_L; Cn_dr_L*pi/180];
 Cruise   = [Cn_beta_L; Cn_beta_L*pi/180; Cn_dr_L; Cn_dr_L*pi/180];
 Landing  = [Cn_beta_L; Cn_beta_L*pi/180; Cn_dr_L; Cn_dr_L*pi/180];
@@ -388,6 +388,39 @@ SC_dir = table(Take_off,Cruise,Landing,'RowNames',ROWNAME);
 fprintf('\n Directional stability: \n\n');
 disp(SC_dir);
 fprintf('\n\n ================================================================================= \n\n');
+
+% =========================================================================
+% Plot vertical tail requirements:
+%--------------------------------------------------------------------------
+if supersonic == 0
+    figure_name = sprintf('Required Total Vertical Tail Area - Subsonic Cruise');
+elseif supersonic == 1
+    figure_name = sprintf('Required Total Vertical Tail Area - Supersonic Cruise');
+end
+figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
+plot(VT_plot_cr(1,:),VT_plot_cr(2,:), 'k', 'LineWidth',3);
+xlabel('l_V_T (m)'  ,'FontSize',18);
+ylabel('S_V_T (m^2)','FontSize',18);
+xlim([5,b_swept_cr]);
+title_string = sprintf('Cruise Required Total Vertical Tail Area vs Distance of Vertical Tail mac to cg Location');
+title(title_string,'FontSize',18);
+grid on
+%fig_save('Figures', figure_name)
+%--------------------------------------------------------------------------
+figure_name = sprintf('Required Total Vertical Tail Area - TO and Land');
+figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
+hold on
+plot(VT_plot_TO(1,:),VT_plot_TO(2,:), '--k', 'LineWidth',3);
+plot(VT_plot_land(1,:),VT_plot_land(2,:), '--*k', 'LineWidth',3);
+hold off
+xlabel('l_V_T (m)'  ,'FontSize',18);
+ylabel('S_V_T (m^2)','FontSize',18);
+xlim([20,b_unswept]);
+title_string = sprintf('Required Total Vertical Tail Area vs Distance of Vertical Tail mac to cg Location');
+title(title_string,'FontSize',18);
+legend('Takeoff','Landing','Location','best');
+grid on
+%fig_save('Figures', figure_name)
 
 %% ========================================================================
 % Cost analysis:
