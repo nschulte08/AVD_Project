@@ -25,7 +25,7 @@ S_VT    = total required vertical tail area [m^2]
 l_VT    = distance (in x-direction) between cg location and 1/4 chord of VT mac [m]
 ===========================================================================
 %}
-function [CMa, Cl_beta, Cn_beta, CM_de, Cl_da, Cn_dr, S_VT, l_VT] = stability(M, AR, Lambda, S_ref, b, TR, CL, SM, flight_phase)
+function [CMa, Cl_beta, Cn_beta, CM_de, Cl_da, Cn_dr, S_VT, l_VT, vert_tail_plot] = stability(M, AR, Lambda, S_ref, b, TR, CL, SM, flight_phase)
 %--------------------------------------------------------------------------
 % geometry:
 tmax = 2.3;         % Maximum Thickness
@@ -39,9 +39,11 @@ C_VT = 0.09;            % Nicolai table 11.8 (buisness aircraft)
 lVT_SVT = C_VT*b*S_ref; % [m^3] product of l_VT and S_VT (Nicolai p.286)
 %--------------------------------------------------------------------------
 % plot solutions:
-l_VT_plot = 1:0.1:b;            % [m] distance (in x-direction) between cg location and 1/4 chord of VT mac
+l_VT_plot = 1:0.1:b;           % [m] distance (in x-direction) between cg location and 1/4 chord of VT mac
 S_VT_plot = lVT_SVT./l_VT_plot; % [m^2] VT area
 
+vert_tail_plot = [l_VT_plot; S_VT_plot];
+%{
 figure_name = sprintf('Required Total Vertical Tail Area vs Distance of Vertical Tail mac to cg Location, for %s', flight_phase);
 figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
 plot(l_VT_plot,S_VT_plot, 'k', 'LineWidth',3);
@@ -52,6 +54,7 @@ title_string = sprintf('%s Required Total Vertical Tail Area vs Distance of Vert
 title(title_string,'FontSize',18);
 grid on
 fig_save('Figures', figure_name)
+%}
 %--------------------------------------------------------------------------
 % inital estimate:
 l_VT = (3/8)*b*cosd(Lambda); % this is a function of sweep
