@@ -4,7 +4,7 @@ function [ max_load, min_load ] = Wing_Loading( b, MTOW, lambda )
 
 span = [0 : .25 : b/2]'; % divide wingspan into segments
 loads = zeros(1); % 1st column: trapezoidal, 2nd column: elliptical, 3rd column: average
-n = 1; % gust load factor, Nicolai p. 535
+n = 4.1; % gust load factor, Nicolai p. 535
 L = MTOW * n; % total lift applied to wing
 
 for i = 1 : numel(span)
