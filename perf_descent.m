@@ -27,7 +27,8 @@ S_descend = alt_cr/abs(tand(gamma_descend)); % [m] range covered during descent
 dt_descend = S_descend/V_descend;            % [s] time to descend
 %--------------------------------------------------------------------------
 fprintf('\n\n ============================== Descent Results  ============================== \n');
-fprintf('\n Descent from Subsonic Cruising Altitude: (h = %g [m])', alt_cr);
+fprintf('\n Descending from altitude of:    h = %g [m] = %g [ft] ', alt_cr, alt_cr*3.2808399);
+fprintf('\n\n -------------------------------------------------------------------- ');
 fprintf('\n Descent Angle:         gamma = %g [deg] ', gamma_descend);
 fprintf('\n Rate of Descent:         ROD = %g [m/s] = %g [ft/s]', ROD, ROD*3.2808399);
 fprintf('\n Descent Velocity:          V = %g [m/s] = %g [ft/s]', V_descend, V_descend*3.2808399);
