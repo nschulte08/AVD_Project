@@ -13,14 +13,12 @@ clear; clc; close all;
 %% ========================================================================
 % Mission inputs
 %--------------------------------------------------------------------------
-supersonic = 1; % Enter 1 if analyzing supersonic cruise, 0 for subsonic
-%--------------------------------------------------------------------------
 M_cr_sub = 0.9;              % Subsonic cruise Mach number
 M_cr_super = 1.4;            % Supersonic cruise Mach number
 range_sub = 9800e3;          % Subsonic range, (m)
 range_super = 8800e3;        % Supersonic range, (m)
-alt_sub_cr = 13000;          % Subsonic cruise altitude (m)
-alt_super_cr = 15500;        % Supersonic cruise altitude (m)
+alt_cr_sub = 13000;          % Subsonic cruise altitude (m)
+alt_cr_super = 15500;        % Supersonic cruise altitude (m)
 M_max = 2.0;                 % (need to update)
 num_pass = 12;               % Number of passengers
 num_crew = 4;                % Number of crew members
@@ -28,18 +26,9 @@ num_crew = 4;                % Number of crew members
 alt_TO = 0; % takeoff Airport altitude [m]
 alt_land = 0; % landing Airport altitude [m]
 %--------------------------------------------------------------------------
-if supersonic == 0
-    alt_cr = alt_sub_cr; % [m]
-    M_cr = M_cr_sub;
-    R_cr = range_sub; % [m]
-    [~,TSFC] = Propulsion(M_cr_sub,alt_sub_cr); % TSFC = [1/hr]
-elseif supersonic == 1
-    alt_cr = alt_super_cr; % [m]
-    M_cr = M_cr_super;
-    R_cr = range_super; % [m]
-    [~,TSFC] = Propulsion(M_cr_super,alt_super_cr); % TSFC = [1/hr]
-    %TSFC = 1.0;
-end
+[~,TSFC_sub] = Propulsion(M_cr_sub,alt_cr_sub); % TSFC = [1/hr]
+[~,TSFC_super] = Propulsion(M_cr_super,alt_cr_super); % TSFC = [1/hr]
+
 %% ========================================================================
 % Empirical inputs
 %--------------------------------------------------------------------------
@@ -73,7 +62,7 @@ ne = 4; % number of engines
 %% ========================================================================
 % Solution Space
 %--------------------------------------------------------------------------
-[design_point] = Solution_Space_OFW_integrated(AR_unswept, CL_max, e, alt_sub_cr, M_cr_sub, alt_super_cr, M_cr_super, ne);
+[design_point] = Solution_Space_OFW_integrated(AR_unswept, CL_max, e, alt_cr_sub, M_cr_sub, alt_cr_super, M_cr_super, ne);
 
 %WingLoading   = design_point(1); % W/S (lbf/ft^2)
 %ThrustLoading = design_point(2); % T/W (lbf/lbf)
@@ -93,31 +82,48 @@ T_max_required = ThrustLoading*MTOW; % Required thrust for takeoff, N
 %% ========================================================================
 % Weights
 %--------------------------------------------------------------------------
-[~, ~, ~, ~, son_climb, ~, ~, ~, ~, ~] = ATMO(alt_super_cr, 'M');
-V_cr = M_cr*son_climb; % cruise velocity, (m/s) 
+[~, ~, ~, ~, son_climb_super, ~, ~, ~, ~, ~] = ATMO(alt_cr_super, 'M');
+V_cr_super = M_cr_super*son_climb_super; % cruise velocity, (m/s) 
 %--------------------------------------------------------------------------
-[weights, wt_frac] = Weight_Buildup(convforce(MTOW,'N','lbf'), num_pass, num_crew, convvel(V_cr,'m/s','mph'), M_cr, convlength(R_cr,'m','mi'), TSFC, LD_cruise);
+[weights_super, wt_frac_super] = Weight_Buildup(convforce(MTOW,'N','lbf'), num_pass, num_crew, convvel(V_cr_super,'m/s','mph'), M_cr_super, convlength(range_super,'m','mi'), TSFC_super, LD_cruise);
 
-W_to_end = MTOW*wt_frac.WF_to;  % Wt at end of TO, start of climb (N)
+W_to_end = MTOW*wt_frac_super.WF_to;  % Wt at end of TO, start of climb (N)
 
-W_climb_end = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel; % Wt at end of climb, start of cruise (N)
-W_climb_avg = 0.5*(W_to_end + W_climb_end);
+W_climb_end_super = MTOW*wt_frac_super.WF_to*wt_frac_super.WF_climb*wt_frac_super.WF_accel; % Wt at end of climb, start of cruise (N)
+W_climb_avg_super = 0.5*(W_to_end + W_climb_end_super);
 
-W_cruise_start = W_climb_end; % Wt at beginning of cruise (N)
-W_cruise_end = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel*wt_frac.WF_cruise; % Wt at end of cruise (N)
-W_cruise_avg = 0.5*(W_climb_end + W_cruise_end); % Average cruise wt (N)
+W_cruise_start_super = W_climb_end_super; % Wt at beginning of cruise (N)
+W_cruise_end_super = MTOW*wt_frac_super.WF_to*wt_frac_super.WF_climb*wt_frac_super.WF_accel*wt_frac_super.WF_cruise; % Wt at end of cruise (N)
+W_cruise_avg_super = 0.5*(W_climb_end_super + W_cruise_end_super); % Average cruise wt (N)
 
-W_descend_end = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel*wt_frac.WF_cruise*wt_frac.WF_des; % Wt at end of descent (N)
-W_descend_avg = 0.5*(W_cruise_end + W_descend_end); % Average descent wt (N)
+W_descend_end_super = MTOW*wt_frac_super.WF_to*wt_frac_super.WF_climb*wt_frac_super.WF_accel*wt_frac_super.WF_cruise*wt_frac_super.WF_des; % Wt at end of descent (N)
+W_descend_avg_super = 0.5*(W_cruise_end_super + W_descend_end_super); % Average descent wt (N)
 
-W_land = convforce(weights.W_land,'lbf','N'); % Landing Weight (N)
-
-W_Passengers = convforce(weights.W_payload.Passengers,'lbf','N'); % (N)
-W_Luggage = convforce(weights.W_payload.Luggage,'lbf','N');       % (N)
-W_Crew = convforce(weights.W_payload.Crew,'lbf','N');             % (N)
+W_land = convforce(weights_super.W_land,'lbf','N'); % Landing Weight (N)
+%--------------------------------------------------------------------------
+W_Passengers = convforce(weights_super.W_payload.Passengers,'lbf','N'); % (N)
+W_Luggage = convforce(weights_super.W_payload.Luggage,'lbf','N');       % (N)
+W_Crew = convforce(weights_super.W_payload.Crew,'lbf','N');             % (N)
 W_payload_total = sum([W_Passengers, W_Luggage, W_Crew]); % (N)
-W_empty = convforce(weights.W_empty,'lbf','N'); % (N)
-W_fuel = convforce(weights.W_fuel,'lbf','N');   % (N)
+W_empty = convforce(weights_super.W_empty,'lbf','N'); % (N)
+W_fuel = convforce(weights_super.W_fuel,'lbf','N');   % (N)
+% =========================================================================
+[~, ~, ~, ~, son_climb_sub, ~, ~, ~, ~, ~] = ATMO(alt_cr_sub, 'M');
+V_cr_sub = M_cr_sub*son_climb_sub; % cruise velocity, (m/s) 
+%--------------------------------------------------------------------------
+[~, wt_frac_sub] = Weight_Buildup(convforce(MTOW,'N','lbf'), num_pass, num_crew, convvel(V_cr_sub,'m/s','mph'), M_cr_sub, convlength(range_sub,'m','mi'), TSFC_sub, LD_cruise);
+
+W_climb_end_sub = MTOW*wt_frac_sub.WF_to*wt_frac_sub.WF_climb*wt_frac_sub.WF_accel; % Wt at end of climb, start of cruise (N)
+W_climb_avg_sub = 0.5*(W_to_end + W_climb_end_sub);
+
+W_cruise_start_sub = W_climb_end_sub;        % Wt at beginning of cruise (N)
+W_cruise_end_sub = W_climb_end_sub - W_fuel; % Wt at end of cruise (N)
+W_cruise_avg_sub = 0.5*(W_climb_end_sub + W_cruise_end_sub); % Average cruise wt (N)
+
+W_descend_end_sub = W_cruise_end_sub*wt_frac_sub.WF_des; % Wt at end of cruise (N)
+W_descend_avg_sub = 0.5*(W_cruise_end_sub + W_descend_end_sub); % Average descent wt (N)
+%--------------------------------------------------------------------------
+W_cruise_avg_avg = (W_cruise_avg_sub + W_cruise_avg_super)/2; % used for op_envelope and Ta vs Tr plot
 
 %% ========================================================================
 % Display initial design parameters:
@@ -143,16 +149,22 @@ fprintf('\n Max takeoff weight:        MTOW  = %g [N] = %g [lbf] ', MTOW, convfo
 fprintf('\n\n ===================================================================================== \n');
 
 fprintf('\n\n =================================== Weights =================================== \n');
-fprintf('\n Max takeoff:                     MTOW  = %g [N] = %g [lbf] ', MTOW,             convforce(MTOW,'N','lbf'));
-fprintf('\n Takeoff end:                 W_to_end  = %g [N] = %g [lbf] ', W_to_end,         convforce(W_to_end,'N','lbf'));
-fprintf('\n Climb ending:             W_climb_end  = %g [N] = %g [lbf] ', W_climb_end,      convforce(W_climb_end,'N','lbf'));
-fprintf('\n Climb average:            W_climb_avg  = %g [N] = %g [lbf] ', W_climb_avg,      convforce(W_climb_avg,'N','lbf'));
-fprintf('\n Cruise start:          W_cruise_start  = %g [N] = %g [lbf] ', W_cruise_start,   convforce(W_cruise_start,'N','lbf'));
-fprintf('\n Cruise end:              W_cruise_end  = %g [N] = %g [lbf] ', W_cruise_end,     convforce(W_cruise_end,'N','lbf'));
-fprintf('\n Cruise average:         W_cruise_avg  = %g [N] = %g [lbf] ', W_cruise_avg,     convforce(W_cruise_avg,'N','lbf'));
-fprintf('\n Descent ending:         W_descend_end  = %g [N] = %g [lbf] ', W_descend_end,    convforce(W_descend_end,'N','lbf'));
-fprintf('\n Descent average:        W_descend_avg  = %g [N] = %g [lbf] ', W_descend_avg,    convforce(W_descend_avg,'N','lbf'));
-fprintf('\n Landing:                       W_land  = %g [N] = %g [lbf] ', W_land,           convforce(W_land,'N','lbf'));
+fprintf('\n Max takeoff:                MTOW            = %g [N] = %g [lbf] ', MTOW,             convforce(MTOW,'N','lbf'));
+fprintf('\n Takeoff end:                W_to_end        = %g [N] = %g [lbf] ', W_to_end,         convforce(W_to_end,'N','lbf'));
+fprintf('\n Climb average (sub):        W_climb_avg     = %g [N] = %g [lbf] ', W_climb_avg_sub,      convforce(W_climb_avg_sub,'N','lbf'));
+fprintf('\n Climb average (super):      W_climb_avg     = %g [N] = %g [lbf] ', W_climb_avg_super,      convforce(W_climb_avg_super,'N','lbf'));
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Subsonic Cruise start:      W_cruise_start  = %g [N] = %g [lbf] ', W_cruise_start_sub,   convforce(W_cruise_start_sub,'N','lbf'));
+fprintf('\n Subsonic Cruise end:        W_cruise_end    = %g [N] = %g [lbf] ', W_cruise_end_sub,     convforce(W_cruise_end_sub,'N','lbf'));
+fprintf('\n Subsonic Cruise average:    W_cruise_avg    = %g [N] = %g [lbf] ', W_cruise_avg_sub,     convforce(W_cruise_avg_sub,'N','lbf'));
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Supersonic Cruise start:    W_cruise_start  = %g [N] = %g [lbf] ', W_cruise_start_super,   convforce(W_cruise_start_super,'N','lbf'));
+fprintf('\n Supersonic Cruise end:      W_cruise_end    = %g [N] = %g [lbf] ', W_cruise_end_super,     convforce(W_cruise_end_super,'N','lbf'));
+fprintf('\n Supersonic Cruise average:  W_cruise_avg    = %g [N] = %g [lbf] ', W_cruise_avg_super,     convforce(W_cruise_avg_super,'N','lbf'));
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Descent average (sub):      W_descend_avg   = %g [N] = %g [lbf] ', W_descend_avg_sub,    convforce(W_descend_avg_sub,'N','lbf'));
+fprintf('\n Descent average (super):    W_descend_avg   = %g [N] = %g [lbf] ', W_descend_avg_super,    convforce(W_descend_avg_super,'N','lbf'));
+fprintf('\n Landing:                    W_land          = %g [N] = %g [lbf] ', W_land,           convforce(W_land,'N','lbf'));
 fprintf('\n -------------------------------------------------------------------------------- ');
 fprintf('\n Total payload weight:       W_payload       = %g [N] = %g [lbf] ', W_payload_total, convforce(W_payload_total,'N','lbf'));
 fprintf('\n Passenger weight:           W_passengers    = %g [N] = %g [lbf] ', W_Passengers, convforce(W_Passengers,'N','lbf'));
@@ -165,14 +177,16 @@ fprintf('\n\n ==================================================================
 %% ========================================================================
 % operational envelope:
 %--------------------------------------------------------------------------
-cruise = [M_cr_sub, alt_sub_cr, M_cr_super, alt_super_cr];
-op_envelope(cruise, W_cruise_avg, Sref, SM, b_unswept, TR, CL_max, ne)
+cruise = [M_cr_sub, alt_cr_sub, M_cr_super, alt_cr_super];
+op_envelope(cruise, W_cruise_avg_avg, Sref, SM, b_unswept, TR, CL_max, ne, M_perp)
+
+Thrust_required_and_available(cruise, W_cruise_avg_avg, Sref, SM, b_unswept, TR, ne, M_perp)
 
 %% ========================================================================
 % V-n diagram and wing loading
 %--------------------------------------------------------------------------
-altitudes = [0, convlength(alt_sub_cr,'m','ft'), convlength(alt_super_cr,'m','ft')]; % array of key altitudes for V-n diagram (ft)
-Vn_Diagram(convforce(MTOW,'N','lbf'), Sref*convlength(1,'m','ft')^2, altitudes, M_cr, M_max, CL_max);
+altitudes = [0, convlength(alt_cr_sub,'m','ft'), convlength(alt_cr_super,'m','ft')]; % array of key altitudes for V-n diagram (ft)
+Vn_Diagram(convforce(MTOW,'N','lbf'), Sref*convlength(1,'m','ft')^2, altitudes, M_cr_sub, M_max, CL_max);
 [max_load, min_load] = Wing_Loading(b_unswept, MTOW, TR); 
 
 %% ========================================================================
@@ -216,47 +230,74 @@ T_TO = T_TO_single_engine*ne; % [N] total takeoff thrust
 %% ========================================================================
 % Climb Phase
 %--------------------------------------------------------------------------
-if M_cr > 1
-    alt_climb = alt_sub_cr;              
-else
-    alt_climb = alt_super_cr;
-end
+[ROC_sub, gamma_climb_sub, S_climb_sub, dt_climb_sub, sweep_climb_sub] = perf_climb(alt_cr_sub, CL_max, W_climb_avg_sub, Sref, b_unswept, M_perp);
 
-[ROC, gamma_climb, S_climb, dt_climb, sweep_climb] = perf_climb(alt_climb, CL_max, W_climb_avg, Sref, b_unswept, M_perp);
+[ROC_super, gamma_climb_super, S_climb_super, dt_climb_super, sweep_climb_super] = perf_climb(alt_cr_super, CL_max, W_climb_avg_super, Sref, b_unswept, M_perp);
 
 %% ========================================================================
-% Cruise Phase
+% Subsonic Cruise Phase
 %--------------------------------------------------------------------------
-[~, ~, ~, rho_cr, son_cr, ~, ~, ~, ~, ~] = ATMO(alt_cr, 'M');
-V_cr = M_cr*son_cr; % [m/s]
+[~, ~, ~, rho_cr_sub, son_cr_sub, ~, ~, ~, ~, ~] = ATMO(alt_cr_sub, 'M');
+V_cr_sub = M_cr_sub*son_cr_sub; % [m/s]
 %--------------------------------------------------------------------------
 % Calculate sweep for cruise:
-if M_perp < M_cr % to avoid complex numbers
-    sweep_deg_cr = acosd(M_perp/M_cr);      % This has to be limited to 70 ish degrees!
-    if sweep_deg_cr > 70                    % Limit the sweep angle
-        sweep_deg_cr = 70;
+if M_perp < M_cr_sub % to avoid complex numbers
+    sweep_deg_cr_sub = acosd(M_perp/M_cr_sub);      % This has to be limited to 70 ish degrees!
+    if sweep_deg_cr_sub > 70                    % Limit the sweep angle
+        sweep_deg_cr_sub = 70;
     end
-    b_swept_cr = b_unswept*cosd(sweep_deg_cr); % Span at sweep angle [m]
-    AR_swept_cr = b_swept_cr^2/Sref;           % Swept aspect ratio
+    b_swept_cr_sub = b_unswept*cosd(sweep_deg_cr_sub); % Span at sweep angle [m]
+    AR_swept_cr_sub = b_swept_cr_sub^2/Sref;           % Swept aspect ratio
 else
-    sweep_deg_cr = 0;
-	b_swept_cr = b_unswept;   % Span at sweep angle [m]
-    AR_swept_cr = AR_unswept; % Swept aspect ratio
+    sweep_deg_cr_sub = 0;
+	b_swept_cr_sub = b_unswept;   % Span at sweep angle [m]
+    AR_swept_cr_sub = AR_unswept; % Swept aspect ratio
 end
 %--------------------------------------------------------------------------
 % aero:
-CL_cr = W_cruise_start/(Sref*0.5*rho_cr*V_cr^2); % lift coefficient cruise
+CL_cr_sub = W_cruise_avg_super/(Sref*0.5*rho_cr_sub*V_cr_sub^2); % lift coefficient cruise
 %--------------------------------------------------------------------------
 % performance:
-[R_constH, R_CC, TOF_constH, TOF_CC] = perf_cruise(M_cr, alt_cr, W_cruise_start, W_cruise_end, Sref, SM, AR_swept_cr, TSFC, TR);
+[R_constH_sub, R_CC_sub, TOF_constH_sub, TOF_CC_sub] = perf_cruise(M_cr_sub, alt_cr_sub, W_cruise_start_sub, W_cruise_end_sub, Sref, SM, AR_swept_cr_sub, TSFC_sub, TR);
 %--------------------------------------------------------------------------
 % S&C:
-[CMa_cr, Cl_beta_cr, Cn_beta_cr, CM_de_cr, Cl_da_cr, Cn_dr_cr, S_VT_cr, l_VT_cr, VT_plot_cr] = stability(M_cr, AR_swept_cr, sweep_deg_cr, Sref, b_swept_cr, TR, CL_cr, SM, 'Cruise');
+[CMa_cr_sub, Cl_beta_cr_sub, Cn_beta_cr_sub, CM_de_cr_sub, Cl_da_cr_sub, Cn_dr_cr_sub, S_VT_cr_sub, l_VT_cr_sub, VT_plot_cr_sub] = stability(M_cr_sub, AR_swept_cr_sub, sweep_deg_cr_sub, Sref, b_swept_cr_sub, TR, CL_cr_sub, SM, 'Subsonic Cruise');
+
+%% ========================================================================
+% Supersonic Cruise Phase
+%--------------------------------------------------------------------------
+[~, ~, ~, rho_cr_super, son_cr_super, ~, ~, ~, ~, ~] = ATMO(alt_cr_super, 'M');
+V_cr_super = M_cr_super*son_cr_super; % [m/s]
+%--------------------------------------------------------------------------
+% Calculate sweep for cruise:
+if M_perp < M_cr_super % to avoid complex numbers
+    sweep_deg_cr_super = acosd(M_perp/M_cr_super);      % This has to be limited to 70 ish degrees!
+    if sweep_deg_cr_super > 70                    % Limit the sweep angle
+        sweep_deg_cr_super = 70;
+    end
+    b_swept_cr_super = b_unswept*cosd(sweep_deg_cr_super); % Span at sweep angle [m]
+    AR_swept_cr_super = b_swept_cr_super^2/Sref;           % Swept aspect ratio
+else
+    sweep_deg_cr_super = 0;
+	b_swept_cr_super = b_unswept;   % Span at sweep angle [m]
+    AR_swept_cr_super = AR_unswept; % Swept aspect ratio
+end
+%--------------------------------------------------------------------------
+% aero:
+CL_cr_super = W_cruise_avg_super/(Sref*0.5*rho_cr_super*V_cr_super^2); % lift coefficient cruise
+%--------------------------------------------------------------------------
+% performance:
+[R_constH_super, R_CC_super, TOF_constH_super, TOF_CC_super] = perf_cruise(M_cr_super, alt_cr_super, W_cruise_start_super, W_cruise_end_super, Sref, SM, AR_swept_cr_super, TSFC_super, TR);
+%--------------------------------------------------------------------------
+% S&C:
+[CMa_cr_super, Cl_beta_cr_super, Cn_beta_cr_super, CM_de_cr_super, Cl_da_cr_super, Cn_dr_cr_super, S_VT_cr_super, l_VT_cr_super, VT_plot_cr_super] = stability(M_cr_super, AR_swept_cr_super, sweep_deg_cr_super, Sref, b_swept_cr_super, TR, CL_cr_super, SM, 'Supersonic Cruise');
 
 %% ========================================================================
 % Descent Phase
 %--------------------------------------------------------------------------
-[S_descend, dt_descend, sweep_descend] = perf_descent(alt_cr, M_perp);
+[S_descend_sub, dt_descend_sub, sweep_descend_sub] = perf_descent(alt_cr_sub, M_perp);
+
+[S_descend_super, dt_descend_super, sweep_descend_super] = perf_descent(alt_cr_super, M_perp);
 
 %% ========================================================================
 % Landing Phase
@@ -299,39 +340,66 @@ end
 % Total Performance Summary:
 %--------------------------------------------------------------------------
 % total range and time of flight:
-R_total_1 = S_climb + R_constH + S_descend; % [m]
-R_total_2 = S_climb + R_CC + S_descend;     % [m]
+R_total_sub = S_climb_sub   + R_constH_sub   + S_descend_sub;   % [m]
+R_total_super = S_climb_super + R_constH_super + S_descend_super; % [m]
 
-dt_total_1 = dt_climb + TOF_constH + dt_descend; % [s]
-dt_total_2 = dt_climb + TOF_CC + dt_descend;     % [s]
+dt_total_sub = dt_climb_sub   + TOF_constH_sub   + dt_descend_sub;   % [s]
+dt_total_super = dt_climb_super + TOF_constH_super + dt_descend_super; % [s]
 %--------------------------------------------------------------------------
-fprintf('\n\n ============================== Total Range and Time of Flight ============================== \n');
-fprintf('\n Total Range (including climb and descent) for Constant Altitude Cruise:');
+fprintf('\n\n ============================== Total Range and Time of Flight for Subsonic Mission ============================== \n');
+fprintf('\n Total Range (including climb and descent)');
 fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Cruise Altitude: h  = %g [m] = %g [ft] \n', alt_cr, convlength(alt_cr,'m','ft'));
-fprintf('\n Range Covered During Climb:        R_climb   = %g [km] = %g [miles]', convlength(S_climb,'m','km'), convlength(S_climb,'m','mi'));
-fprintf('\n Constant Altitude Cruise Range:    R_cruise  = %g [km] = %g [miles]', convlength(R_constH,'m','km'), convlength(R_constH,'m','mi'));
-fprintf('\n Cruise Climb Range:                R_cruise  = %g [km] = %g [miles]', convlength(R_CC,'m','km'), convlength(R_CC,'m','mi'));
-fprintf('\n Range Covered During Descent:      R_descend = %g [km] = %g [miles]', convlength(S_descend,'m','km'), convlength(S_descend,'m','mi'));
-fprintf('\n\n Total Range:  R = %g [km] = %g [miles] \n', convlength(R_total_1,'m','km'), convlength(R_total_1,'m','mi'));
-fprintf('\n Time to Climb:    dt_climb   = %g [min]', dt_climb/60);
-fprintf('\n Time to Cruise:   dt_cruise  = %g [min]', TOF_constH/60);
-fprintf('\n Time to Descend:  dt_descend = %g [min]', dt_descend/60);
-fprintf('\n\n Total Time of Flight:   dt = %g [min]', dt_total_1/60);
-fprintf('\n                         dt = %g [hrs]', dt_total_1/3600);
-fprintf('\n\n ===================================================================================== \n');
+fprintf('\n Cruise Altitude: h  = %g [m] = %g [ft] \n', alt_cr_sub, convlength(alt_cr_sub,'m','ft'));
+fprintf('\n Range Covered During Climb:        R_climb   = %g [km] = %g [miles]', convlength(S_climb_sub,'m','km'), convlength(S_climb_sub,'m','mi'));
+fprintf('\n Constant Altitude Cruise Range:    R_cruise  = %g [km] = %g [miles]', convlength(R_constH_sub,'m','km'), convlength(R_constH_sub,'m','mi'));
+%fprintf('\n Cruise Climb Range:                R_cruise  = %g [km] = %g [miles]', convlength(R_CC_sub,'m','km'), convlength(R_CC_sub,'m','mi'));
+fprintf('\n Range Covered During Descent:      R_descend = %g [km] = %g [miles]', convlength(S_descend_sub,'m','km'), convlength(S_descend_sub,'m','mi'));
+fprintf('\n\n Total Range:  R = %g [km] = %g [miles] \n', convlength(R_total_sub,'m','km'), convlength(R_total_sub,'m','mi'));
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Time to Climb:    dt_climb   = %g [min]', dt_climb_sub/60);
+fprintf('\n Time to Cruise:   dt_cruise  = %g [min]', TOF_constH_sub/60);
+fprintf('\n Time to Descend:  dt_descend = %g [min]', dt_descend_sub/60);
+fprintf('\n\n Total Time of Flight:   dt = %g [min]', dt_total_sub/60);
+fprintf('\n                         dt = %g [hrs]', dt_total_sub/3600);
+fprintf('\n\n =================================================================================================================== \n');
+%--------------------------------------------------------------------------
+fprintf('\n\n ============================== Total Range and Time of Flight for Supersonic Mission ============================== \n');
+fprintf('\n Total Range (including climb and descent)');
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Cruise Altitude: h  = %g [m] = %g [ft] \n', alt_cr_super, convlength(alt_cr_super,'m','ft'));
+fprintf('\n Range Covered During Climb:        R_climb   = %g [km] = %g [miles]', convlength(S_climb_super,'m','km'), convlength(S_climb_super,'m','mi'));
+fprintf('\n Constant Altitude Cruise Range:    R_cruise  = %g [km] = %g [miles]', convlength(R_constH_super,'m','km'), convlength(R_constH_super,'m','mi'));
+%fprintf('\n Cruise Climb Range:                R_cruise  = %g [km] = %g [miles]', convlength(R_CC_super,'m','km'), convlength(R_CC_super,'m','mi'));
+fprintf('\n Range Covered During Descent:      R_descend = %g [km] = %g [miles]', convlength(S_descend_super,'m','km'), convlength(S_descend_super,'m','mi'));
+fprintf('\n\n Total Range:  R = %g [km] = %g [miles] \n', convlength(R_total_super,'m','km'), convlength(R_total_super,'m','mi'));
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Time to Climb:    dt_climb   = %g [min]', dt_climb_super/60);
+fprintf('\n Time to Cruise:   dt_cruise  = %g [min]', TOF_constH_super/60);
+fprintf('\n Time to Descend:  dt_descend = %g [min]', dt_descend_super/60);
+fprintf('\n\n Total Time of Flight:   dt = %g [min]', dt_total_super/60);
+fprintf('\n                         dt = %g [hrs]', dt_total_super/3600);
+fprintf('\n\n =================================================================================================================== \n');
 
 %% ========================================================================
 % Sweep schedule:
 %--------------------------------------------------------------------------
 fprintf('\n\n ============================== Sweep Schedule ============================== \n');
-fprintf('\n Units: Lambda = [deg], b_eff = [m] \n\n');
-
 ROWNAME = {'Take off';'Bottom of climb';'Top of climb';'Cruise';'Top of descent';'Bottom of descent';'Landing'};
+fprintf('\n Units: Lambda = [deg], b_eff = [m] \n');
 
-Lambda = [sweep_deg_TO; sweep_climb(1); sweep_climb(2); sweep_deg_cr; sweep_descend(1); sweep_descend(2); sweep_deg_Land];
-b_eff  = [b_swept_TO; b_unswept*cosd(sweep_climb(1));   b_unswept*cosd(sweep_climb(2));...
-          b_swept_cr; b_unswept*cosd(sweep_descend(1)); b_unswept*cosd(sweep_descend(2)); b_swept_Land];
+fprintf('\n Subsonic mission: \n\n');
+Lambda = [sweep_deg_TO; sweep_climb_sub(1); sweep_climb_sub(2); sweep_deg_cr_sub; sweep_descend_sub(1); sweep_descend_sub(2); sweep_deg_Land];
+b_eff  = [b_swept_TO; b_unswept*cosd(sweep_climb_sub(1));   b_unswept*cosd(sweep_climb_sub(2));...
+          b_swept_cr_sub; b_unswept*cosd(sweep_descend_sub(1)); b_unswept*cosd(sweep_descend_sub(2)); b_swept_Land];
+
+sweep_schedule = table(Lambda, b_eff,'RowNames',ROWNAME);
+disp(sweep_schedule);
+
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Supersonic mission: \n\n');
+Lambda = [sweep_deg_TO; sweep_climb_super(1); sweep_climb_super(2); sweep_deg_cr_super; sweep_descend_super(1); sweep_descend_super(2); sweep_deg_Land];
+b_eff  = [b_swept_TO; b_unswept*cosd(sweep_climb_super(1));   b_unswept*cosd(sweep_climb_super(2));...
+          b_swept_cr_super; b_unswept*cosd(sweep_descend_super(1)); b_unswept*cosd(sweep_descend_super(2)); b_swept_Land];
 
 sweep_schedule = table(Lambda, b_eff,'RowNames',ROWNAME);
 disp(sweep_schedule);
@@ -340,78 +408,83 @@ fprintf('\n\n ==================================================================
 %% ========================================================================
 % Total S&C Summary:
 %--------------------------------------------------------------------------
-fprintf('\n\n ================================== S&C Results ================================== \n');
+fprintf('\n\n ============================================================== S&C Results ============================================================== \n');
 % vertical tail size:
 Take_off = S_VT_TO;
-Cruise   = S_VT_cr;
+Subsonic_Cruise   = S_VT_cr_sub;
+Supersonic_Cruise   = S_VT_cr_super;
 Landing  = S_VT_L;
-SC_VT = table(Take_off,Cruise,Landing);
-fprintf('\n -------------------------------------------------------------------------------- ');
+SC_VT = table(Take_off,Subsonic_Cruise,Supersonic_Cruise,Landing);
+fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
 fprintf('\n Required vertical tail size [m^2]: \n\n');
 disp(SC_VT);
 %--------------------------------------------------------------------------
 % location of vertical tail:
 Take_off = l_VT_TO;
-Cruise   = l_VT_cr;
+Subsonic_Cruise   = l_VT_cr_sub;
+Supersonic_Cruise   = l_VT_cr_super;
 Landing  = l_VT_L;
-SC_l_VT = table(Take_off,Cruise,Landing);
+SC_l_VT = table(Take_off,Subsonic_Cruise,Supersonic_Cruise,Landing);
 fprintf('\n Corresponding distance (in x-direction) between\n cg location and 1/4 chord of vertical tail mac [m]: \n\n');
 disp(SC_l_VT);
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
+fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
 % longitudinal stability:
 ROWNAME = {'CM_alpha [1/rad]';'CM_alpha [1/deg]';'Elevator control power, CM_de [1/rad]';'Elevator control power [1/deg]';};
 Take_off = [CMa_TO; CMa_TO*pi/180; CM_de_TO; CM_de_TO*pi/180];
-Cruise   = [CMa_cr; CMa_cr*pi/180; CM_de_cr; CM_de_cr*pi/180];
+Subsonic_Cruise   = [CMa_cr_sub; CMa_cr_sub*pi/180; CM_de_cr_sub; CM_de_cr_sub*pi/180];
+Supersonic_Cruise   = [CMa_cr_super; CMa_cr_super*pi/180; CM_de_cr_super; CM_de_cr_super*pi/180];
 Landing  = [CMa_L; CMa_L*pi/180; CM_de_L; CM_de_L*pi/180];
-SC_long = table(Take_off,Cruise,Landing,'RowNames',ROWNAME);
+SC_long = table(Take_off,Subsonic_Cruise,Supersonic_Cruise,Landing,'RowNames',ROWNAME);
 fprintf('\n Longitudinal stability: \n\n');
 disp(SC_long);
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
+fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
 % lateral stability:
 ROWNAME = {'Cl_beta [1/rad]';'Cl_betaa [1/deg]';'Aileron control power, Cl_da [1/rad]';'Aileron control power [1/deg]';};
 Take_off = [Cl_beta_TO; Cl_beta_TO*pi/180; Cl_da_TO; Cl_da_TO*pi/180];
-Cruise   = [Cl_beta_cr; Cl_beta_cr*pi/180; Cl_da_cr; Cl_da_cr*pi/180];
+Subsonic_Cruise   = [Cl_beta_cr_sub; Cl_beta_cr_sub*pi/180; Cl_da_cr_sub; Cl_da_cr_sub*pi/180];
+Supersonic_Cruise   = [Cl_beta_cr_super; Cl_beta_cr_super*pi/180; Cl_da_cr_super; Cl_da_cr_super*pi/180];
 Landing  = [Cl_beta_L; Cl_beta_L*pi/180; Cl_da_L; Cl_da_L*pi/180];
-SC_lat = table(Take_off,Cruise,Landing,'RowNames',ROWNAME);
+SC_lat = table(Take_off,Subsonic_Cruise,Supersonic_Cruise,Landing,'RowNames',ROWNAME);
 fprintf('\n Lateral stability: \n\n');
 disp(SC_lat);
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
+fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
 % directional stability:
 ROWNAME = {'Cn_beta [1/rad]';'Cn_beta [1/deg]';'Rudder control power, Cl_da [1/rad]';'Rudder control power [1/deg]';};
-Take_off = [Cn_beta_L; Cn_beta_L*pi/180; Cn_dr_L; Cn_dr_L*pi/180];
-Cruise   = [Cn_beta_L; Cn_beta_L*pi/180; Cn_dr_L; Cn_dr_L*pi/180];
+Take_off = [Cn_beta_TO; Cn_beta_TO*pi/180; Cn_dr_TO; Cn_dr_TO*pi/180];
+Subsonic_Cruise   = [Cn_beta_cr_sub; Cn_beta_cr_sub*pi/180; Cn_dr_cr_sub; Cn_dr_cr_sub*pi/180];
+Supersonic_Cruise   = [Cn_beta_cr_super; Cn_beta_cr_super*pi/180; Cn_dr_cr_super; Cn_dr_cr_super*pi/180];
 Landing  = [Cn_beta_L; Cn_beta_L*pi/180; Cn_dr_L; Cn_dr_L*pi/180];
-SC_dir = table(Take_off,Cruise,Landing,'RowNames',ROWNAME);
+SC_dir = table(Take_off,Subsonic_Cruise,Landing,'RowNames',ROWNAME);
 fprintf('\n Directional stability: \n\n');
 disp(SC_dir);
-fprintf('\n\n ================================================================================= \n\n');
+fprintf('\n\n ========================================================================================================================================= \n\n');
 
 % =========================================================================
 % Plot vertical tail requirements:
 %--------------------------------------------------------------------------
-if supersonic == 0
-    figure_name = sprintf('Required Total Vertical Tail Area - Subsonic Cruise');
-elseif supersonic == 1
-    figure_name = sprintf('Required Total Vertical Tail Area - Supersonic Cruise');
-end
+figure_name = sprintf('Required Total Vertical Tail Area - Cruise');
 figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
-plot(VT_plot_cr(1,:),VT_plot_cr(2,:), 'k', 'LineWidth',3);
+hold on
+plot(VT_plot_cr_sub(1,:),VT_plot_cr_sub(2,:), 'k', 'LineWidth',3);
+plot(VT_plot_cr_super(1,:),VT_plot_cr_super(2,:), '--k', 'LineWidth',3);
+hold off
 xlabel('l_V_T (m)'  ,'FontSize',18);
 ylabel('S_V_T (m^2)','FontSize',18);
-xlim([5,b_swept_cr]);
+xlim([5,b_swept_cr_sub]);
 title_string = sprintf('Cruise Required Total Vertical Tail Area vs Distance of Vertical Tail mac to cg Location');
 title(title_string,'FontSize',18);
+legend('Subsonic','Supersonic','Location','best');
 grid on
 %fig_save('Figures', figure_name)
 %--------------------------------------------------------------------------
 figure_name = sprintf('Required Total Vertical Tail Area - TO and Land');
 figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
 hold on
-plot(VT_plot_TO(1,:),VT_plot_TO(2,:), '--k', 'LineWidth',3);
-plot(VT_plot_land(1,:),VT_plot_land(2,:), '--*k', 'LineWidth',3);
+plot(VT_plot_TO(1,:),VT_plot_TO(2,:), 'k', 'LineWidth',3);
+plot(VT_plot_land(1,:),VT_plot_land(2,:), '-+k', 'LineWidth',3);
 hold off
 xlabel('l_V_T (m)'  ,'FontSize',18);
 ylabel('S_V_T (m^2)','FontSize',18);
