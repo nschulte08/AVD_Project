@@ -48,7 +48,6 @@ T_A = T_A_single_engine*ne; % [N] total takeoff thrust
 CL(n,m) = W_cruise_avg/(0.5*rho*V(m)^2*Sref); % steady level flight
 %--------------------------------------------------------------------------
 % Calculate sweep:
-M_perp = 0.7;                        % perp Mach #, variable to iterate(?)
 sweep_deg = acosd(M_perp/M(m));      % This has to be limited to 70 ish degrees!
 if sweep_deg > 70                    % Limit the sweep angle
     sweep_deg = 70;
@@ -84,7 +83,7 @@ plot (M_stall_op,h,'-.k','LineWidth',2.5);
 plot (M_q_lim,h,'--k','LineWidth',2.5);
 plot (M_sub,h_sub,'k+','LineWidth',2.5,'LineStyle','None','MarkerSize',14);
 plot (M_super,h_super,'k*','LineWidth',2.5,'LineStyle','None','MarkerSize',14);
-legend('Thrust Limit','Stall Boundary', 'Dyn. Press. Limit', 'AS2 Subsonic Cruise', 'AS2 Supersonic Cruise','Location','best');
+legend('Thrust Limit','Stall Boundary', 'Dyn. Press. Limit', 'Subsonic Mission Cruise', 'Supersonic Mission Cruise','Location','best');
 %legend('Thrust Limit','Stall Boundary', 'Dyn. Press. Limit', 'Location','best');
-%grid minor
+grid minor
 %--------------------------------------------------------------------------
