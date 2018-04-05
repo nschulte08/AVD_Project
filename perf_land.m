@@ -16,7 +16,7 @@ S_land:     landing distance [m]
 FAR_land:   FAR landing distance [m]
 ===========================================================================
 %}
-function [S_land, FAR_land] = perf_land(alt_land, Sref, AR_low, W_land, CL_max, T_land, TR, SM)
+function [S_land, FAR_land, V_TD] = perf_land(alt_land, Sref, AR_low, W_land, CL_max, T_land, TR, SM)
 
 [~, ~, ~, rho_land, son_land, ~, ~, ~, ~, ~] = ATMO(alt_land, 'M');
 
@@ -31,7 +31,7 @@ V_TD = 1.15*V_stall;                             % [m/s] touch down velocity
 M_land = V_approach/son_land; % landing Mach number
 
 CL_Land = W_land/(Sref*0.5*rho_land*V_approach^2);
-[CD_Land, ~] = aerofunk_drag_2(alt_land, M_land, Sref, CL_Land, SM, AR_low, TR);
+[CD_Land, CD_0_land] = aerofunk_drag_2(alt_land, M_land, Sref, CL_Land, SM, AR_low, TR);
 %--------------------------------------------------------------------------
 % flare:
 V_flare = (V_approach + V_TD)/2;                  % [m/s]
@@ -48,12 +48,17 @@ S_approach = (h_obst - h_flare)/tand(gamma_land); % [m] distance covered during 
 S_Freeroll = 3*V_TD; % [m] free roll distance
 %--------------------------------------------------------------------------
 % breaking distance:
-mu = 0.5; % coefficient of friction
+mu = (0.02 + 0.3)/2; % friction coefficient [average value] (Yechout p.99)
 
-S_break = (W_land/(g*rho_land*Sref*(CD_Land-mu*CL_Land)))*log(1 + ((CD_Land-mu*CL_Land)*rho_land*Sref*V_TD^2)/(2*(-T_land + mu*W_land)));
+S_brake = (W_land/(g*rho_land*Sref*(CD_Land-mu*CL_Land)))*log(1 + ((CD_Land-mu*CL_Land)*rho_land*Sref*V_TD^2)/(2*(-T_land + mu*W_land)));
+
+if imag(S_brake) ~= 0
+    S_brake = 0;
+end
+
 %--------------------------------------------------------------------------
 % total landing length:
-S_land = S_approach + S_flare + S_Freeroll + S_break; % [m]
+S_land = S_approach + S_flare + S_Freeroll + S_brake; % [m]
 FAR_land = S_land*(1 + 2/3); % FAR requirement
 %--------------------------------------------------------------------------
 fprintf('\n\n ============================== Landing Results  ============================== \n');
@@ -69,7 +74,7 @@ fprintf('\n\n ------------------------------------------------------------------
 fprintf('\n Distance covered on approach:    S_Approach  = %g [m] = %g [ft]', S_approach, S_approach*3.2808399);
 fprintf('\n Distance covered during flare:   S_Flare     = %g [m] = %g [ft]', S_flare, S_flare*3.2808399);
 fprintf('\n Free Roll Distance:              S_Free_roll = %g [m] = %g [ft]', S_Freeroll, S_Freeroll*3.2808399);
-fprintf('\n Breaking Distance:               S_Breaking  = %g [m] = %g [ft]', S_break, S_break*3.2808399);
+fprintf('\n Breaking Distance:               S_Breaking  = %g [m] = %g [ft]', S_brake, S_brake*3.2808399);
 fprintf('\n\n Total Landing Distance:        S_Land = %g [m] = %g [ft]', S_land, S_land*3.2808399);
 fprintf('\n\n FAR Landing Distance:          S_FAR  = %g [m] = %g [ft]', FAR_land, FAR_land*3.2808399);
 fprintf('\n\n =============================================================================== \n');
