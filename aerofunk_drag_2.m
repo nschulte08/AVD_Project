@@ -30,6 +30,7 @@ cbar = ((2/3)*c_r*((1+TR+TR^2)/(1+TR)));  % Nicolai Pg 580
 Swet = 2.1*Sref;    % [m^2] Placeholder, Kinda a guess, 2*Sref for flying wing (no one else uses this... it is internal to aero team)
 e = 0.85;           % Oswald
 K = 1/(pi*AR*e);	% Drag K factor
+CL0 = 0.06;         % Lift coefficient at zero alpha, per airfoil design by VdV
 
 % Calculate sweep:
 % This has to be limited to 65 ish degrees!
@@ -60,14 +61,14 @@ if M < 1
     nu = Cla/(2*pi);
     CLa_sub = 2*pi*AR/(2+sqrt(4+AR^2*Beta_sub^2/nu^2*(1+tan(sweep_rad)^2/Beta_sub^2))); 
     CMa_sub = -CLa_sub*SM;
-    AoA = CL/CLa_sub; % [rad]
+    AoA = (CL-CL0)/CLa_sub; % [rad]
 
 elseif M >= 1
     %CLa_super = 4/(sqrt(M^2-1))*(1-1/(2*AR*sqrt(M^2-1))); %Straight,tapered wings in supersonic flow
     CLa_super = 2.99;           % per rad, This is from Raymer's plot that we verified with subsonic
     CMa_super = -CLa_super*SM;
     % Calculate aoa for the required CL:
-    AoA = CL/CLa_super; % [rad]        % CL = CLa * aoa so aoa = CL/CLa
+    AoA = (CL-CL0)/CLa_super; % [rad]        % CL = CLa * aoa so aoa = CL/CLa
 
 end
 
