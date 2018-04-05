@@ -70,5 +70,9 @@ plot (M,T_R(1,:)/1000,'k','LineWidth',2.5);
 plot (M,T_A(1,:)/1000,'--k','LineWidth',2.5);
 plot (M,T_R(2,:)/1000,'b','LineWidth',2.5);
 plot (M,T_A(2,:)/1000,'--b','LineWidth',2.5);
-legend('Thrust required at 13,000 m','Thrust available at 13,000 m','Thrust required at 15,500 m','Thrust available at 15,500 m','Location','best');
+first = sprintf('Thrust required at %g m', h_sub);
+second = sprintf('Thrust available at %g m', h_sub);
+third = sprintf('Thrust required at %g m', h_super);
+fourth = sprintf('Thrust available at %g m', h_super);
+legend(first,second,third,fourth,'Location','best');
 %--------------------------------------------------------------------------
