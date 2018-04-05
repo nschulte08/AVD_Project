@@ -6,20 +6,25 @@ Team: ARROW
 Team members: 
 Shawn McCullough, Ben Holden, Nick Schulte, Rustin Farris, Christian Allen
 %--------------------------------------------------------------------------
-Last modified: 03/26/2018
+Last modified: 04/05/2018
 % =========================================================================
 %}
 clear; clc; close all;
 %% ========================================================================
+% configuration and mission iteration:
+
+config_iter = '06_D'; % for saving figures (makes things go much faster)
+
+%% ========================================================================
 % Mission inputs
 %--------------------------------------------------------------------------
-M_cr_sub = 0.78;              % Subsonic cruise Mach number
-M_cr_super = 1.6;            % Supersonic cruise Mach number
+M_cr_sub = 0.78;             % Subsonic cruise Mach number
+M_cr_super = 2.0;            % Supersonic cruise Mach number
 range_sub = 9800e3;          % Subsonic range, (m)
 range_super = 8800e3;        % Supersonic range, (m)
 alt_cr_sub = 13000;          % Subsonic cruise altitude (m)
-alt_cr_super = 15500;        % Supersonic cruise altitude (m)
-M_max = 2.0;                 % (need to update)
+alt_cr_super = 16000;        % Supersonic cruise altitude (m)
+M_max = 2.8;                 % (need to update)
 num_pass = 12;               % Number of passengers
 num_crew = 4;                % Number of crew members
 %--------------------------------------------------------------------------
@@ -40,9 +45,9 @@ CL_max = 1.8;   % Placeholder, max CL
 % Interdisciplinary inputs (Design inputs) 
 %--------------------------------------------------------------------------
 % wing geometry:
-AR_unswept = 10;                         % Unswept aspect ratio
+AR_unswept = 12;                        % Unswept aspect ratio
 AR_lowspeed = AR_unswept;               % Low speed, unswept AR
-TR = 0.4;                               % Wing taper ratio
+TR = 0.6;                               % Wing taper ratio
 tmax = 2.3;                             % Maximum thickness, based on AS2 cabin dimensions (m)
 tcmax = 0.16;                           % T/c max; variable to iterate
 c_r = tmax/tcmax;                       % [m] Root chord = max thickness / tcmax ratio
@@ -62,8 +67,9 @@ ne = 4; % number of engines
 %% ========================================================================
 % Solution Space
 %--------------------------------------------------------------------------
-[design_point] = Solution_Space_OFW_integrated(AR_unswept, CL_max, e, alt_cr_sub, M_cr_sub, alt_cr_super, M_cr_super, ne);
+Solution_Space_OFW_integrated(AR_unswept, CL_max, e, alt_cr_sub, M_cr_sub, alt_cr_super, M_cr_super, ne);
 
+%{
 %WingLoading   = design_point(1); % W/S (lbf/ft^2)
 %ThrustLoading = design_point(2); % T/W (lbf/lbf)
 
@@ -75,6 +81,30 @@ fprintf('\n Chosen Design point:');
 fprintf('\n T/W  = %g [N] [lbf/lbf] ', ThrustLoading);
 fprintf('\n W/S  = %g [N] [lbf/ft^2] ', WingLoading);
 fprintf('\n -------------------------------------------------------------------------------- ');
+%}
+
+fprintf('\n\n ========================== Solution Space Results  ========================== \n');
+
+fprintf('\n Inspect solution space plot and enter design point: \n');
+
+prompt = ' \n W/S = ';
+WingLoading = input(prompt);
+
+prompt = ' \n T/W = ';
+ThrustLoading = input(prompt);
+%--------------------------------------------------------------------------
+% plot design point on solution space:
+hold on
+plot(WingLoading,ThrustLoading,'*','MarkerSize',18, 'MarkerEdgeColor','red','LineWidth',3)
+legend('Take-off','Landing','2nd Climb Gradient','Subsonic Max Speed','Supersonic Max Speed','Subsonic Cruise','Supersonic Cruise','Design Point','Location','best');
+hold off
+fig_save_name = sprintf ('Sol_Space_config_%s', config_iter);
+fig_save('_Results', fig_save_name)
+%--------------------------------------------------------------------------
+fprintf('\n\n The chosen design point is: ');
+fprintf('\n T/W  = %g [N] [lbf/lbf] ', ThrustLoading);
+fprintf('\n W/S  = %g [N] [lbf/ft^2] ', WingLoading);
+fprintf('\n\n ============================================================= \n');
 
 MTOW = convforce(WingLoading*Sref*convlength(1,'m','ft')^2, 'lbf', 'N'); % Max takeoff weight, N
 T_max_required = ThrustLoading*MTOW; % Required thrust for takeoff, N
@@ -175,19 +205,31 @@ fprintf('\n Fuel weight:                W_fuel          = %g [N] = %g [lbf] ', W
 fprintf('\n\n =============================================================================== \n');
 
 %% ========================================================================
-% operational envelope:
+% operational envelopes:
 %--------------------------------------------------------------------------
 cruise = [M_cr_sub, alt_cr_sub, M_cr_super, alt_cr_super];
 op_envelope(cruise, W_cruise_avg_avg, Sref, SM, b_unswept, TR, CL_max, ne, M_perp)
 
+fig_save_name = sprintf ('Op_Env_config_%s', config_iter);
+fig_save('_Results', fig_save_name)
+%--------------------------------------------------------------------------
 Thrust_required_and_available(cruise, W_cruise_avg_avg, Sref, SM, b_unswept, TR, ne, M_perp)
 
+fig_save_name = sprintf ('Thrust_config_%s', config_iter);
+fig_save('_Results', fig_save_name)
+%--------------------------------------------------------------------------
+
+%Range_trade(W_cruise_start_super, W_cruise_end_super, Sref, SM, b_unswept, AR_unswept, TR, M_perp)
+
+%--------------------------------------------------------------------------
 %% ========================================================================
 % V-n diagram and wing loading
 %--------------------------------------------------------------------------
 altitudes = [0, convlength(alt_cr_sub,'m','ft'), convlength(alt_cr_super,'m','ft')]; % array of key altitudes for V-n diagram (ft)
 Vn_Diagram(convforce(MTOW,'N','lbf'), Sref*convlength(1,'m','ft')^2, altitudes, M_cr_sub, M_max, CL_max);
+fig_save('Figures', 'Vn Diagram')
 [max_load, min_load] = Wing_Loading(b_unswept, MTOW, TR); 
+fig_save('Figures', 'Wing Loading')
 
 %% ========================================================================
 % Takeoff Phase
@@ -479,7 +521,7 @@ title_string = sprintf('Cruise Required Total Vertical Tail Area vs Distance of 
 title(title_string,'FontSize',18);
 legend('Subsonic','Supersonic','Location','best');
 grid on
-%fig_save('Figures', figure_name)
+fig_save('Figures', figure_name)
 %--------------------------------------------------------------------------
 figure_name = sprintf('Required Total Vertical Tail Area - TO and Land');
 figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
@@ -494,7 +536,7 @@ title_string = sprintf('Required Total Vertical Tail Area vs Distance of Vertica
 title(title_string,'FontSize',18);
 legend('Takeoff','Landing','Location','best');
 grid on
-%fig_save('Figures', figure_name)
+fig_save('Figures', figure_name)
 
 %% ========================================================================
 % Cost analysis:
@@ -505,9 +547,11 @@ grid on
 %% ========================================================================
 % output vector: (for spreadsheet)
 %--------------------------------------------------------------------------
-OUTPUT = [Sref; b_unswept; c_r; c_t; MTOW/1000; W_fuel/1000; W_empty/1000; W_land/1000;...
-          M_cr_sub; alt_cr_sub; R_total_sub/1000; dt_total_sub/3600;...
-          M_cr_super; alt_cr_super; R_total_super/1000; dt_total_super/3600;...
+OUTPUT = [num_pass; alt_cr_sub; M_cr_sub; alt_cr_super; M_cr_super;...
+          AR_unswept; TR; tcmax; tmax; SM; ne;...
+          WingLoading; ThrustLoading;...
+          Sref; b_unswept; c_r; c_t;...
+          MTOW/1000; W_fuel/1000; W_empty/1000; W_land/1000;...
+          R_total_sub/1000; dt_total_sub/3600; R_total_super/1000; dt_total_super/3600;...
           V_stall; V_TO; BFL; V_approach; V_TD; FAR_land;...
           sweep_deg_TO; sweep_climb_super(2) ; sweep_deg_cr_sub ;sweep_deg_cr_super ; sweep_descend_super(2); sweep_deg_Land];
-
