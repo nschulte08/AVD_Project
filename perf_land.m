@@ -52,7 +52,7 @@ mu = (0.02 + 0.3)/2; % friction coefficient [average value] (Yechout p.99)
 
 S_brake = (W_land/(g*rho_land*Sref*(CD_Land-mu*CL_Land)))*log(1 + ((CD_Land-mu*CL_Land)*rho_land*Sref*V_TD^2)/(2*(-T_land + mu*W_land)));
 
-if imag(S_brake) ~= 0
+if imag(S_brake) ~= 0 || real(S_brake) < 0
     S_brake = 0;
 end
 
