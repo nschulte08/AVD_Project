@@ -16,7 +16,7 @@ OUTPUTS:
 
 ===========================================================================
 %}
-function op_envelope(cruise, W_cruise_avg, Sref, SM, b_unswept, TR, CL_max, ne)
+function op_envelope(cruise, W_cruise_avg, Sref, SM, b_unswept, TR, CL_max, ne, M_perp)
 %% ========================================================================
 M_sub   = cruise(1); 
 h_sub   = cruise(2); % [m]
