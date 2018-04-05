@@ -13,8 +13,8 @@ clear; clc; close all;
 %% ========================================================================
 % Mission inputs
 %--------------------------------------------------------------------------
-M_cr_sub = 0.9;              % Subsonic cruise Mach number
-M_cr_super = 1.4;            % Supersonic cruise Mach number
+M_cr_sub = 0.78;              % Subsonic cruise Mach number
+M_cr_super = 1.6;            % Supersonic cruise Mach number
 range_sub = 9800e3;          % Subsonic range, (m)
 range_super = 8800e3;        % Supersonic range, (m)
 alt_cr_sub = 13000;          % Subsonic cruise altitude (m)
@@ -23,7 +23,7 @@ M_max = 2.0;                 % (need to update)
 num_pass = 12;               % Number of passengers
 num_crew = 4;                % Number of crew members
 %--------------------------------------------------------------------------
-alt_TO = 0; % takeoff Airport altitude [m]
+alt_TO = 0;   % takeoff Airport altitude [m]
 alt_land = 0; % landing Airport altitude [m]
 %--------------------------------------------------------------------------
 [~,TSFC_sub] = Propulsion(M_cr_sub,alt_cr_sub); % TSFC = [1/hr]
@@ -40,9 +40,9 @@ CL_max = 1.8;   % Placeholder, max CL
 % Interdisciplinary inputs (Design inputs) 
 %--------------------------------------------------------------------------
 % wing geometry:
-AR_unswept = 8;                         % Unswept aspect ratio
+AR_unswept = 10;                         % Unswept aspect ratio
 AR_lowspeed = AR_unswept;               % Low speed, unswept AR
-TR = 0.3;                               % Wing taper ratio
+TR = 0.4;                               % Wing taper ratio
 tmax = 2.3;                             % Maximum thickness, based on AS2 cabin dimensions (m)
 tcmax = 0.16;                           % T/c max; variable to iterate
 c_r = tmax/tcmax;                       % [m] Root chord = max thickness / tcmax ratio
@@ -285,6 +285,7 @@ end
 %--------------------------------------------------------------------------
 % aero:
 CL_cr_super = W_cruise_avg_super/(Sref*0.5*rho_cr_super*V_cr_super^2); % lift coefficient cruise
+[CD_cr_super, ~] = aerofunk_drag_2(alt_cr_super, M_cr_super, Sref, CL_cr_super, SM, AR_swept_cr_super, TR);
 %--------------------------------------------------------------------------
 % performance:
 [R_constH_super, R_CC_super, TOF_constH_super, TOF_CC_super] = perf_cruise(M_cr_super, alt_cr_super, W_cruise_start_super, W_cruise_end_super, Sref, SM, AR_swept_cr_super, TSFC_super, TR);
@@ -331,7 +332,7 @@ end
 
 %--------------------------------------------------------------------------
 % performance
-[S_land, FAR_land] = perf_land(alt_land, Sref, AR_swept_Land, W_land, CL_max, T_land, TR, SM);
+[S_land, FAR_land, V_TD] = perf_land(alt_land, Sref, AR_swept_Land, W_land, CL_max, T_land, TR, SM);
 %--------------------------------------------------------------------------
 % S&C:
 [CMa_L, Cl_beta_L, Cn_beta_L, CM_de_L, Cl_da_L, Cn_dr_L, S_VT_L, l_VT_L, VT_plot_land] = stability(M_Land, AR_swept_Land, sweep_deg_Land, Sref, b_swept_Land, TR, CL_max, SM, 'Landing');
@@ -500,3 +501,13 @@ grid on
 %--------------------------------------------------------------------------
 %W_A = 0; % what is this?
 %[ RTDE_Cost ] = costfunky( weights.W_empty, V_cr, T_max_required, M_max, convforce(MTOW,'N','lbf'), weights.W_fuel, R_total_1*0.000621371, dt_climb/3600, dt_descend/3600, TOF_constH/3600, W_A, ne);
+
+%% ========================================================================
+% output vector: (for spreadsheet)
+%--------------------------------------------------------------------------
+OUTPUT = [Sref; b_unswept; c_r; c_t; MTOW/1000; W_fuel/1000; W_empty/1000; W_land/1000;...
+          M_cr_sub; alt_cr_sub; R_total_sub/1000; dt_total_sub/3600;...
+          M_cr_super; alt_cr_super; R_total_super/1000; dt_total_super/3600;...
+          V_stall; V_TO; BFL; V_approach; V_TD; FAR_land;...
+          sweep_deg_TO; sweep_climb_super(2) ; sweep_deg_cr_sub ;sweep_deg_cr_super ; sweep_descend_super(2); sweep_deg_Land];
+
