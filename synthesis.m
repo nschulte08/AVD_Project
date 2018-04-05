@@ -11,7 +11,7 @@ Last modified: 04/05/2018
 %}
 clear; clc; close all;
 %% ========================================================================
-% configuration and mission iteration:
+% Configuration and mission iteration:
 
 config_iter = '06_D'; % for saving figures (makes things go much faster)
 
@@ -44,7 +44,7 @@ CL_max = 1.8;   % Placeholder, max CL
 %% ========================================================================
 % Interdisciplinary inputs (Design inputs) 
 %--------------------------------------------------------------------------
-% wing geometry:
+% Wing geometry:
 AR_unswept = 12;                        % Unswept aspect ratio
 AR_lowspeed = AR_unswept;               % Low speed, unswept AR
 TR = 0.6;                               % Wing taper ratio
@@ -55,7 +55,7 @@ c_t = TR*c_r;                           % [m] Tip chord
 b_unswept = (AR_unswept/2)*(c_r + c_t); % [m] wing span
 Sref = b_unswept^2/AR_unswept;          % [m^2] wing area
 %--------------------------------------------------------------------------
-% aerodynamics and S&C: 
+% Aerodynamics and S&C: 
 e = 0.85;                   % Oswald
 K = 1/(pi*AR_unswept*e);	% Drag K factor
 SM = 0.1;                   % static margin
@@ -69,20 +69,6 @@ ne = 4; % number of engines
 %--------------------------------------------------------------------------
 Solution_Space_OFW_integrated(AR_unswept, CL_max, e, alt_cr_sub, M_cr_sub, alt_cr_super, M_cr_super, ne);
 
-%{
-%WingLoading   = design_point(1); % W/S (lbf/ft^2)
-%ThrustLoading = design_point(2); % T/W (lbf/lbf)
-
-WingLoading   = 35.18;   % W/S (lbf/ft^2)
-ThrustLoading = 0.1718;  % T/W (lbf/lbf)
-
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Chosen Design point:');
-fprintf('\n T/W  = %g [N] [lbf/lbf] ', ThrustLoading);
-fprintf('\n W/S  = %g [N] [lbf/ft^2] ', WingLoading);
-fprintf('\n -------------------------------------------------------------------------------- ');
-%}
-
 fprintf('\n\n ========================== Solution Space Results  ========================== \n');
 
 fprintf('\n Inspect solution space plot and enter design point: \n');
@@ -93,7 +79,7 @@ WingLoading = input(prompt);
 prompt = ' \n T/W = ';
 ThrustLoading = input(prompt);
 %--------------------------------------------------------------------------
-% plot design point on solution space:
+% Plot design point on solution space:
 hold on
 plot(WingLoading,ThrustLoading,'*','MarkerSize',18, 'MarkerEdgeColor','red','LineWidth',3)
 legend('Take-off','Landing','2nd Climb Gradient','Subsonic Max Speed','Supersonic Max Speed','Subsonic Cruise','Supersonic Cruise','Design Point','Location','best');
@@ -254,12 +240,12 @@ else
     AR_swept_TO = AR_unswept; % Swept aspect ratio
 end
 %--------------------------------------------------------------------------
-% aero:
+% Aero:
 CL_TO = 2*MTOW/(0.5*rho_TO*V_TO^2*Sref);   % N/N
 [CD_TO, CD0_TO] = aerofunk_drag_2(alt_TO, M_TO, Sref, CL_TO, SM, AR_swept_TO, TR);
 
 %--------------------------------------------------------------------------
-% performance:
+% Performance:
 [T_TO_single_engine, ~] = Propulsion(M_TO, alt_TO);
 T_TO = T_TO_single_engine*ne; % [N] total takeoff thrust
 
@@ -296,10 +282,10 @@ else
     AR_swept_cr_sub = AR_unswept; % Swept aspect ratio
 end
 %--------------------------------------------------------------------------
-% aero:
+% Aero:
 CL_cr_sub = W_cruise_avg_super/(Sref*0.5*rho_cr_sub*V_cr_sub^2); % lift coefficient cruise
 %--------------------------------------------------------------------------
-% performance:
+% Performance:
 [R_constH_sub, R_CC_sub, TOF_constH_sub, TOF_CC_sub] = perf_cruise(M_cr_sub, alt_cr_sub, W_cruise_start_sub, W_cruise_end_sub, Sref, SM, AR_swept_cr_sub, TSFC_sub, TR);
 %--------------------------------------------------------------------------
 % S&C:
@@ -325,11 +311,11 @@ else
     AR_swept_cr_super = AR_unswept; % Swept aspect ratio
 end
 %--------------------------------------------------------------------------
-% aero:
+% Aero:
 CL_cr_super = W_cruise_avg_super/(Sref*0.5*rho_cr_super*V_cr_super^2); % lift coefficient cruise
 [CD_cr_super, ~] = aerofunk_drag_2(alt_cr_super, M_cr_super, Sref, CL_cr_super, SM, AR_swept_cr_super, TR);
 %--------------------------------------------------------------------------
-% performance:
+% Performance:
 [R_constH_super, R_CC_super, TOF_constH_super, TOF_CC_super] = perf_cruise(M_cr_super, alt_cr_super, W_cruise_start_super, W_cruise_end_super, Sref, SM, AR_swept_cr_super, TSFC_super, TR);
 %--------------------------------------------------------------------------
 % S&C:
@@ -364,7 +350,7 @@ else
     AR_swept_Land = AR_unswept; % Swept aspect ratio
 end
 %--------------------------------------------------------------------------
-% propulsion:
+% Propulsion:
 [T_land_single_engine, ~] = Propulsion(M_Land, alt_land);
 T_land = T_land_single_engine*ne; % [N] total landing thrust
 
@@ -373,7 +359,7 @@ if T_land > 0.1*T_TO % limit landing thrust to 10% of max SL Takeoff thrust
 end
 
 %--------------------------------------------------------------------------
-% performance
+% Performance
 [S_land, FAR_land, V_TD] = perf_land(alt_land, Sref, AR_swept_Land, W_land, CL_max, T_land, TR, SM);
 %--------------------------------------------------------------------------
 % S&C:
@@ -382,7 +368,7 @@ end
 %% ========================================================================
 % Total Performance Summary:
 %--------------------------------------------------------------------------
-% total range and time of flight:
+% Total range and time of flight:
 R_total_sub = S_climb_sub   + R_constH_sub   + S_descend_sub;   % [m]
 R_total_super = S_climb_super + R_constH_super + S_descend_super; % [m]
 
@@ -452,7 +438,7 @@ fprintf('\n\n ==================================================================
 % Total S&C Summary:
 %--------------------------------------------------------------------------
 fprintf('\n\n ============================================================== S&C Results ============================================================== \n');
-% vertical tail size:
+% Vertical tail size:
 Take_off = S_VT_TO;
 Subsonic_Cruise   = S_VT_cr_sub;
 Supersonic_Cruise   = S_VT_cr_super;
@@ -462,7 +448,7 @@ fprintf('\n --------------------------------------------------------------------
 fprintf('\n Required vertical tail size [m^2]: \n\n');
 disp(SC_VT);
 %--------------------------------------------------------------------------
-% location of vertical tail:
+% Location of vertical tail:
 Take_off = l_VT_TO;
 Subsonic_Cruise   = l_VT_cr_sub;
 Supersonic_Cruise   = l_VT_cr_super;
@@ -472,7 +458,7 @@ fprintf('\n Corresponding distance (in x-direction) between\n cg location and 1/
 disp(SC_l_VT);
 fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
 fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
-% longitudinal stability:
+% Longitudinal stability:
 ROWNAME = {'CM_alpha [1/rad]';'CM_alpha [1/deg]';'Elevator control power, CM_de [1/rad]';'Elevator control power [1/deg]';};
 Take_off = [CMa_TO; CMa_TO*pi/180; CM_de_TO; CM_de_TO*pi/180];
 Subsonic_Cruise   = [CMa_cr_sub; CMa_cr_sub*pi/180; CM_de_cr_sub; CM_de_cr_sub*pi/180];
@@ -483,7 +469,7 @@ fprintf('\n Longitudinal stability: \n\n');
 disp(SC_long);
 fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
 fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
-% lateral stability:
+% Lateral stability:
 ROWNAME = {'Cl_beta [1/rad]';'Cl_betaa [1/deg]';'Aileron control power, Cl_da [1/rad]';'Aileron control power [1/deg]';};
 Take_off = [Cl_beta_TO; Cl_beta_TO*pi/180; Cl_da_TO; Cl_da_TO*pi/180];
 Subsonic_Cruise   = [Cl_beta_cr_sub; Cl_beta_cr_sub*pi/180; Cl_da_cr_sub; Cl_da_cr_sub*pi/180];
@@ -494,7 +480,7 @@ fprintf('\n Lateral stability: \n\n');
 disp(SC_lat);
 fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
 fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
-% directional stability:
+% Directional stability:
 ROWNAME = {'Cn_beta [1/rad]';'Cn_beta [1/deg]';'Rudder control power, Cl_da [1/rad]';'Rudder control power [1/deg]';};
 Take_off = [Cn_beta_TO; Cn_beta_TO*pi/180; Cn_dr_TO; Cn_dr_TO*pi/180];
 Subsonic_Cruise   = [Cn_beta_cr_sub; Cn_beta_cr_sub*pi/180; Cn_dr_cr_sub; Cn_dr_cr_sub*pi/180];

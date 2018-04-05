@@ -18,7 +18,7 @@ design_point = [wing_loading, thrust_loading, AR_unswept]
 
 ===========================================================================
 %}
-function [design_point] = Solution_Space_OFW_integrated(AR_unswept, CL_max, e, alt_cr_sub, M_cr_sub, alt_cr_super, M_cr_super, ne)
+function [] = Solution_Space_OFW_integrated(AR_unswept, CL_max, e, alt_cr_sub, M_cr_sub, alt_cr_super, M_cr_super, ne)
 %% ------------------------------------------------------------------------
 % Initialize linear requirements for plotting
 VectorLength = 500; % generic length          (for plots)
@@ -129,37 +129,14 @@ axis([WSmin, WSmax, 0, TWmax])
 plot(WS_cr_to, TW_cr_reqd_super, 'm--' ,'LineWidth',3);
 axis([WSmin, WSmax, 0, TWmax])
 %--------------------------------------------------------------------------
-% design point:
-Curve_Fit = polyfit(WS_sc, TW_sc, 1); % get the slope and Y intercept of the straight line
-Slope = Curve_Fit(1);
-Y_Intercept = Curve_Fit(2);
-% plot each "x" of the curved line to get a "y" and subtract it from the real "y":
-delta_TW = abs(TW_Vmax_super - (Slope*WS_Vmax + Y_Intercept)); 
-[~,idx] = min(delta_TW(1:250,:)); % index where difference is minimum. The fix "delta_TW(1:250,:)" limits the search to less than ~75 for the value for wing loading. (this isn't optimal, but the lines intersect twice, so finding a minimum is ambiguous)
-wing_loading = WS_Vmax(idx);
-thrust_loading = TW_Vmax_super(idx);
-design_point = [wing_loading,thrust_loading,AR_unswept];
-plot(wing_loading,thrust_loading,'o','MarkerSize',12, 'MarkerEdgeColor','red','LineWidth',4)
-%--------------------------------------------------------------------------
 set(gca,'FontSize',16);
 xlabel('Wing Loading (lbf/ft^{2})','FontSize',18);
 ylabel('Thrust Loading','FontSize',18);
 title_name = sprintf('Parametric Sizing Chart for SSBJ (Unswept AR = %g)',AR_unswept);
 title(title_name,'FontSize',18);
-legend('Take-off','Landing','2nd Climb Gradient','Subsonic Max Speed','Supersonic Max Speed','Subsonic Cruise','Supersonic Cruise','Design Point','Location','best');
+legend('Take-off','Landing','2nd Climb Gradient','Subsonic Max Speed','Supersonic Max Speed','Subsonic Cruise','Supersonic Cruise','Location','best');
 grid on
 hold off
 %--------------------------------------------------------------------------
-%fig_save('Figures', figure_name)
 
-%% ========================================================================
-% display design point results:
-%--------------------------------------------------------------------------
-% design_pt = [px,py,AR_unswept];
-fprintf('\n\n ========================== Solution Space Results  ========================== \n');
-fprintf('\n for an unswept aspect ratio: \n AR_unswept = %g', design_point(3));
-fprintf('\n\n Design point: ');
-fprintf('\n T/W = %g [lbf/lbf]',   design_point(2));
-fprintf('\n W/S = %g  [lbf/ft^2]', design_point(1));
-fprintf('\n\n ============================================================= \n');
 end
