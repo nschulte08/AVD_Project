@@ -54,6 +54,8 @@ S_climb = alt_climb/tand(gamma_climb);          % [m] range covered to climb to 
 dt_climb = S_climb/(V_climb*cosd(gamma_climb)); % [s] time to climb to subsonic cruise altitude
 %--------------------------------------------------------------------------
 fprintf('\n\n ============================ Climb Results  ============================= \n');
+fprintf('\n Climbing to altitude of:    h = %g [m] = %g [ft] ', alt_climb, alt_climb*3.2808399);
+fprintf('\n\n -------------------------------------------------------------------- ');
 fprintf('\n Climb sweep angle:              Gamma = %g [deg] ', sweep_deg_climb);
 fprintf('\n Climb aspect ratio:             AR_climb = %g [deg] ', AR_climb);
 fprintf('\n effective span during climb:    b_eff = %g [m] = %g [ft] ', b_swept_climb, b_swept_climb*3.2808399);
