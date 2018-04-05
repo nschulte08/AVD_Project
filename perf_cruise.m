@@ -22,6 +22,8 @@ function [R_constH, R_CC, TOF_constH, TOF_CC] = perf_cruise(M_cr, alt_cr, W_cr_s
 
 TSFC =  TSFC/3600; % [1/s]
 
+W_cr_avg = (W_cr_start + W_cr_end)/2;
+
 [~, ~, ~, rho_cr, son_cr, ~, ~, ~, ~, ~] = ATMO(alt_cr, 'M');
 V_cr = M_cr*son_cr; % [m/s]
 
@@ -33,7 +35,7 @@ CL_cr = W_cr_start/(Sref*0.5*rho_cr*V_cr^2);     % lift coefficient cruise
 R_constH = sqrt(2/(rho_cr*Sref))*(2/TSFC)*(sqrt(CL_cr)/CD_cr)*(sqrt(W_cr_start) - sqrt(W_cr_end)); % [m] Breguet range equation
 %--------------------------------------------------------------------------
 % Cruise climb:
-R_CC = sqrt(2*W_cr_start/(rho_cr*Sref))*(1/TSFC)*(sqrt(CL_cr)/CD_cr)*log(W_cr_start/W_cr_end); % [m]
+R_CC = sqrt(2*W_cr_avg/(rho_cr*Sref))*(1/TSFC)*(sqrt(CL_cr)/CD_cr)*log(W_cr_start/W_cr_end); % [m]
 %--------------------------------------------------------------------------
 % Time of flight:
 TOF_constH = R_constH/V_cr; % [s]
