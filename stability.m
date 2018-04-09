@@ -89,13 +89,13 @@ else
     CLa = CLa_super;
     CMa = -CLa_super*SM;
 end
-CM0 = 0; % Placeholder, CM0 comes from airfoil
+CM0 = 0.2; % Placeholder, CM0 comes from airfoil
 %--------------------------------------------------------------------------
-K_b   = 1;        % Roskam VI Figure 8.52 (placeholder)
-cl_dfrac = 0.625; % Roskam VI Figure 8.15 (placeholder)
-cl_dth = 4.2;     % Roskam VI Figure 8.14(placeholder)
-k_prime = 0.7;    % Roskam VI Figure 8.13(placeholder)
-a_dfrac = 1.3;    % Roskam VI Figure 8.53(placeholder)
+K_b   = 0.25;        % Roskam VI Figure 8.52 (placeholder)
+cl_dfrac = 0.45; % Roskam VI Figure 8.15 (placeholder)
+cl_dth = 3.5;     % Roskam VI Figure 8.14(placeholder)
+k_prime = 0.68;    % Roskam VI Figure 8.13(placeholder)
+a_dfrac = 1.11;    % Roskam VI Figure 8.53(placeholder)
 a_de  = K_b*cl_dfrac*cl_dth*(k_prime/CLa)*a_dfrac;
 Cm_ih = -CLa;
 CM_de = a_de*Cm_ih; % elevator control power -------------------> need to add this
@@ -202,7 +202,7 @@ Cn_b_VT = C_VT*CL_a_VT*var_2115; % Nicolai eq. 21.21
 % directional stability derivative:
 Cn_beta = Cn_b_wing + Cn_b_VT; % Nicolai eq. 21.20
 
-tau = 0.6; % placeholder (Nicolai Figure 21.14) ---> this fig could be digitized and the data interpolated
+tau = 0.18; % typical for flying wings
 Cn_dr = 0.9*CL_a_VT*C_VT*tau; % rudder control power (Nicolai eq. 21.26)
 %{
 fprintf('\n\n ============================================================= \n');
