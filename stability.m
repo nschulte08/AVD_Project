@@ -89,7 +89,7 @@ else
     CLa = CLa_super;
     CMa = -CLa_super*SM;
 end
-CM0 = 0.2; % Placeholder, CM0 comes from airfoil
+CM0 = -0.02; % Placeholder, CM0 comes from airfoil
 %--------------------------------------------------------------------------
 K_b   = 0.25;        % Roskam VI Figure 8.52 (placeholder)
 cl_dfrac = 0.45; % Roskam VI Figure 8.15 (placeholder)
