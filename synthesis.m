@@ -13,7 +13,7 @@ clear; clc; close all;
 %% ========================================================================
 % Configuration and mission iteration:
 
-config_iter = '06_D'; % for saving figures (makes things go much faster)
+config_iter = 'test'; % for saving figures (makes things go much faster)
 
 %% ========================================================================
 % Mission inputs
@@ -45,9 +45,9 @@ CL_max = 1.8;   % Placeholder, max CL
 % Interdisciplinary inputs (Design inputs) 
 %--------------------------------------------------------------------------
 % Wing geometry:
-AR_unswept = 12;                        % Unswept aspect ratio
+AR_unswept = 8;                        % Unswept aspect ratio
 AR_lowspeed = AR_unswept;               % Low speed, unswept AR
-TR = 0.6;                               % Wing taper ratio
+TR = 0.4;                               % Wing taper ratio
 tmax = 2.3;                             % Maximum thickness, based on AS2 cabin dimensions (m)
 tcmax = 0.16;                           % T/c max; variable to iterate
 c_r = tmax/tcmax;                       % [m] Root chord = max thickness / tcmax ratio
@@ -350,6 +350,7 @@ else
     AR_swept_Land = AR_unswept; % Swept aspect ratio
 end
 %--------------------------------------------------------------------------
+%{
 % Propulsion:
 [T_land_single_engine, ~] = Propulsion(M_Land, alt_land);
 T_land = T_land_single_engine*ne; % [N] total landing thrust
@@ -357,10 +358,10 @@ T_land = T_land_single_engine*ne; % [N] total landing thrust
 if T_land > 0.1*T_TO % limit landing thrust to 10% of max SL Takeoff thrust
     T_land = 0.1*T_TO; % idle thrust approximately?
 end
-
+%}
 %--------------------------------------------------------------------------
 % Performance
-[S_land, FAR_land, V_TD] = perf_land(alt_land, Sref, AR_swept_Land, W_land, CL_max, T_land, TR, SM);
+[S_land, FAR_land, V_TD] = perf_land(alt_land, Sref, AR_swept_Land, W_land, CL_max, TR, SM);
 %--------------------------------------------------------------------------
 % S&C:
 [CMa_L, Cl_beta_L, Cn_beta_L, CM_de_L, Cl_da_L, Cn_dr_L, S_VT_L, l_VT_L, VT_plot_land] = stability(M_Land, AR_swept_Land, sweep_deg_Land, Sref, b_swept_Land, TR, CL_max, SM, 'Landing');
@@ -486,7 +487,7 @@ Take_off = [Cn_beta_TO; Cn_beta_TO*pi/180; Cn_dr_TO; Cn_dr_TO*pi/180];
 Subsonic_Cruise   = [Cn_beta_cr_sub; Cn_beta_cr_sub*pi/180; Cn_dr_cr_sub; Cn_dr_cr_sub*pi/180];
 Supersonic_Cruise   = [Cn_beta_cr_super; Cn_beta_cr_super*pi/180; Cn_dr_cr_super; Cn_dr_cr_super*pi/180];
 Landing  = [Cn_beta_L; Cn_beta_L*pi/180; Cn_dr_L; Cn_dr_L*pi/180];
-SC_dir = table(Take_off,Subsonic_Cruise,Landing,'RowNames',ROWNAME);
+SC_dir = table(Take_off,Subsonic_Cruise,Supersonic_Cruise,Landing,'RowNames',ROWNAME);
 fprintf('\n Directional stability: \n\n');
 disp(SC_dir);
 fprintf('\n\n ========================================================================================================================================= \n\n');
