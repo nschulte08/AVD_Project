@@ -16,21 +16,22 @@ S_land:     landing distance [m]
 FAR_land:   FAR landing distance [m]
 ===========================================================================
 %}
-function [S_land, FAR_land, V_TD] = perf_land(alt_land, Sref, AR_low, W_land, CL_max, T_land, TR, SM)
+function [S_land, FAR_land, V_TD] = perf_land(alt_land, Sref, AR_low, W_Land, CL_max, TR, SM)
 
 [~, ~, ~, rho_land, son_land, ~, ~, ~, ~, ~] = ATMO(alt_land, 'M');
 
+mu = 0.5;                 % friction coefficient (Yechout p.108)
 g = 9.81;                 % [m/s^2] gravity
 h_obst = 35*0.3048;       % [m] 35ft obstacle
 gamma_land = 3;           % [deg] approach angle
 
-V_stall = sqrt(2*W_land/(rho_land*Sref*CL_max)); % [m/s] stall speed
+V_stall = sqrt(2*W_Land/(rho_land*Sref*CL_max)); % [m/s] stall speed
 V_approach = 1.2*V_stall;                        % [m/s] approach velocity
 V_TD = 1.15*V_stall;                             % [m/s] touch down velocity
 
 M_land = V_approach/son_land; % landing Mach number
 
-CL_Land = W_land/(Sref*0.5*rho_land*V_approach^2);
+CL_Land = W_Land/(Sref*0.5*rho_land*V_approach^2);
 [CD_Land, CD_0_land] = aerofunk_drag_2(alt_land, M_land, Sref, CL_Land, SM, AR_low, TR);
 %--------------------------------------------------------------------------
 % flare:
@@ -48,14 +49,13 @@ S_approach = (h_obst - h_flare)/tand(gamma_land); % [m] distance covered during 
 S_Freeroll = 3*V_TD; % [m] free roll distance
 %--------------------------------------------------------------------------
 % breaking distance:
-mu = (0.02 + 0.3)/2; % friction coefficient [average value] (Yechout p.99)
-
-S_brake = (W_land/(g*rho_land*Sref*(CD_Land-mu*CL_Land)))*log(1 + ((CD_Land-mu*CL_Land)*rho_land*Sref*V_TD^2)/(2*(-T_land + mu*W_land)));
-
+S_brake = (W_Land/(g*rho_land*Sref*(CD_Land-mu*CL_Land)))*log(1 + (rho_land*Sref/(2*W_Land))*(CD_Land/mu - CL_Land)*V_TD^2); % Nicolai
+%{
+S_brake = (W_land/(g*rho_land*Sref*(CD_Land-mu*CL_Land)))*log(1 + ((CD_Land-mu*CL_Land)*rho_land*Sref*V_TD^2)/(2*(-T_Land + mu*W_land))); % Yechout
 if imag(S_brake) ~= 0 || real(S_brake) < 0
     S_brake = 0;
 end
-
+%}
 %--------------------------------------------------------------------------
 % total landing length:
 S_land = S_approach + S_flare + S_Freeroll + S_brake; % [m]
