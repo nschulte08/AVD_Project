@@ -19,7 +19,7 @@ CD:    Drag Coefficient (will output based on input Mach number)
 CD0:   Zero-lift drag coefficient (will output based on input Mach number)
 ===========================================================================
 %}
-function [CD, CD0] = aerofunk_drag_2(h, M, Sref, CL, SM, AR, TR)
+function [CD, CD0] = aerofunk_drag_2(h, M, Sref, CL, SM, AR, TR, sweep_deg)
 
 %% Preliminary Calculations:
 tmax = 2.3;         % Maximum Thickness
@@ -32,16 +32,6 @@ e = 0.85;           % Oswald
 K = 1/(pi*AR*e);	% Drag K factor
 CL0 = 0.06;         % Lift coefficient at zero alpha, per airfoil design by VdV
 
-% Calculate sweep:
-% This has to be limited to 65 ish degrees!
-M_perp = 0.7;   % perpendicular Mach #, only if M_cr > M_perp will we sweep
-sweep_deg = 0;  % zero sweep until Mcruise high enough
-if M > M_perp
-    sweep_deg = acosd(M_perp/M);
-end
-if sweep_deg > 65	% Limit the sweep angle
-    sweep_deg = 65;
-end
 sweep_rad = sweep_deg*pi/180;
 
 % Get atmospheric properties
@@ -55,7 +45,6 @@ Cfw = 0.455/(log10(Re)^2.58);	% Turbulent flat plate friction coefficient of win
 %CM0 = -.04; % Placeholder, CM0 comes from airfoil
 
 if M < 1
-    sweep_rad = pi/3;
     Cla = 1.8*pi*(1 + 0.8*tcmax); %Airfoil Cl_alpha, Saedray pg 179  
     Beta_sub = sqrt(abs(1-M^2));
     nu = Cla/(2*pi);
