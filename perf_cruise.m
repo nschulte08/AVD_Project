@@ -18,7 +18,7 @@ TOF_constH    Constant altitude time of flight
 TOF_CC        Cruise climb time of flight
 ===========================================================================
 %}
-function [R_constH, R_CC, TOF_constH, TOF_CC] = perf_cruise(M_cr, alt_cr, W_cr_start, W_cr_end, Sref, SM, AR, TSFC, TR)
+function [R_constH, R_CC, TOF_constH, TOF_CC] = perf_cruise(M_cr, alt_cr, W_cr_start, W_cr_end, Sref, TSFC, CL_cr, CD_cr)
 
 TSFC =  TSFC/3600; % [1/s]
 
@@ -26,9 +26,6 @@ W_cr_avg = (W_cr_start + W_cr_end)/2;
 
 [~, ~, ~, rho_cr, son_cr, ~, ~, ~, ~, ~] = ATMO(alt_cr, 'M');
 V_cr = M_cr*son_cr; % [m/s]
-
-CL_cr = W_cr_start/(Sref*0.5*rho_cr*V_cr^2);     % lift coefficient cruise
-[CD_cr, ~] = aerofunk_drag_2(alt_cr, M_cr, Sref, CL_cr, SM, AR, TR);
 
 %% ========================================================================
 % Constant altitude cruise:
