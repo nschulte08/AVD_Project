@@ -41,7 +41,6 @@ ThrustLoading = 0.35;
 %% ========================================================================
 % Empirical inputs
 %--------------------------------------------------------------------------
-%TSFC = 0.9;     % [1/hr] Empirical Placeholder for SFC (based on Sadraey Table 4.6 for turbojet = 1.0, turbofan = ???, )
 LD_cruise = 9;  % Cruise lift/drag from Fig 5.3 Nicolai
 CL_max = 1.8;   % Placeholder, max CL
 
@@ -222,7 +221,7 @@ end
 %--------------------------------------------------------------------------
 % Aero:
 CL_TO = 2*MTOW/(0.5*rho_TO*V_TO^2*Sref);   % N/N
-[CD_TO, CD0_TO] = aerofunk_drag_2(alt_TO, M_TO, Sref, CL_TO, SM, AR_swept_TO, TR);
+[CD_TO, CD0_TO] = aerofunk_drag_2(alt_TO, M_TO, Sref, CL_TO, SM, AR_swept_TO, TR, sweep_deg_TO);
 
 %--------------------------------------------------------------------------
 % Performance:
@@ -264,9 +263,10 @@ end
 %--------------------------------------------------------------------------
 % Aero:
 CL_cr_sub = W_cruise_avg_super/(Sref*0.5*rho_cr_sub*V_cr_sub^2); % lift coefficient cruise
+[CD_cr_sub, ~] = aerofunk_drag_2(alt_cr_sub, M_cr_sub, Sref, CL_cr_sub, SM, AR_swept_cr_sub, TR, sweep_deg_cr_sub);
 %--------------------------------------------------------------------------
 % Performance:
-[R_constH_sub, R_CC_sub, TOF_constH_sub, TOF_CC_sub] = perf_cruise(M_cr_sub, alt_cr_sub, W_cruise_start_sub, W_cruise_end_sub, Sref, SM, AR_swept_cr_sub, TSFC_sub, TR);
+[R_constH_sub, R_CC_sub, TOF_constH_sub, TOF_CC_sub] = perf_cruise(M_cr_sub, alt_cr_sub, W_cruise_start_sub, W_cruise_end_sub, Sref, TSFC_sub, CL_cr_sub, CD_cr_sub);
 %--------------------------------------------------------------------------
 % S&C:
 [CMa_cr_sub, Cl_beta_cr_sub, Cn_beta_cr_sub, CM_de_cr_sub, Cl_da_cr_sub, Cn_dr_cr_sub, S_VT_cr_sub, l_VT_cr_sub, VT_plot_cr_sub] = stability(M_cr_sub, AR_swept_cr_sub, sweep_deg_cr_sub, Sref, b_swept_cr_sub, TR, CL_cr_sub, SM, 'Subsonic Cruise');
@@ -293,10 +293,10 @@ end
 %--------------------------------------------------------------------------
 % Aero:
 CL_cr_super = W_cruise_avg_super/(Sref*0.5*rho_cr_super*V_cr_super^2); % lift coefficient cruise
-[CD_cr_super, ~] = aerofunk_drag_2(alt_cr_super, M_cr_super, Sref, CL_cr_super, SM, AR_swept_cr_super, TR);
+[CD_cr_super, ~] = aerofunk_drag_2(alt_cr_super, M_cr_super, Sref, CL_cr_super, SM, AR_swept_cr_super, TR, sweep_deg_cr_super);
 %--------------------------------------------------------------------------
 % Performance:
-[R_constH_super, R_CC_super, TOF_constH_super, TOF_CC_super] = perf_cruise(M_cr_super, alt_cr_super, W_cruise_start_super, W_cruise_end_super, Sref, SM, AR_swept_cr_super, TSFC_super, TR);
+[R_constH_super, R_CC_super, TOF_constH_super, TOF_CC_super] = perf_cruise(M_cr_super, alt_cr_super, W_cruise_start_super, W_cruise_end_super, Sref, TSFC_super, CL_cr_super, CD_cr_super);
 %--------------------------------------------------------------------------
 % S&C:
 [CMa_cr_super, Cl_beta_cr_super, Cn_beta_cr_super, CM_de_cr_super, Cl_da_cr_super, Cn_dr_cr_super, S_VT_cr_super, l_VT_cr_super, VT_plot_cr_super] = stability(M_cr_super, AR_swept_cr_super, sweep_deg_cr_super, Sref, b_swept_cr_super, TR, CL_cr_super, SM, 'Supersonic Cruise');
@@ -341,7 +341,7 @@ end
 %}
 %--------------------------------------------------------------------------
 % Performance
-[S_land, FAR_land, V_TD] = perf_land(alt_land, Sref, AR_swept_Land, W_land, CL_max, TR, SM);
+[S_land, FAR_land, V_TD] = perf_land(alt_land, Sref, AR_swept_Land, W_land, CL_max, TR, SM, sweep_deg_Land);
 %--------------------------------------------------------------------------
 % S&C:
 [CMa_L, Cl_beta_L, Cn_beta_L, CM_de_L, Cl_da_L, Cn_dr_L, S_VT_L, l_VT_L, VT_plot_land] = stability(M_Land, AR_swept_Land, sweep_deg_Land, Sref, b_swept_Land, TR, CL_max, SM, 'Landing');
