@@ -32,7 +32,7 @@ V_TD = 1.15*V_stall;                             % [m/s] touch down velocity
 M_land = V_approach/son_land; % landing Mach number
 
 CL_Land = W_Land/(Sref*0.5*rho_land*V_approach^2);
-[CD_Land, ~] = aerofunk_drag_2(alt_land, M_land, Sref, CL_Land, SM, AR_low, TR, sweep_deg);
+[CD_Land, ~] = aerodynamic_drag(alt_land, M_land, Sref, CL_Land, SM, AR_low, TR, sweep_deg);
 %--------------------------------------------------------------------------
 % flare:
 V_flare = (V_approach + V_TD)/2;                  % [m/s]

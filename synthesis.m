@@ -221,7 +221,7 @@ end
 %--------------------------------------------------------------------------
 % Aero:
 CL_TO = 2*MTOW/(0.5*rho_TO*V_TO^2*Sref);   % N/N
-[CD_TO, CD0_TO] = aerofunk_drag_2(alt_TO, M_TO, Sref, CL_TO, SM, AR_swept_TO, TR, sweep_deg_TO);
+[CD_TO, CD0_TO] = aerodynamic_drag(alt_TO, M_TO, Sref, CL_TO, SM, AR_swept_TO, TR, sweep_deg_TO);
 
 %--------------------------------------------------------------------------
 % Performance:
@@ -263,7 +263,7 @@ end
 %--------------------------------------------------------------------------
 % Aero:
 CL_cr_sub = W_cruise_avg_super/(Sref*0.5*rho_cr_sub*V_cr_sub^2); % lift coefficient cruise
-[CD_cr_sub, ~] = aerofunk_drag_2(alt_cr_sub, M_cr_sub, Sref, CL_cr_sub, SM, AR_swept_cr_sub, TR, sweep_deg_cr_sub);
+[CD_cr_sub, ~] = aerodynamic_drag(alt_cr_sub, M_cr_sub, Sref, CL_cr_sub, SM, AR_swept_cr_sub, TR, sweep_deg_cr_sub);
 %--------------------------------------------------------------------------
 % Performance:
 [R_constH_sub, R_CC_sub, TOF_constH_sub, TOF_CC_sub] = perf_cruise(M_cr_sub, alt_cr_sub, W_cruise_start_sub, W_cruise_end_sub, Sref, TSFC_sub, CL_cr_sub, CD_cr_sub);
@@ -293,7 +293,7 @@ end
 %--------------------------------------------------------------------------
 % Aero:
 CL_cr_super = W_cruise_avg_super/(Sref*0.5*rho_cr_super*V_cr_super^2); % lift coefficient cruise
-[CD_cr_super, ~] = aerofunk_drag_2(alt_cr_super, M_cr_super, Sref, CL_cr_super, SM, AR_swept_cr_super, TR, sweep_deg_cr_super);
+[CD_cr_super, ~] = aerodynamic_drag(alt_cr_super, M_cr_super, Sref, CL_cr_super, SM, AR_swept_cr_super, TR, sweep_deg_cr_super);
 %--------------------------------------------------------------------------
 % Performance:
 [R_constH_super, R_CC_super, TOF_constH_super, TOF_CC_super] = perf_cruise(M_cr_super, alt_cr_super, W_cruise_start_super, W_cruise_end_super, Sref, TSFC_super, CL_cr_super, CD_cr_super);

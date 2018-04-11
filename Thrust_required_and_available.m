@@ -51,7 +51,7 @@ end
 b_swept = b_unswept*cosd(sweep_deg); % Span at sweep angle [m]
 AR = b_swept^2/Sref;           % Swept aspect ratio
 %--------------------------------------------------------------------------
-[CD, CD0] = aerofunk_drag_2(h(n), M(m), Sref, CL(n,m), SM, AR, TR, sweep_deg);
+[CD, CD0] = aerodynamic_drag(h(n), M(m), Sref, CL(n,m), SM, AR, TR, sweep_deg);
 D = CD*0.5*rho*V(m)^2*Sref; % [N] Drag (sluf)
 
 T_R(n,m) = D; % Thrust required
