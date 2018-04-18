@@ -6,7 +6,7 @@ Team: ARROW
 Team members: 
 Shawn McCullough, Ben Holden, Nick Schulte, Rustin Farris, Christian Allen
 %--------------------------------------------------------------------------
-Last modified: 04/11/2018
+Last modified: 04/17/2018
 % =========================================================================
 %}
 clear; clc; close all;
@@ -70,55 +70,69 @@ ne = 4; % number of engines
 %% ========================================================================
 % Solution Space
 %--------------------------------------------------------------------------
+Solution_Space(AR_unswept, CL_max, e, alt_cr_sub, M_cr_sub, alt_cr_super, M_cr_super, ne);
+
 fprintf('\n\n ========================== Solution Space Results  ========================== \n');
 fprintf('\n The chosen design point is: ');
 fprintf('\n T/W  = %g [N] [lbf/lbf] ', ThrustLoading);
 fprintf('\n W/S  = %g [N] [lbf/ft^2] ', WingLoading);
 fprintf('\n\n ============================================================= \n');
 
-MTOW = convforce(WingLoading*Sref*convlength(1,'m','ft')^2, 'lbf', 'N'); % Max takeoff weight, N
-T_max_required = ThrustLoading*MTOW; % Required thrust for takeoff, N
+MTOW = convforce(WingLoading*Sref*convlength(1,'m','ft')^2, 'lbf', 'N'); % inital value for max takeoff weight, N
 
 %% ========================================================================
 % Weights
 %--------------------------------------------------------------------------
-[~, ~, ~, ~, son_climb_super, ~, ~, ~, ~, ~] = ATMO(alt_cr_super, 'M');
-V_cr_super = M_cr_super*son_climb_super; % cruise velocity, (m/s) 
+[WEIGHTS] = weight_converge(MTOW, alt_cr_super, M_cr_super, range_super, TSFC_super, LD_cruise, num_crew, num_pass, ThrustLoading);
 %--------------------------------------------------------------------------
-[weights_super, wt_frac_super] = Weight_Buildup(convforce(MTOW,'N','lbf'), num_pass, num_crew, convvel(V_cr_super,'m/s','mph'), M_cr_super, convlength(range_super,'m','mi'), TSFC_super, LD_cruise);
-
-W_to_end = MTOW*wt_frac_super.WF_to;  % Wt at end of TO, start of climb (N)
-
-W_climb_end_super = MTOW*wt_frac_super.WF_to*wt_frac_super.WF_climb*wt_frac_super.WF_accel; % Wt at end of climb, start of cruise (N)
-W_climb_avg_super = 0.5*(W_to_end + W_climb_end_super);
-
-W_cruise_start_super = W_climb_end_super; % Wt at beginning of cruise (N)
-W_cruise_end_super = MTOW*wt_frac_super.WF_to*wt_frac_super.WF_climb*wt_frac_super.WF_accel*wt_frac_super.WF_cruise; % Wt at end of cruise (N)
-W_cruise_avg_super = 0.5*(W_climb_end_super + W_cruise_end_super); % Average cruise wt (N)
-
-W_descend_end_super = MTOW*wt_frac_super.WF_to*wt_frac_super.WF_climb*wt_frac_super.WF_accel*wt_frac_super.WF_cruise*wt_frac_super.WF_des; % Wt at end of descent (N)
-W_descend_avg_super = 0.5*(W_cruise_end_super + W_descend_end_super); % Average descent wt (N)
-
-W_land = convforce(weights_super.W_land,'lbf','N'); % Landing Weight (N)
+MTOW = WEIGHTS.MTOW;
+W_empty = WEIGHTS.W_empty;
+W_fuel = WEIGHTS.W_fuel;
+W_payload_total = WEIGHTS.W_payload_total;
+W_to_end= WEIGHTS.W_to_end;
+W_climb_end_super = WEIGHTS.W_climb_end_super;
+W_climb_avg_super = WEIGHTS.W_climb_avg_super;
+W_cruise_start_super = WEIGHTS.W_cruise_start_super;
+W_cruise_end_super = WEIGHTS.W_cruise_end_super;
+W_cruise_avg_super = WEIGHTS.W_cruise_avg_super;
+W_descend_end_super = WEIGHTS.W_descend_end_super;
+W_descend_avg_super = WEIGHTS.W_descend_avg_super;
+W_climb_end_sub = WEIGHTS.W_climb_end_sub;
+W_climb_avg_sub = WEIGHTS.W_climb_avg_sub;
+W_cruise_start_sub = WEIGHTS.W_cruise_start_sub;
+W_cruise_end_sub = WEIGHTS.W_cruise_end_sub;
+W_cruise_avg_sub = WEIGHTS.W_cruise_avg_sub;
+W_descend_end_sub = WEIGHTS.W_descend_end_sub;
+W_descend_avg_sub = WEIGHTS.W_descend_avg_sub;
+W_land = WEIGHTS.W_land;
+W_cruise_avg_avg = WEIGHTS.W_cruise_avg_avg;
 %--------------------------------------------------------------------------
-W_Passengers = convforce(weights_super.W_payload.Passengers,'lbf','N'); % (N)
-W_Luggage = convforce(weights_super.W_payload.Luggage,'lbf','N');       % (N)
-W_Crew = convforce(weights_super.W_payload.Crew,'lbf','N');             % (N)
-W_payload_total = sum([W_Passengers, W_Luggage, W_Crew]); % (N)
-W_empty = convforce(weights_super.W_empty,'lbf','N'); % (N)
-W_fuel = convforce(weights_super.W_fuel,'lbf','N');   % (N)
-% =========================================================================
-W_climb_end_sub = MTOW*wt_frac_super.WF_to*wt_frac_super.WF_climb; % Wt at end of climb, start of cruise (N)
-W_climb_avg_sub = 0.5*(W_to_end + W_climb_end_sub);
+fprintf('\n\n =================================== Weights =================================== \n');
+fprintf('\n Max takeoff:                MTOW            = %g [N] = %g [lbf] ', MTOW,             convforce(MTOW,'N','lbf'));
+fprintf('\n Takeoff end:                W_to_end        = %g [N] = %g [lbf] ', W_to_end,         convforce(W_to_end,'N','lbf'));
+fprintf('\n Climb average (sub):        W_climb_avg     = %g [N] = %g [lbf] ', W_climb_avg_sub,      convforce(W_climb_avg_sub,'N','lbf'));
+fprintf('\n Climb average (super):      W_climb_avg     = %g [N] = %g [lbf] ', W_climb_avg_super,      convforce(W_climb_avg_super,'N','lbf'));
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Subsonic Cruise start:      W_cruise_start  = %g [N] = %g [lbf] ', W_cruise_start_sub,   convforce(W_cruise_start_sub,'N','lbf'));
+fprintf('\n Subsonic Cruise end:        W_cruise_end    = %g [N] = %g [lbf] ', W_cruise_end_sub,     convforce(W_cruise_end_sub,'N','lbf'));
+fprintf('\n Subsonic Cruise average:    W_cruise_avg    = %g [N] = %g [lbf] ', W_cruise_avg_sub,     convforce(W_cruise_avg_sub,'N','lbf'));
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Supersonic Cruise start:    W_cruise_start  = %g [N] = %g [lbf] ', W_cruise_start_super,   convforce(W_cruise_start_super,'N','lbf'));
+fprintf('\n Supersonic Cruise end:      W_cruise_end    = %g [N] = %g [lbf] ', W_cruise_end_super,     convforce(W_cruise_end_super,'N','lbf'));
+fprintf('\n Supersonic Cruise average:  W_cruise_avg    = %g [N] = %g [lbf] ', W_cruise_avg_super,     convforce(W_cruise_avg_super,'N','lbf'));
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Descent average (sub):      W_descend_avg   = %g [N] = %g [lbf] ', W_descend_avg_sub,    convforce(W_descend_avg_sub,'N','lbf'));
+fprintf('\n Descent average (super):    W_descend_avg   = %g [N] = %g [lbf] ', W_descend_avg_super,    convforce(W_descend_avg_super,'N','lbf'));
+fprintf('\n Landing:                    W_land          = %g [N] = %g [lbf] ', W_land,           convforce(W_land,'N','lbf'));
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Total payload weight:       W_payload       = %g [N] = %g [lbf] ', W_payload_total, convforce(W_payload_total,'N','lbf'));
+fprintf('\n Empty weight:               W_empty         = %g [N] = %g [lbf] ', W_empty, convforce(W_empty,'N','lbf'));
+fprintf('\n Fuel weight:                W_fuel          = %g [N] = %g [lbf] ', W_fuel, convforce(W_fuel,'N','lbf'));
+fprintf('\n\n =============================================================================== \n');
 
-W_cruise_start_sub = W_climb_end_sub;        % Wt at beginning of cruise (N)
-W_cruise_end_sub = W_climb_end_sub - W_fuel; % Wt at end of cruise (N) [approximate]
-W_cruise_avg_sub = 0.5*(W_climb_end_sub + W_cruise_end_sub); % Average cruise wt (N)
-
-W_descend_end_sub = W_cruise_end_sub*0.99; % Wt at end of cruise (N)
-W_descend_avg_sub = 0.5*(W_cruise_end_sub + W_descend_end_sub); % Average descent wt (N)
-%--------------------------------------------------------------------------
-W_cruise_avg_avg = (W_cruise_avg_sub + W_cruise_avg_super)/2; % used for op_envelope and Ta vs Tr plot
+%% ========================================================================
+% Max thrust required:
+T_max_required = ThrustLoading*MTOW; % Required thrust for takeoff, N
 
 %% ========================================================================
 % Display initial design parameters:
@@ -142,32 +156,6 @@ fprintf('\n --------------------------------------------------------------------
 fprintf('\n Required takeoff thrust:   T  = %g [N] = %g [lbf] ', T_max_required, convforce(T_max_required,'N','lbf'));
 fprintf('\n Max takeoff weight:        MTOW  = %g [N] = %g [lbf] ', MTOW, convforce(MTOW,'N','lbf'));
 fprintf('\n\n ===================================================================================== \n');
-
-fprintf('\n\n =================================== Weights =================================== \n');
-fprintf('\n Max takeoff:                MTOW            = %g [N] = %g [lbf] ', MTOW,             convforce(MTOW,'N','lbf'));
-fprintf('\n Takeoff end:                W_to_end        = %g [N] = %g [lbf] ', W_to_end,         convforce(W_to_end,'N','lbf'));
-fprintf('\n Climb average (sub):        W_climb_avg     = %g [N] = %g [lbf] ', W_climb_avg_sub,      convforce(W_climb_avg_sub,'N','lbf'));
-fprintf('\n Climb average (super):      W_climb_avg     = %g [N] = %g [lbf] ', W_climb_avg_super,      convforce(W_climb_avg_super,'N','lbf'));
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Subsonic Cruise start:      W_cruise_start  = %g [N] = %g [lbf] ', W_cruise_start_sub,   convforce(W_cruise_start_sub,'N','lbf'));
-fprintf('\n Subsonic Cruise end:        W_cruise_end    = %g [N] = %g [lbf] ', W_cruise_end_sub,     convforce(W_cruise_end_sub,'N','lbf'));
-fprintf('\n Subsonic Cruise average:    W_cruise_avg    = %g [N] = %g [lbf] ', W_cruise_avg_sub,     convforce(W_cruise_avg_sub,'N','lbf'));
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Supersonic Cruise start:    W_cruise_start  = %g [N] = %g [lbf] ', W_cruise_start_super,   convforce(W_cruise_start_super,'N','lbf'));
-fprintf('\n Supersonic Cruise end:      W_cruise_end    = %g [N] = %g [lbf] ', W_cruise_end_super,     convforce(W_cruise_end_super,'N','lbf'));
-fprintf('\n Supersonic Cruise average:  W_cruise_avg    = %g [N] = %g [lbf] ', W_cruise_avg_super,     convforce(W_cruise_avg_super,'N','lbf'));
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Descent average (sub):      W_descend_avg   = %g [N] = %g [lbf] ', W_descend_avg_sub,    convforce(W_descend_avg_sub,'N','lbf'));
-fprintf('\n Descent average (super):    W_descend_avg   = %g [N] = %g [lbf] ', W_descend_avg_super,    convforce(W_descend_avg_super,'N','lbf'));
-fprintf('\n Landing:                    W_land          = %g [N] = %g [lbf] ', W_land,           convforce(W_land,'N','lbf'));
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Total payload weight:       W_payload       = %g [N] = %g [lbf] ', W_payload_total, convforce(W_payload_total,'N','lbf'));
-fprintf('\n Passenger weight:           W_passengers    = %g [N] = %g [lbf] ', W_Passengers, convforce(W_Passengers,'N','lbf'));
-fprintf('\n Luggage weight:             W_Luggage       = %g [N] = %g [lbf] ', W_Luggage, convforce(W_Luggage,'N','lbf'));
-fprintf('\n Crew weight:                W_Crew          = %g [N] = %g [lbf] ', W_Crew, convforce(W_Crew,'N','lbf'));
-fprintf('\n Empty weight:               W_empty         = %g [N] = %g [lbf] ', W_empty, convforce(W_empty,'N','lbf'));
-fprintf('\n Fuel weight:                W_fuel          = %g [N] = %g [lbf] ', W_fuel, convforce(W_fuel,'N','lbf'));
-fprintf('\n\n =============================================================================== \n');
 
 %% ========================================================================
 % operational envelopes:
