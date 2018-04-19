@@ -1,4 +1,4 @@
-function [ DOC_per_km ] = DOC_SSBJ(MTOW, W_empty, W_fuel, V_cr, Tto, ne, R, TOF, PAX)
+function [ DOC_per_km ] = DOC_SSBJ(MTOW, W_empty, W_fuel, V_cr, Tto, ne, R, PAX)
 % This script calculates the operating cost for the SSBJ 
 
 %From synthesis script: 
