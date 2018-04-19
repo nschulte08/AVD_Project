@@ -21,9 +21,9 @@ config_iter = '#_A'; % for saving figures (makes things go much faster)
 range_sub    = 9800e3; % Subsonic range, (m)
 range_super  = 8800e3; % Supersonic range, (m)
 M_cr_sub     = 0.7;    % Subsonic cruise Mach number
-M_cr_super   = 2.0;    % Supersonic cruise Mach number
-alt_cr_sub   = 14000;  % Subsonic cruise altitude (m)
-alt_cr_super = 18000;  % Supersonic cruise altitude (m)
+M_cr_super   = 1.4;    % Supersonic cruise Mach number
+alt_cr_sub   = 13000;  % Subsonic cruise altitude (m)
+alt_cr_super = 15500;  % Supersonic cruise altitude (m)
 M_max = 2.8;           % (need to update)
 num_pass = 12;         % Number of passengers
 num_crew = 4;          % Number of crew members
@@ -31,8 +31,8 @@ num_crew = 4;          % Number of crew members
 alt_TO = 0;   % takeoff Airport altitude [m]
 alt_land = 0; % landing Airport altitude [m]
 %--------------------------------------------------------------------------
-[~,TSFC_sub] = Propulsion(M_cr_sub,alt_cr_sub); % TSFC = [1/hr]
-[~,TSFC_super] = Propulsion(M_cr_super,alt_cr_super); % TSFC = [1/hr]
+[T_A_sub,TSFC_sub] = Propulsion(M_cr_sub,alt_cr_sub); % TSFC = [1/hr]
+[T_A_super,TSFC_super] = Propulsion(M_cr_super,alt_cr_super); % TSFC = [1/hr]
 %--------------------------------------------------------------------------
 % design point: (determined from solution space script)
 WingLoading = 30;
@@ -65,7 +65,9 @@ SM = 0;                   % static margin
 M_perp = 0.7;             % perp Mach #, variable to iterate(?)
 %--------------------------------------------------------------------------
 % propulsion:
-ne = 4; % number of engines
+ne = 12; % number of engines
+T_A_sub = T_A_sub*ne;
+T_A_super = T_A_super*ne;
 
 %% ========================================================================
 % Solution Space
@@ -85,27 +87,27 @@ MTOW = convforce(WingLoading*Sref*convlength(1,'m','ft')^2, 'lbf', 'N'); % inita
 %--------------------------------------------------------------------------
 [WEIGHTS] = weight_converge(MTOW, alt_cr_super, M_cr_super, range_super, TSFC_super, LD_cruise, num_crew, num_pass, ThrustLoading);
 %--------------------------------------------------------------------------
-MTOW = WEIGHTS.MTOW;
-W_empty = WEIGHTS.W_empty;
-W_fuel = WEIGHTS.W_fuel;
-W_payload_total = WEIGHTS.W_payload_total;
-W_to_end= WEIGHTS.W_to_end;
-W_climb_end_super = WEIGHTS.W_climb_end_super;
-W_climb_avg_super = WEIGHTS.W_climb_avg_super;
-W_cruise_start_super = WEIGHTS.W_cruise_start_super;
-W_cruise_end_super = WEIGHTS.W_cruise_end_super;
-W_cruise_avg_super = WEIGHTS.W_cruise_avg_super;
-W_descend_end_super = WEIGHTS.W_descend_end_super;
-W_descend_avg_super = WEIGHTS.W_descend_avg_super;
-W_climb_end_sub = WEIGHTS.W_climb_end_sub;
-W_climb_avg_sub = WEIGHTS.W_climb_avg_sub;
-W_cruise_start_sub = WEIGHTS.W_cruise_start_sub;
-W_cruise_end_sub = WEIGHTS.W_cruise_end_sub;
-W_cruise_avg_sub = WEIGHTS.W_cruise_avg_sub;
-W_descend_end_sub = WEIGHTS.W_descend_end_sub;
-W_descend_avg_sub = WEIGHTS.W_descend_avg_sub;
-W_land = WEIGHTS.W_land;
-W_cruise_avg_avg = WEIGHTS.W_cruise_avg_avg;
+MTOW                    = WEIGHTS.MTOW;
+W_empty                 = WEIGHTS.W_empty;
+W_fuel                  = WEIGHTS.W_fuel;
+W_payload_total         = WEIGHTS.W_payload_total;
+W_to_end                = WEIGHTS.W_to_end;
+W_climb_end_super       = WEIGHTS.W_climb_end_super;
+W_climb_avg_super       = WEIGHTS.W_climb_avg_super;
+W_cruise_start_super    = WEIGHTS.W_cruise_start_super;
+W_cruise_end_super      = WEIGHTS.W_cruise_end_super;
+W_cruise_avg_super      = WEIGHTS.W_cruise_avg_super;
+W_descend_end_super     = WEIGHTS.W_descend_end_super;
+W_descend_avg_super     = WEIGHTS.W_descend_avg_super;
+W_climb_end_sub         = WEIGHTS.W_climb_end_sub;
+W_climb_avg_sub         = WEIGHTS.W_climb_avg_sub;
+W_cruise_start_sub      = WEIGHTS.W_cruise_start_sub;
+W_cruise_end_sub        = WEIGHTS.W_cruise_end_sub;
+W_cruise_avg_sub        = WEIGHTS.W_cruise_avg_sub;
+W_descend_end_sub       = WEIGHTS.W_descend_end_sub;
+W_descend_avg_sub       = WEIGHTS.W_descend_avg_sub;
+W_land                  = WEIGHTS.W_land;
+W_cruise_avg_avg        = WEIGHTS.W_cruise_avg_avg;
 %--------------------------------------------------------------------------
 fprintf('\n\n =================================== Weights =================================== \n');
 fprintf('\n Max takeoff:                MTOW            = %g [N] = %g [lbf] ', MTOW,             convforce(MTOW,'N','lbf'));
@@ -135,9 +137,31 @@ fprintf('\n\n ==================================================================
 T_max_required = ThrustLoading*MTOW; % Required thrust for takeoff, N
 
 %% ========================================================================
+% New wing parameters:
+%--------------------------------------------------------------------------
+S_new_ft = convforce(MTOW,'N','lbf')/WingLoading;  % [ft^2]
+S_new = S_new_ft*convlength(1,'ft','m')^2;         % [m^2]
+
+new_WS = convforce(MTOW,'N','lbf')/(Sref*convlength(1,'m','ft')^2); % [lbf/ft^2]
+
+b_new = 2*S_new/(c_r + c_t); % [m] unswept
+
+fprintf('\n\n ======================================== New Wing ====================================== \n');
+fprintf('\n Original wing:  S  = %g [m^2] = %g [ft^2] ', Sref, Sref*convlength(1,'m','ft')^2);
+fprintf('\n New wing:       S  = %g [m^2] = %g [ft^2] ', S_new, S_new_ft);
+fprintf('\n\n Original wing:  b  = %g [m] = %g [ft]', b_unswept, convlength(b_unswept,'m','ft'));
+fprintf(  '\n New wing:       b  = %g [m] = %g [ft]', b_new, convlength(b_new,'m','ft'));
+% fprintf('\n\n Original design point:   W/S = %g [N] [lbf/ft^2] ', WingLoading);
+% fprintf('\n New design point:        W/S = %g [N] [lbf/ft^2] ', new_WS);
+fprintf('\n -------------------------------------------------------------------------------- ');
+
+Sref = S_new; % [m^2]
+b_unswept = b_new; % [m]
+
+%% ========================================================================
 % Display initial design parameters:
 %--------------------------------------------------------------------------
-fprintf('\n\n ============================= Initial Design Parameters ============================= \n');
+fprintf('\n\n =================================== Design Parameters ================================== \n');
 fprintf('\n Required wing area:         S  = %g [m^2] = %g [ft^2] ', Sref, Sref*convlength(1,'m','ft')^2);
 fprintf('\n Total unswept wing span:    b  = %g [m] = %g [ft]', b_unswept, convlength(b_unswept,'m','ft'));
 fprintf('\n Unswept apect ratio:        AR = %g ', AR_unswept);
@@ -156,6 +180,8 @@ fprintf('\n --------------------------------------------------------------------
 fprintf('\n Required takeoff thrust:   T  = %g [N] = %g [lbf] ', T_max_required, convforce(T_max_required,'N','lbf'));
 fprintf('\n Max takeoff weight:        MTOW  = %g [N] = %g [lbf] ', MTOW, convforce(MTOW,'N','lbf'));
 fprintf('\n\n ===================================================================================== \n');
+
+
 
 %% ========================================================================
 % operational envelopes:
@@ -252,6 +278,11 @@ end
 % Aero:
 CL_cr_sub = W_cruise_avg_super/(Sref*0.5*rho_cr_sub*V_cr_sub^2); % lift coefficient cruise
 [CD_cr_sub, ~] = aerodynamic_drag(alt_cr_sub, M_cr_sub, Sref, CL_cr_sub, SM, AR_swept_cr_sub, TR, sweep_deg_cr_sub);
+
+D = CD_cr_sub*0.5*rho_cr_sub*V_cr_sub^2*Sref; % [N] thrust required
+
+%TSFC_sub = (D/T_A_sub)*TSFC_sub; % throttling down
+
 %--------------------------------------------------------------------------
 % Performance:
 [R_constH_sub, R_CC_sub, TOF_constH_sub, TOF_CC_sub] = perf_cruise(M_cr_sub, alt_cr_sub, W_cruise_start_sub, W_cruise_end_sub, Sref, TSFC_sub, CL_cr_sub, CD_cr_sub);
@@ -282,6 +313,11 @@ end
 % Aero:
 CL_cr_super = W_cruise_avg_super/(Sref*0.5*rho_cr_super*V_cr_super^2); % lift coefficient cruise
 [CD_cr_super, ~] = aerodynamic_drag(alt_cr_super, M_cr_super, Sref, CL_cr_super, SM, AR_swept_cr_super, TR, sweep_deg_cr_super);
+
+D = CD_cr_super*0.5*rho_cr_super*V_cr_super^2*Sref; % [N] thrust required
+
+%TSFC_super = (D/T_A_super)*TSFC_super; % throttling down
+
 %--------------------------------------------------------------------------
 % Performance:
 [R_constH_super, R_CC_super, TOF_constH_super, TOF_CC_super] = perf_cruise(M_cr_super, alt_cr_super, W_cruise_start_super, W_cruise_end_super, Sref, TSFC_super, CL_cr_super, CD_cr_super);
