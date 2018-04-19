@@ -58,7 +58,7 @@ elseif M >= 1
     CMa_super = -CLa_super*SM;
     % Calculate aoa for the required CL:
     AoA = (CL-CL0)/CLa_super; % [rad]        % CL = CLa * aoa so aoa = CL/CLa
-
+    AoA = abs(AoA);
 end
 
 %==========================================================================
