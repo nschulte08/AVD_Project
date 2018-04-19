@@ -21,7 +21,7 @@ config_iter = '#_A'; % for saving figures (makes things go much faster)
 range_sub    = 9800e3; % Subsonic range, (m)
 range_super  = 8800e3; % Supersonic range, (m)
 M_cr_sub     = 0.7;    % Subsonic cruise Mach number
-M_cr_super   = 1.4;    % Supersonic cruise Mach number
+M_cr_super   = 1.2;    % Supersonic cruise Mach number
 alt_cr_sub   = 13000;  % Subsonic cruise altitude (m)
 alt_cr_super = 15500;  % Supersonic cruise altitude (m)
 M_max = 2.8;           % (need to update)
@@ -65,7 +65,7 @@ SM = 0;                   % static margin
 M_perp = 0.7;             % perp Mach #, variable to iterate(?)
 %--------------------------------------------------------------------------
 % propulsion:
-ne = 12; % number of engines
+ne = 4; % number of engines
 T_A_sub = T_A_sub*ne;
 T_A_super = T_A_super*ne;
 
@@ -134,7 +134,7 @@ fprintf('\n\n ==================================================================
 
 %% ========================================================================
 % Max thrust required:
-T_max_required = ThrustLoading*MTOW; % Required thrust for takeoff, N
+T_SL_max_required = ThrustLoading*MTOW; % Required thrust for takeoff, N
 
 %% ========================================================================
 % New wing parameters:
@@ -177,7 +177,7 @@ fprintf('\n --------------------------------------------------------------------
 fprintf('\n Static margin:   SM = %g \n', SM);
 fprintf('\n Number of engines:   ne = %g ', ne);
 fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Required takeoff thrust:   T  = %g [N] = %g [lbf] ', T_max_required, convforce(T_max_required,'N','lbf'));
+fprintf('\n Required takeoff thrust:   T  = %g [N] = %g [lbf] ', T_SL_max_required, convforce(T_SL_max_required,'N','lbf'));
 fprintf('\n Max takeoff weight:        MTOW  = %g [N] = %g [lbf] ', MTOW, convforce(MTOW,'N','lbf'));
 fprintf('\n\n ===================================================================================== \n');
 
@@ -279,13 +279,17 @@ end
 CL_cr_sub = W_cruise_avg_super/(Sref*0.5*rho_cr_sub*V_cr_sub^2); % lift coefficient cruise
 [CD_cr_sub, ~] = aerodynamic_drag(alt_cr_sub, M_cr_sub, Sref, CL_cr_sub, SM, AR_swept_cr_sub, TR, sweep_deg_cr_sub);
 
-D = CD_cr_sub*0.5*rho_cr_sub*V_cr_sub^2*Sref; % [N] thrust required
+T_R_sub = CD_cr_sub*0.5*rho_cr_sub*V_cr_sub^2*Sref; % [N] thrust required
 
-%TSFC_sub = (D/T_A_sub)*TSFC_sub; % throttling down
+%TSFC_sub = (T_R_sub/T_A_sub)*TSFC_sub; % throttling down
 
 %--------------------------------------------------------------------------
 % Performance:
 [R_constH_sub, R_CC_sub, TOF_constH_sub, TOF_CC_sub] = perf_cruise(M_cr_sub, alt_cr_sub, W_cruise_start_sub, W_cruise_end_sub, Sref, TSFC_sub, CL_cr_sub, CD_cr_sub);
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Subsonic thrust required:   T  = %g [N] = %g [lbf] ', T_R_sub, convforce(T_R_sub,'N','lbf'));
+fprintf('\n\n ===================================================================================== \n');
+
 %--------------------------------------------------------------------------
 % S&C:
 [CMa_cr_sub, Cl_beta_cr_sub, Cn_beta_cr_sub, CM_de_cr_sub, Cl_da_cr_sub, Cn_dr_cr_sub, S_VT_cr_sub, l_VT_cr_sub, VT_plot_cr_sub] = stability(M_cr_sub, AR_swept_cr_sub, sweep_deg_cr_sub, Sref, b_swept_cr_sub, TR, CL_cr_sub, SM, 'Subsonic Cruise');
@@ -314,13 +318,17 @@ end
 CL_cr_super = W_cruise_avg_super/(Sref*0.5*rho_cr_super*V_cr_super^2); % lift coefficient cruise
 [CD_cr_super, ~] = aerodynamic_drag(alt_cr_super, M_cr_super, Sref, CL_cr_super, SM, AR_swept_cr_super, TR, sweep_deg_cr_super);
 
-D = CD_cr_super*0.5*rho_cr_super*V_cr_super^2*Sref; % [N] thrust required
+T_R_super = CD_cr_super*0.5*rho_cr_super*V_cr_super^2*Sref; % [N] thrust required
 
-%TSFC_super = (D/T_A_super)*TSFC_super; % throttling down
+%TSFC_super = (T_R_super/T_A_super)*TSFC_super; % throttling down
 
 %--------------------------------------------------------------------------
 % Performance:
 [R_constH_super, R_CC_super, TOF_constH_super, TOF_CC_super] = perf_cruise(M_cr_super, alt_cr_super, W_cruise_start_super, W_cruise_end_super, Sref, TSFC_super, CL_cr_super, CD_cr_super);
+
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Supersonic thrust required:   T  = %g [N] = %g [lbf] ', T_R_super, convforce(T_R_super,'N','lbf'));
+fprintf('\n\n ===================================================================================== \n');
 %--------------------------------------------------------------------------
 % S&C:
 [CMa_cr_super, Cl_beta_cr_super, Cn_beta_cr_super, CM_de_cr_super, Cl_da_cr_super, Cn_dr_cr_super, S_VT_cr_super, l_VT_cr_super, VT_plot_cr_super] = stability(M_cr_super, AR_swept_cr_super, sweep_deg_cr_super, Sref, b_swept_cr_super, TR, CL_cr_super, SM, 'Supersonic Cruise');
@@ -369,50 +377,6 @@ end
 %--------------------------------------------------------------------------
 % S&C:
 [CMa_L, Cl_beta_L, Cn_beta_L, CM_de_L, Cl_da_L, Cn_dr_L, S_VT_L, l_VT_L, VT_plot_land] = stability(M_Land, AR_swept_Land, sweep_deg_Land, Sref, b_swept_Land, TR, CL_max, SM, 'Landing');
-
-%% ========================================================================
-% Total Performance Summary:
-%--------------------------------------------------------------------------
-% Total range and time of flight:
-R_total_sub = S_climb_sub   + R_constH_sub   + S_descend_sub;   % [m]
-R_total_super = S_climb_super + R_constH_super + S_descend_super; % [m]
-
-dt_total_sub = dt_climb_sub   + TOF_constH_sub   + dt_descend_sub;   % [s]
-dt_total_super = dt_climb_super + TOF_constH_super + dt_descend_super; % [s]
-%--------------------------------------------------------------------------
-fprintf('\n\n ============================== Total Range and Time of Flight for Subsonic Mission ============================== \n');
-fprintf('\n Total Range (including climb and descent)');
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Cruise Altitude: h  = %g [m] = %g [ft] \n', alt_cr_sub, convlength(alt_cr_sub,'m','ft'));
-fprintf('\n Range Covered During Climb:        R_climb   = %g [km] = %g [miles]', convlength(S_climb_sub,'m','km'), convlength(S_climb_sub,'m','mi'));
-fprintf('\n Constant Altitude Cruise Range:    R_cruise  = %g [km] = %g [miles]', convlength(R_constH_sub,'m','km'), convlength(R_constH_sub,'m','mi'));
-%fprintf('\n Cruise Climb Range:                R_cruise  = %g [km] = %g [miles]', convlength(R_CC_sub,'m','km'), convlength(R_CC_sub,'m','mi'));
-fprintf('\n Range Covered During Descent:      R_descend = %g [km] = %g [miles]', convlength(S_descend_sub,'m','km'), convlength(S_descend_sub,'m','mi'));
-fprintf('\n\n Total Range:  R = %g [km] = %g [miles] \n', convlength(R_total_sub,'m','km'), convlength(R_total_sub,'m','mi'));
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Time to Climb:    dt_climb   = %g [min]', dt_climb_sub/60);
-fprintf('\n Time to Cruise:   dt_cruise  = %g [min]', TOF_constH_sub/60);
-fprintf('\n Time to Descend:  dt_descend = %g [min]', dt_descend_sub/60);
-fprintf('\n\n Total Time of Flight:   dt = %g [min]', dt_total_sub/60);
-fprintf('\n                         dt = %g [hrs]', dt_total_sub/3600);
-fprintf('\n\n =================================================================================================================== \n');
-%--------------------------------------------------------------------------
-fprintf('\n\n ============================== Total Range and Time of Flight for Supersonic Mission ============================== \n');
-fprintf('\n Total Range (including climb and descent)');
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Cruise Altitude: h  = %g [m] = %g [ft] \n', alt_cr_super, convlength(alt_cr_super,'m','ft'));
-fprintf('\n Range Covered During Climb:        R_climb   = %g [km] = %g [miles]', convlength(S_climb_super,'m','km'), convlength(S_climb_super,'m','mi'));
-fprintf('\n Constant Altitude Cruise Range:    R_cruise  = %g [km] = %g [miles]', convlength(R_constH_super,'m','km'), convlength(R_constH_super,'m','mi'));
-%fprintf('\n Cruise Climb Range:                R_cruise  = %g [km] = %g [miles]', convlength(R_CC_super,'m','km'), convlength(R_CC_super,'m','mi'));
-fprintf('\n Range Covered During Descent:      R_descend = %g [km] = %g [miles]', convlength(S_descend_super,'m','km'), convlength(S_descend_super,'m','mi'));
-fprintf('\n\n Total Range:  R = %g [km] = %g [miles] \n', convlength(R_total_super,'m','km'), convlength(R_total_super,'m','mi'));
-fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Time to Climb:    dt_climb   = %g [min]', dt_climb_super/60);
-fprintf('\n Time to Cruise:   dt_cruise  = %g [min]', TOF_constH_super/60);
-fprintf('\n Time to Descend:  dt_descend = %g [min]', dt_descend_super/60);
-fprintf('\n\n Total Time of Flight:   dt = %g [min]', dt_total_super/60);
-fprintf('\n                         dt = %g [hrs]', dt_total_super/3600);
-fprintf('\n\n =================================================================================================================== \n');
 
 %% ========================================================================
 % Sweep schedule:
@@ -530,10 +494,59 @@ grid on
 fig_save('Figures', figure_name)
 
 %% ========================================================================
+% Total Performance Summary:
+%--------------------------------------------------------------------------
+% Total range and time of flight:
+R_total_sub = S_climb_sub   + R_constH_sub   + S_descend_sub;   % [m]
+R_total_super = S_climb_super + R_constH_super + S_descend_super; % [m]
+
+dt_total_sub = dt_climb_sub   + TOF_constH_sub   + dt_descend_sub;   % [s]
+dt_total_super = dt_climb_super + TOF_constH_super + dt_descend_super; % [s]
+%--------------------------------------------------------------------------
+fprintf('\n\n ============================== Total Range and Time of Flight for Subsonic Mission ============================== \n');
+fprintf('\n Total Range (including climb and descent)');
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Cruise Altitude: h  = %g [m] = %g [ft] \n', alt_cr_sub, convlength(alt_cr_sub,'m','ft'));
+fprintf('\n Range Covered During Climb:        R_climb   = %g [km] = %g [miles]', convlength(S_climb_sub,'m','km'), convlength(S_climb_sub,'m','mi'));
+fprintf('\n Constant Altitude Cruise Range:    R_cruise  = %g [km] = %g [miles]', convlength(R_constH_sub,'m','km'), convlength(R_constH_sub,'m','mi'));
+%fprintf('\n Cruise Climb Range:                R_cruise  = %g [km] = %g [miles]', convlength(R_CC_sub,'m','km'), convlength(R_CC_sub,'m','mi'));
+fprintf('\n Range Covered During Descent:      R_descend = %g [km] = %g [miles]', convlength(S_descend_sub,'m','km'), convlength(S_descend_sub,'m','mi'));
+fprintf('\n\n Total Range:  R = %g [km] = %g [miles] \n', convlength(R_total_sub,'m','km'), convlength(R_total_sub,'m','mi'));
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Time to Climb:    dt_climb   = %g [min]', dt_climb_sub/60);
+fprintf('\n Time to Cruise:   dt_cruise  = %g [min]', TOF_constH_sub/60);
+fprintf('\n Time to Descend:  dt_descend = %g [min]', dt_descend_sub/60);
+fprintf('\n\n Total Time of Flight:   dt = %g [min]', dt_total_sub/60);
+fprintf('\n                         dt = %g [hrs]', dt_total_sub/3600);
+fprintf('\n\n =================================================================================================================== \n');
+%--------------------------------------------------------------------------
+fprintf('\n\n ============================== Total Range and Time of Flight for Supersonic Mission ============================== \n');
+fprintf('\n Total Range (including climb and descent)');
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Cruise Altitude: h  = %g [m] = %g [ft] \n', alt_cr_super, convlength(alt_cr_super,'m','ft'));
+fprintf('\n Range Covered During Climb:        R_climb   = %g [km] = %g [miles]', convlength(S_climb_super,'m','km'), convlength(S_climb_super,'m','mi'));
+fprintf('\n Constant Altitude Cruise Range:    R_cruise  = %g [km] = %g [miles]', convlength(R_constH_super,'m','km'), convlength(R_constH_super,'m','mi'));
+%fprintf('\n Cruise Climb Range:                R_cruise  = %g [km] = %g [miles]', convlength(R_CC_super,'m','km'), convlength(R_CC_super,'m','mi'));
+fprintf('\n Range Covered During Descent:      R_descend = %g [km] = %g [miles]', convlength(S_descend_super,'m','km'), convlength(S_descend_super,'m','mi'));
+fprintf('\n\n Total Range:  R = %g [km] = %g [miles] \n', convlength(R_total_super,'m','km'), convlength(R_total_super,'m','mi'));
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Time to Climb:    dt_climb   = %g [min]', dt_climb_super/60);
+fprintf('\n Time to Cruise:   dt_cruise  = %g [min]', TOF_constH_super/60);
+fprintf('\n Time to Descend:  dt_descend = %g [min]', dt_descend_super/60);
+fprintf('\n\n Total Time of Flight:   dt = %g [min]', dt_total_super/60);
+fprintf('\n                         dt = %g [hrs]', dt_total_super/3600);
+fprintf('\n\n =================================================================================================================== \n');
+
+%% ========================================================================
 % Cost analysis:
 %--------------------------------------------------------------------------
-%W_A = 0; % what is this?
-%[ RTDE_Cost ] = costfunky( weights.W_empty, V_cr, T_max_required, M_max, convforce(MTOW,'N','lbf'), weights.W_fuel, R_total_1*0.000621371, dt_climb/3600, dt_descend/3600, TOF_constH/3600, W_A, ne);
+PAX = num_pass + num_crew;
+[ RTDE_Cost, DOC_Cost ] = costfunky(MTOW, W_empty, W_fuel, V_cr_super, ne, convlength(R_total_super,'m','km'), PAX, T_SL_max_required, M_cr_super);
+
+fprintf('\n\n ================================= Cost Results ================================= \n');
+fprintf('\n RDTE cost:    RDTE = %g [$]', RTDE_Cost);
+fprintf('\n DOC cost:      DOC = %g [$ per km]', DOC_Cost);
+fprintf('\n\n ================================================================================ \n');
 
 %% ========================================================================
 % output vector: (for spreadsheet)
@@ -545,4 +558,5 @@ OUTPUT = [num_pass; alt_cr_sub; M_cr_sub; alt_cr_super; M_cr_super;...
           MTOW/1000; W_fuel/1000; W_empty/1000; W_land/1000;...
           R_total_sub/1000; dt_total_sub/3600; R_total_super/1000; dt_total_super/3600;...
           V_stall; V_TO; BFL; V_approach; V_TD; FAR_land;...
-          sweep_deg_TO; sweep_climb_super(2) ; sweep_deg_cr_sub ;sweep_deg_cr_super ; sweep_descend_super(2); sweep_deg_Land];
+          sweep_deg_TO; sweep_climb_super(2) ; sweep_deg_cr_sub ;sweep_deg_cr_super ; sweep_descend_super(2); sweep_deg_Land;...
+          RTDE_Cost; DOC_Cost];
