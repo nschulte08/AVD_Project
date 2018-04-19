@@ -1,15 +1,16 @@
+function [ DOC_per_km ] = DOC_SSBJ(MTOW, W_empty, W_fuel, V_cr, Tto, ne, R, TOF, PAX)
 % This script calculates the operating cost for the SSBJ 
 
 %From synthesis script: 
-MTOW = 1.27571e6;           % Input in N
-W_empty = 730852;           % Input in N
-W_fuel = 526442;            % Input in N
-V_cr = 413;                 % Input as m/s
-Tto = 446.5;                % Total thrust in kN
-ne = 4;                     % Number of engines
-R = 10000;                  % Total range (km)
-TOF = 9;                    % TOF in hr
-PAX = 12;                   % PAX / number of seats
+% MTOW       Input in N
+% W_empty	Input in N
+% W_fuel     Input in N
+% V_cr       Input as m/s
+% Tto        Total thrust in kN
+% ne         Number of engines
+% R          Total range (km)
+% TOF        TOF in hr
+% PAX        PAX / number of seats
 
 % Inputs:
 c = 4;                  % Number of preproduction aircraft
@@ -62,32 +63,31 @@ meng = sew*Tto/9.81;                                % Mass of engine in 1000*kg
 EL = 0.143 + (1452 + 530 * meng)/mtbr;              % # of labor hours per engine per flight hour (hr)
 
 % For Cakm7
-AFCM = (7.23 + 0.096*mto + 0.020*PAX);      % Materials costs per airframe per flight cycle
-AFHM = (6.51 + 0.028*maf + 0.025*PAX);      % Materials costs per airframe per flight hour
-SSonic_Scale = AFCM * .82*V^2;      % Have to scale supersonic
-SSonic_Scale2 = AFHM * .82*V^2;     % Have to scale supersonic
+AFCM = (7.23 + 0.096*mto + 0.020*PAX)* .82*V^2;      % Materials costs per airframe per flight cycle
+AFHM = (6.51 + 0.028*maf + 0.025*PAX)* .82*V^2;      % Materials costs per airframe per flight hour
 
 % DOC Calculations
 Cakm1 = Dl * (5.66 * mto^0.7) / Vb;                     % Cost of flight crew ($/km)
 Cakm2 = Df * 1.02 * (mftrip * 40 + ne * tb * .145)/R;   % Fuel cost, ($/km), G650 is 2840 $/hr
 Cakm3 = IR * (Caf + ne*Ce)/(U * Vb);                    % Cost of Insurance ($/km)
 Cakm4 = 0.9 * (1.04*Caf + ne*Ce*1.3) / (Da*U*Vb);       % Cost of Depreciation ($/km)
-Cakm4 = 0;
 Cakm5 = Dl * 4.82 * (AFCL/R + AFHL/Vb);                 % Airframe labor costs
 Cakm6 = (Dl * 4.82 * ne * EL/Vb)*.82*V^2;               % Engine labor costs
 Cakm7 = Dac * (AFHM/Vb + AFCM/R);                       % Airframe parts costs
 Cakm8 = ne * (De * 0.626 + 0.045 * Ce/mtbr)/Vb;         % Engine parts costs
 Cakm9 = 1.4 * (Cakm5 + Cakm6);                          % Maintenance burden, indirect maintenance costs
 
-loadfactor = 0.8;                      % Average for most airlines
+%loadfactor = 0.8;                      % Average for most airlines
 
 % Calculate total cost per km:
-Total_per_km = (Cakm1 + Cakm2 + Cakm3 + Cakm4 + Cakm5 + Cakm6 ...
+DOC_per_km = (Cakm1 + Cakm2 + Cakm3 + Cakm4 + Cakm5 + Cakm6 ...
     + Cakm7 + Cakm8 + Cakm9);
 
+% Calculate total cost per km per PAX
+%TDOC = DOC_per_km/(loadfactor*PAX);
+
+% Just for comparison (used in validation)
 G650_per_km = 29977/convlength(4000, 'mi', 'km');
 
-% Calculate total cost per km per PAX
-TDOC = Total_per_km/(loadfactor*PAX);
+end
 
-DOC_concorde = 2.25;    %($/pass.km)
