@@ -15,7 +15,7 @@ ThrustLoading   = design point thrust loading
 OUTPUTS:
 WEIGHTS = data structure with all the weights in Newtons
 %--------------------------------------------------------------------------
-Last modified: 04/17/2018
+Last modified: 04/18/2018
 % =========================================================================
 %}
 function [WEIGHTS] = weight_converge(MTOW, alt_cr_super, M_cr_super, range_super, TSFC_super, LD_cruise, num_crew, num_pass, ThrustLoading)
@@ -88,22 +88,22 @@ WEIGHTS.W_fuel = W_fuel;
 WEIGHTS.W_empty = convforce(OEW,'lbf','N'); % (N)
 WEIGHTS.W_payload_total = convforce(W_pay,'lbf','N'); % (N)
 %--------------------------------------------------------------------------
-WEIGHTS.W_to_end = MTOW*wt_frac.WF_to;  % Wt at end of TO, start of climb (N)
-WEIGHTS.W_climb_end_super = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel; % Wt at end of climb, start of cruise (N)
-WEIGHTS.W_climb_avg_super = 0.5*(WEIGHTS.W_to_end + WEIGHTS.W_climb_end_super);
-WEIGHTS.W_cruise_start_super = WEIGHTS.W_climb_end_super; % Wt at beginning of cruise (N)
-WEIGHTS.W_cruise_end_super = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel*wt_frac.WF_cruise; % Wt at end of cruise (N)
-WEIGHTS.W_cruise_avg_super = 0.5*(WEIGHTS.W_climb_end_super + WEIGHTS.W_cruise_end_super); % Average cruise wt (N)
-WEIGHTS.W_descend_end_super = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel*wt_frac.WF_cruise*wt_frac.WF_des; % Wt at end of descent (N)
-WEIGHTS.W_descend_avg_super = 0.5*(WEIGHTS.W_cruise_end_super + WEIGHTS.W_descend_end_super); % Average descent wt (N)
-WEIGHTS.W_climb_end_sub = MTOW*wt_frac.WF_to*wt_frac.WF_climb; % Wt at end of climb, start of cruise (N)
-WEIGHTS.W_climb_avg_sub = 0.5*(WEIGHTS.W_to_end + WEIGHTS.W_climb_end_sub);
-WEIGHTS.W_cruise_start_sub = WEIGHTS.W_climb_end_sub;        % Wt at beginning of cruise (N)
-WEIGHTS.W_cruise_end_sub = WEIGHTS.W_climb_end_sub - W_fuel; % Wt at end of cruise (N) [approximate]
-WEIGHTS.W_cruise_avg_sub = 0.5*(WEIGHTS.W_climb_end_sub + WEIGHTS.W_cruise_end_sub); % Average cruise wt (N)
-WEIGHTS.W_descend_end_sub = WEIGHTS.W_cruise_end_sub*0.99; % Wt at end of cruise (N)
-WEIGHTS.W_descend_avg_sub = 0.5*(WEIGHTS.W_cruise_end_sub + WEIGHTS.W_descend_end_sub); % Average descent wt (N)
-WEIGHTS.W_land = MTOW*wt_frac.WF_total;
-WEIGHTS.W_cruise_avg_avg = (WEIGHTS.W_cruise_avg_sub + WEIGHTS.W_cruise_avg_super)/2; % used for op_envelope and Ta vs Tr plot
+WEIGHTS.W_to_end             = MTOW*wt_frac.WF_to;                                                                      % Wt at end of TO, start of climb (N)
+WEIGHTS.W_climb_end_super    = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel;                                    % Wt at end of climb, start of cruise (N)
+WEIGHTS.W_climb_avg_super    = 0.5*(WEIGHTS.W_to_end + WEIGHTS.W_climb_end_super);                                      % average climb weight to supersonic altitude (N)
+WEIGHTS.W_cruise_start_super = WEIGHTS.W_climb_end_super;                                                               % Wt at beginning of cruise (N)
+WEIGHTS.W_cruise_end_super   = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel*wt_frac.WF_cruise;                  % Wt at end of cruise (N)
+WEIGHTS.W_cruise_avg_super   = 0.5*(WEIGHTS.W_climb_end_super + WEIGHTS.W_cruise_end_super);                            % Average cruise wt (N)
+WEIGHTS.W_descend_end_super  = MTOW*wt_frac.WF_to*wt_frac.WF_climb*wt_frac.WF_accel*wt_frac.WF_cruise*wt_frac.WF_des;   % Wt at end of descent (N)
+WEIGHTS.W_descend_avg_super  = 0.5*(WEIGHTS.W_cruise_end_super + WEIGHTS.W_descend_end_super);                          % Average descent wt (N)
+WEIGHTS.W_climb_end_sub      = MTOW*wt_frac.WF_to*wt_frac.WF_climb;                                                     % Wt at end of climb, start of cruise (N)
+WEIGHTS.W_climb_avg_sub      = 0.5*(WEIGHTS.W_to_end + WEIGHTS.W_climb_end_sub);                                        % average climb weight to subsonic altitude (N)
+WEIGHTS.W_cruise_start_sub   = WEIGHTS.W_climb_end_sub;                                                                 % Wt at beginning of cruise (N)
+WEIGHTS.W_cruise_end_sub     = WEIGHTS.W_climb_end_sub - W_fuel;                                                        % Wt at end of cruise (N) [approximate]
+WEIGHTS.W_cruise_avg_sub     = 0.5*(WEIGHTS.W_climb_end_sub + WEIGHTS.W_cruise_end_sub);                                % Average cruise wt (N)
+WEIGHTS.W_descend_end_sub    = WEIGHTS.W_cruise_end_sub*0.99;                                                           % Wt at end of descent (N)
+WEIGHTS.W_descend_avg_sub    = 0.5*(WEIGHTS.W_cruise_end_sub + WEIGHTS.W_descend_end_sub);                              % Average descent wt (N)
+WEIGHTS.W_land               = MTOW*(wt_frac.WF_total/wt_frac.WF_land);                                                 % landing weight (N)
+WEIGHTS.W_cruise_avg_avg     = (WEIGHTS.W_cruise_avg_sub + WEIGHTS.W_cruise_avg_super)/2;                               % used for op_envelope and Ta vs Tr plot
 
 end
