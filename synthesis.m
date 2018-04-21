@@ -6,24 +6,25 @@ Team: ARROW
 Team members: 
 Shawn McCullough, Ben Holden, Nick Schulte, Rustin Farris, Christian Allen
 %--------------------------------------------------------------------------
-Last modified: 04/17/2018
+Last modified: 04/20/2018
 % =========================================================================
 %}
 clear; clc; close all;
 %% ========================================================================
 % Configuration and mission iteration:
+config_iter = 'ZZ_recap_65'; % for saving figures (makes things go much faster)
+M_cr_super    = 2.0;    % Supersonic cruise Mach number
+M_cr_sub      = 0.7;    % Subsonic cruise Mach number
 
-config_iter = '#_A'; % for saving figures (makes things go much faster)
+alt_cr_sub   = 18000;  % Subsonic cruise altitude (m)
+alt_cr_super = 20000;  % Supersonic cruise altitude (m)
+
 
 %% ========================================================================
 % Mission inputs
 %--------------------------------------------------------------------------
 range_sub    = 9800e3; % Subsonic range, (m)
 range_super  = 8800e3; % Supersonic range, (m)
-M_cr_sub     = 0.7;    % Subsonic cruise Mach number
-M_cr_super   = 1.2;    % Supersonic cruise Mach number
-alt_cr_sub   = 13000;  % Subsonic cruise altitude (m)
-alt_cr_super = 15500;  % Supersonic cruise altitude (m)
 M_max = 2.8;           % (need to update)
 num_pass = 12;         % Number of passengers
 num_crew = 4;          % Number of crew members
@@ -61,7 +62,7 @@ Sref = b_unswept^2/AR_unswept;          % [m^2] wing area
 % Aerodynamics and S&C: 
 e = 0.85;                 % Oswald
 K = 1/(pi*AR_unswept*e);  % Drag K factor
-SM = 0;                   % static margin
+SM = 0.1;                 % static margin
 M_perp = 0.7;             % perp Mach #, variable to iterate(?)
 %--------------------------------------------------------------------------
 % propulsion:
@@ -159,6 +160,46 @@ Sref = S_new; % [m^2]
 b_unswept = b_new; % [m]
 
 %% ========================================================================
+% vertical tail sizing:
+%--------------------------------------------------------------------------
+[~, ~, ~, rho_cr_super, son_cr_super, ~, ~, ~, ~, ~] = ATMO(alt_cr_super, 'M');
+V_cr_super = M_cr_super*son_cr_super; % [m/s]
+%--------------------------------------------------------------------------
+% Calculate sweep for cruise:
+if M_perp < M_cr_super % to avoid complex numbers
+    sweep_deg_cr_super = acosd(M_perp/M_cr_super);      % This has to be limited to 70 ish degrees!
+    if sweep_deg_cr_super > 70
+        sweep_deg_cr_super = 70;
+    end
+    b_swept_cr_super = b_unswept*cosd(sweep_deg_cr_super); % Span at sweep angle [m]
+    AR_swept_cr_super = b_swept_cr_super^2/Sref;           % Swept aspect ratio
+else
+    sweep_deg_cr_super = 0;
+	b_swept_cr_super = b_unswept;   % Span at sweep angle [m]
+    AR_swept_cr_super = AR_unswept; % Swept aspect ratio
+end
+%--------------------------------------------------------------------------
+% size the VT:
+[S_VT, l_VT, C_VT, y_VT, VT_plot] = VT_size(sweep_deg_cr_super, Sref, b_swept_cr_super);
+
+% =========================================================================
+% Plot vertical tail requirements:
+%--------------------------------------------------------------------------
+%{
+figure_name = sprintf('Required Total Vertical Tail Area - Cruise');
+figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
+plot(VT_plot(1,:),VT_plot(2,:), 'k', 'LineWidth',3);
+xlabel('l_V_T (m)'  ,'FontSize',18);
+ylabel('S_V_T (m^2)','FontSize',18);
+%xlim([5,b_swept_cr_sub]);
+title_string = sprintf('Required Total Vertical Tail Area vs Distance of Vertical Tail mac to cg Location');
+title(title_string,'FontSize',18);
+grid on
+fig_save('Figures', figure_name)
+%}
+%--------------------------------------------------------------------------
+
+%% ========================================================================
 % Display initial design parameters:
 %--------------------------------------------------------------------------
 fprintf('\n\n =================================== Design Parameters ================================== \n');
@@ -180,7 +221,13 @@ fprintf('\n --------------------------------------------------------------------
 fprintf('\n Required takeoff thrust:   T  = %g [N] = %g [lbf] ', T_SL_max_required, convforce(T_SL_max_required,'N','lbf'));
 fprintf('\n Max takeoff weight:        MTOW  = %g [N] = %g [lbf] ', MTOW, convforce(MTOW,'N','lbf'));
 fprintf('\n\n ===================================================================================== \n');
-
+fprintf('\n Vertical tail size estimate:');
+fprintf('\n\n Total required vertical tail area:');
+fprintf('\n S_VT = %g [m^2]', S_VT);
+fprintf('\n\n Location of vertial tail along left wing span:');
+fprintf('\n (measured from the center line):');
+fprintf('\n y = %g [m]', y_VT);
+fprintf('\n\n ===================================================================================== \n');
 
 
 %% ========================================================================
@@ -206,9 +253,9 @@ fig_save('_Results', fig_save_name)
 %--------------------------------------------------------------------------
 altitudes = [0, convlength(alt_cr_sub,'m','ft'), convlength(alt_cr_super,'m','ft')]; % array of key altitudes for V-n diagram (ft)
 Vn_Diagram(convforce(MTOW,'N','lbf'), Sref*convlength(1,'m','ft')^2, altitudes, M_cr_sub, M_max, CL_max);
-fig_save('Figures', 'Vn Diagram')
+%fig_save('Figures', 'Vn Diagram')
 [max_load, min_load] = Wing_Loading(b_unswept, MTOW, TR); 
-fig_save('Figures', 'Wing Loading')
+%fig_save('Figures', 'Wing Loading')
 
 %% ========================================================================
 % Takeoff Phase
@@ -245,8 +292,8 @@ T_TO = T_TO_single_engine*ne; % [N] total takeoff thrust
 [S_G, S_TO, BFL] = perf_takeoff(ne, V_stall, V_TO, T_TO, alt_TO, MTOW, Sref, CL_TO, CD_TO);
 
 %--------------------------------------------------------------------------
-% S&C:
-[CMa_TO, Cl_beta_TO, Cn_beta_TO, CM_de_TO, Cl_da_TO, Cn_dr_TO, S_VT_TO, l_VT_TO, VT_plot_TO] = stability(M_TO, AR_swept_TO, sweep_deg_TO, Sref, b_swept_TO, TR, CL_TO, SM, 'Takeoff');
+%S&C:
+[CMa_TO, Cl_beta_TO, Cn_beta_TO, CM_de_TO, Cl_da_TO, Cn_dr_TO] = stability(M_TO, AR_swept_TO, sweep_deg_TO, Sref, b_swept_TO, TR, CL_TO, SM, S_VT, C_VT, 'Takeoff');
 
 %% ========================================================================
 % Climb Phase
@@ -292,27 +339,12 @@ fprintf('\n\n ==================================================================
 
 %--------------------------------------------------------------------------
 % S&C:
-[CMa_cr_sub, Cl_beta_cr_sub, Cn_beta_cr_sub, CM_de_cr_sub, Cl_da_cr_sub, Cn_dr_cr_sub, S_VT_cr_sub, l_VT_cr_sub, VT_plot_cr_sub] = stability(M_cr_sub, AR_swept_cr_sub, sweep_deg_cr_sub, Sref, b_swept_cr_sub, TR, CL_cr_sub, SM, 'Subsonic Cruise');
+[CMa_cr_sub, Cl_beta_cr_sub, Cn_beta_cr_sub, CM_de_cr_sub, Cl_da_cr_sub, Cn_dr_cr_sub] = stability(M_cr_sub, AR_swept_cr_sub, sweep_deg_cr_sub, Sref, b_swept_cr_sub, TR, CL_cr_sub, SM, S_VT, C_VT, 'Subsonic Cruise');
 
 %% ========================================================================
 % Supersonic Cruise Phase
 %--------------------------------------------------------------------------
-[~, ~, ~, rho_cr_super, son_cr_super, ~, ~, ~, ~, ~] = ATMO(alt_cr_super, 'M');
-V_cr_super = M_cr_super*son_cr_super; % [m/s]
-%--------------------------------------------------------------------------
-% Calculate sweep for cruise:
-if M_perp < M_cr_super % to avoid complex numbers
-    sweep_deg_cr_super = acosd(M_perp/M_cr_super);      % This has to be limited to 70 ish degrees!
-    if sweep_deg_cr_super > 70                    % Limit the sweep angle
-        sweep_deg_cr_super = 70;
-    end
-    b_swept_cr_super = b_unswept*cosd(sweep_deg_cr_super); % Span at sweep angle [m]
-    AR_swept_cr_super = b_swept_cr_super^2/Sref;           % Swept aspect ratio
-else
-    sweep_deg_cr_super = 0;
-	b_swept_cr_super = b_unswept;   % Span at sweep angle [m]
-    AR_swept_cr_super = AR_unswept; % Swept aspect ratio
-end
+% note: the sweep and density are determined above for VT sizing
 %--------------------------------------------------------------------------
 % Aero:
 CL_cr_super = W_cruise_avg_super/(Sref*0.5*rho_cr_super*V_cr_super^2); % lift coefficient cruise
@@ -331,7 +363,7 @@ fprintf('\n Supersonic thrust required:   T  = %g [N] = %g [lbf] ', T_R_super, c
 fprintf('\n\n ===================================================================================== \n');
 %--------------------------------------------------------------------------
 % S&C:
-[CMa_cr_super, Cl_beta_cr_super, Cn_beta_cr_super, CM_de_cr_super, Cl_da_cr_super, Cn_dr_cr_super, S_VT_cr_super, l_VT_cr_super, VT_plot_cr_super] = stability(M_cr_super, AR_swept_cr_super, sweep_deg_cr_super, Sref, b_swept_cr_super, TR, CL_cr_super, SM, 'Supersonic Cruise');
+[CMa_cr_super, Cl_beta_cr_super, Cn_beta_cr_super, CM_de_cr_super, Cl_da_cr_super, Cn_dr_cr_super] = stability(M_cr_super, AR_swept_cr_super, sweep_deg_cr_super, Sref, b_swept_cr_super, TR, CL_cr_super, SM, S_VT, C_VT, 'Supersonic Cruise');
 
 %% ========================================================================
 % Descent Phase
@@ -376,7 +408,7 @@ end
 [S_land, FAR_land, V_TD] = perf_land(alt_land, Sref, AR_swept_Land, W_land, CL_max, TR, SM, sweep_deg_Land);
 %--------------------------------------------------------------------------
 % S&C:
-[CMa_L, Cl_beta_L, Cn_beta_L, CM_de_L, Cl_da_L, Cn_dr_L, S_VT_L, l_VT_L, VT_plot_land] = stability(M_Land, AR_swept_Land, sweep_deg_Land, Sref, b_swept_Land, TR, CL_max, SM, 'Landing');
+[CMa_L, Cl_beta_L, Cn_beta_L, CM_de_L, Cl_da_L, Cn_dr_L] = stability(M_Land, AR_swept_Land, sweep_deg_Land, Sref, b_swept_Land, TR, CL_max, SM, S_VT, C_VT, 'Landing');
 
 %% ========================================================================
 % Sweep schedule:
@@ -407,6 +439,7 @@ fprintf('\n\n ==================================================================
 % Total S&C Summary:
 %--------------------------------------------------------------------------
 fprintf('\n\n ============================================================== S&C Results ============================================================== \n');
+%{
 % Vertical tail size:
 Take_off = S_VT_TO;
 Subsonic_Cruise   = S_VT_cr_sub;
@@ -416,8 +449,10 @@ SC_VT = table(Take_off,Subsonic_Cruise,Supersonic_Cruise,Landing);
 fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
 fprintf('\n Required vertical tail size [m^2]: \n\n');
 disp(SC_VT);
+%}
 %--------------------------------------------------------------------------
 % Location of vertical tail:
+%{
 Take_off = l_VT_TO;
 Subsonic_Cruise   = l_VT_cr_sub;
 Supersonic_Cruise   = l_VT_cr_super;
@@ -425,8 +460,9 @@ Landing  = l_VT_L;
 SC_l_VT = table(Take_off,Subsonic_Cruise,Supersonic_Cruise,Landing);
 fprintf('\n Corresponding distance (in x-direction) between\n cg location and 1/4 chord of vertical tail mac [m]: \n\n');
 disp(SC_l_VT);
-fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
-fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
+%}
+% fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
+% fprintf('\n ----------------------------------------------------------------------------------------------------------------------------- ');
 % Longitudinal stability:
 ROWNAME = {'CM_alpha [1/rad]';'CM_alpha [1/deg]';'Elevator control power, CM_de [1/rad]';'Elevator control power [1/deg]';};
 Take_off = [CMa_TO; CMa_TO*pi/180; CM_de_TO; CM_de_TO*pi/180];
@@ -459,39 +495,6 @@ SC_dir = table(Take_off,Subsonic_Cruise,Supersonic_Cruise,Landing,'RowNames',ROW
 fprintf('\n Directional stability: \n\n');
 disp(SC_dir);
 fprintf('\n\n ========================================================================================================================================= \n\n');
-
-% =========================================================================
-% Plot vertical tail requirements:
-%--------------------------------------------------------------------------
-figure_name = sprintf('Required Total Vertical Tail Area - Cruise');
-figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
-hold on
-plot(VT_plot_cr_sub(1,:),VT_plot_cr_sub(2,:), 'k', 'LineWidth',3);
-plot(VT_plot_cr_super(1,:),VT_plot_cr_super(2,:), '--k', 'LineWidth',3);
-hold off
-xlabel('l_V_T (m)'  ,'FontSize',18);
-ylabel('S_V_T (m^2)','FontSize',18);
-xlim([5,b_swept_cr_sub]);
-title_string = sprintf('Cruise Required Total Vertical Tail Area vs Distance of Vertical Tail mac to cg Location');
-title(title_string,'FontSize',18);
-legend('Subsonic','Supersonic','Location','best');
-grid on
-fig_save('Figures', figure_name)
-%--------------------------------------------------------------------------
-figure_name = sprintf('Required Total Vertical Tail Area - TO and Land');
-figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
-hold on
-plot(VT_plot_TO(1,:),VT_plot_TO(2,:), 'k', 'LineWidth',3);
-plot(VT_plot_land(1,:),VT_plot_land(2,:), '-+k', 'LineWidth',3);
-hold off
-xlabel('l_V_T (m)'  ,'FontSize',18);
-ylabel('S_V_T (m^2)','FontSize',18);
-xlim([20,b_unswept]);
-title_string = sprintf('Required Total Vertical Tail Area vs Distance of Vertical Tail mac to cg Location');
-title(title_string,'FontSize',18);
-legend('Takeoff','Landing','Location','best');
-grid on
-fig_save('Figures', figure_name)
 
 %% ========================================================================
 % Total Performance Summary:
@@ -560,3 +563,7 @@ OUTPUT = [num_pass; alt_cr_sub; M_cr_sub; alt_cr_super; M_cr_super;...
           V_stall; V_TO; BFL; V_approach; V_TD; FAR_land;...
           sweep_deg_TO; sweep_climb_super(2) ; sweep_deg_cr_sub ;sweep_deg_cr_super ; sweep_descend_super(2); sweep_deg_Land;...
           RTDE_Cost; DOC_Cost];
+
+
+%%
+close all;
