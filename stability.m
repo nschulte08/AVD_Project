@@ -136,7 +136,7 @@ fprintf('\n Cl_da = %g [1/deg]', Cl_da*pi/180);
 fprintf('\n\n ============================================================= \n');
 %}
 %--------------------------------------------------------------------------
-da_plot = -5:5:5;   % [deg] rudder deflection
+da_plot = -5:5:5;   % [deg] aileron deflection
 beta_plot = -10:10; % [deg] side slip
 %{
 figure_name = sprintf('Lateral Stability, for %s', flight_phase);
@@ -172,6 +172,7 @@ Cn_beta = Cn_b_wing + Cn_b_VT; % Nicolai eq. 21.20
 
 tau = 0.374; % typical for flying wings
 Cn_dr = 0.9*CL_a_VT*C_VT*tau; % rudder control power (Nicolai eq. 21.26)
+Cn_da = -0.2*CL*Cl_da;
 %{
 fprintf('\n\n ============================================================= \n');
 fprintf('\n %s Directional Stability Derivatives:', flight_phase);
