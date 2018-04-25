@@ -26,6 +26,16 @@ y_VT = 0.9*(b_eff/2);     % location of VT along the left wing span = 90% of hal
 l_VT = y_VT*sind(Lambda); % this is a function of sweep
 S_VT = lVT_SVT/l_VT;
 %--------------------------------------------------------------------------
+% Tail Geometry
+TR_VT       = 0.5;
+AR_VT       = 2.0;
+b_VT        = sqrt(AR_VT*S_VT)/2;
+cr_VT       = (2*S_VT)/(b_VT*(1+TR_VT));
+ct_VT       = TR_VT*cr_VT;
+cbar_VT     = (2/3)*cr_VT*((1+TR_VT+(TR_VT^2))/(1+TR_VT));
+Z_bar       = (b_VT/6)*((1+(2*TR_VT))/(1+TR_VT));
+SweepLE_VT  = tan((cr_VT-ct_VT)/b_VT);
+%--------------------------------------------------------------------------
 % plot data:
 l_VT_plot = 1:0.1:l_VT;         % [m] distance (in x-direction) between cg location and 1/4 chord of VT mac
 S_VT_plot = lVT_SVT./l_VT_plot; % [m^2] VT area
