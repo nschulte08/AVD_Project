@@ -165,7 +165,7 @@ x = SM*c_bar; % [m] distance between cg location and wing ac
 Cn_b_wing = CL^2*(1/(4*pi*AR) - tand(sweep_deg)/(pi*AR*(AR + 4*cosd(sweep_deg)))*(cosd(sweep_deg) - AR/2 - AR^2/(8*cosd(sweep_deg)) + 6*x*sind(sweep_deg)/(c_bar*AR))); % Nicolai eq. 21.22
 
 % vertical tail contribution:
-Cn_b_VT = C_VT*CL_a_VT*var_2115; % Nicolai eq. 21.21
+Cn_b_VT = ((S_VT*l_VT)/(S_ref*b_eff))*CL_a_VT*var_2115; % Nicolai eq. 21.21
 
 % directional stability derivative:
 Cn_beta = Cn_b_wing + Cn_b_VT; % Nicolai eq. 21.20
