@@ -111,7 +111,7 @@ Cl_b_Gamma = 0;      % no dihedral
 Cl_b_wing = Cl_b_basic + Cl_b_Lambda + Cl_b_Gamma;
 
 % vertical tail contribution:
-z_v = 1; % [m] vertical distance between cg location and vertical tail ac (place holder)
+z_v = l_VT; % [m] vertical distance between cg location and vertical tail ac (place holder)
 var_2115 = 0.724 + (3.06*(S_VT/S_ref))/(1 + cosd(sweep_deg)) + 0.009*AR; % Nicolai eq. 21.15
 Cl_b_VT = -CL_a_VT*var_2115*(S_VT/S_ref)*(z_v/b_eff);
 
