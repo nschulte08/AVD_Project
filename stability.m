@@ -119,8 +119,8 @@ Cl_beta = Cl_b_wing + Cl_b_VT; % lateral stability derivative
 
 CL_am = 0.2;
 k   = ((CL_am)*Beta)/(2*pi);
-cl_dfrac = 0.625; % Roskam VI Figure 8.15
-cl_dth = 4.2; % Roskam VI Figure 8.14
+cl_dfrac = 0.45; % Roskam VI Figure 8.15
+cl_dth = 3.5; % Roskam VI Figure 8.14
 a_da = (cl_dfrac*cl_dth)/(0.2);
 Cprimel_d = (k/Beta)*(0.3);
 Cl_d = a_da*Cprimel_d;
@@ -170,7 +170,7 @@ Cn_b_VT = C_VT*CL_a_VT*var_2115; % Nicolai eq. 21.21
 % directional stability derivative:
 Cn_beta = Cn_b_wing + Cn_b_VT; % Nicolai eq. 21.20
 
-tau = 0.18; % typical for flying wings
+tau = 0.374; % typical for flying wings
 Cn_dr = 0.9*CL_a_VT*C_VT*tau; % rudder control power (Nicolai eq. 21.26)
 %{
 fprintf('\n\n ============================================================= \n');
