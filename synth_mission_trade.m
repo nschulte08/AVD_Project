@@ -56,7 +56,7 @@ CL_max = 1.8;   % Placeholder, max CL
 % Interdisciplinary inputs (Design inputs) 
 %--------------------------------------------------------------------------
 % Wing geometry:
-AR_unswept = 9;                         % Unswept aspect ratio
+AR_unswept = 12;                         % Unswept aspect ratio
 %AR_lowspeed = AR_unswept;               % Low speed, unswept AR
 TR = 0.5;                               % Wing taper ratio
 tmax = 2.3;                             % Maximum thickness, based on AS2 cabin dimensions (m)
@@ -185,7 +185,20 @@ else
 end
 %--------------------------------------------------------------------------
 % size the VT:
-[S_VT, l_VT, C_VT, y_VT, VT_plot] = VT_size(sweep_deg_cr_super, Sref, b_swept_cr_super);
+[VT, VT_plot] = VT_size(sweep_deg_cr_super, Sref, b_swept_cr_super);
+
+S_VT = VT.S_VT;
+l_VT = VT.l_VT;
+C_VT = VT.C_VT;
+y_VT = VT.y_VT;
+TR_VT = VT.TR;
+AR_VT = VT.AR;
+b_VT = VT.b;
+cr_VT = VT.cr;
+ct_VT = VT.ct;
+cbar_VT = VT.cbar;
+Z_bar = VT.Z_bar;
+SweepLE_VT = VT.SweepLE_VT;
 
 % =========================================================================
 % Plot vertical tail requirements:
@@ -238,6 +251,7 @@ fprintf('\n\n ==================================================================
 %% ========================================================================
 % operational envelopes:
 %--------------------------------------------------------------------------
+%{
 cruise = [M_cr_sub, alt_cr_sub, M_cr_super, alt_cr_super];
 op_envelope(cruise, W_cruise_avg_avg, Sref, SM, b_unswept, TR, CL_max, ne, M_perp)
 
@@ -248,6 +262,7 @@ Thrust_required_and_available(cruise, W_cruise_avg_avg, Sref, SM, b_unswept, TR,
 
 fig_save_name = sprintf ('Thrust_config_%s', config_iter);
 fig_save('_Results', fig_save_name)
+%}
 %--------------------------------------------------------------------------
 
 %Range_trade(W_cruise_start_super, W_cruise_end_super, Sref, SM, b_unswept, AR_unswept, TR, M_perp)
@@ -256,12 +271,13 @@ fig_save('_Results', fig_save_name)
 %% ========================================================================
 % V-n diagram and wing loading
 %--------------------------------------------------------------------------
+%{
 altitudes = [0, convlength(alt_cr_sub,'m','ft'), convlength(alt_cr_super,'m','ft')]; % array of key altitudes for V-n diagram (ft)
 Vn_Diagram(convforce(MTOW,'N','lbf'), Sref*convlength(1,'m','ft')^2, altitudes, M_cr_sub, M_max, CL_max);
 %fig_save('Figures', 'Vn Diagram')
 [max_load, min_load] = Wing_Loading(b_unswept, MTOW, TR); 
 %fig_save('Figures', 'Wing Loading')
-
+%}
 %% ========================================================================
 % Takeoff Phase
 %--------------------------------------------------------------------------
