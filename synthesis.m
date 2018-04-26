@@ -6,38 +6,33 @@ Team: ARROW
 Team members: 
 Shawn McCullough, Ben Holden, Nick Schulte, Rustin Farris, Christian Allen
 %--------------------------------------------------------------------------
-Last modified: 04/20/2018
+Last modified: 04/25/2018
 % =========================================================================
 %}
 clear; clc; close all;
 %% ========================================================================
-% Configuration and mission iteration:
-config_iter = 'ZZ_recap_65'; % for saving figures (makes things go much faster)
-M_cr_super    = 2.0;    % Supersonic cruise Mach number
-M_cr_sub      = 0.7;    % Subsonic cruise Mach number
-
-alt_cr_sub   = 18000;  % Subsonic cruise altitude (m)
-alt_cr_super = 20000;  % Supersonic cruise altitude (m)
-
-
-%% ========================================================================
 % Mission inputs
 %--------------------------------------------------------------------------
-range_sub    = 9800e3; % Subsonic range, (m)
+%range_sub    = 9800e3; % Subsonic range, (m)
 range_super  = 8800e3; % Supersonic range, (m)
-M_max = 2.8;           % (need to update)
+alt_cr_sub   = 17000; % Subsonic cruise altitude (m)
+alt_cr_super = 17000;     % Supersonic cruise altitude (m)
+M_cr_super   = 1.6;    % Supersonic cruise Mach number
+M_cr_sub     = 0.7;   % Subsonic cruise Mach number
+
+M_max = 2.8;           % maximum Mach number
 num_pass = 12;         % Number of passengers
 num_crew = 4;          % Number of crew members
 %--------------------------------------------------------------------------
 alt_TO = 0;   % takeoff Airport altitude [m]
 alt_land = 0; % landing Airport altitude [m]
 %--------------------------------------------------------------------------
-[T_A_sub,TSFC_sub] = Propulsion(M_cr_sub,alt_cr_sub); % TSFC = [1/hr]
-[T_A_super,TSFC_super] = Propulsion(M_cr_super,alt_cr_super); % TSFC = [1/hr]
+%[~, TSFC_sub] = Propulsion(M_cr_sub,alt_cr_sub); % TSFC = [1/hr]
+[~, TSFC_super] = Propulsion(M_cr_super,alt_cr_super); % TSFC = [1/hr]
 %--------------------------------------------------------------------------
 % design point: (determined from solution space script)
 WingLoading = 30;
-ThrustLoading = 0.35;
+ThrustLoading = 0.25;
 
 %% ========================================================================
 % Empirical inputs
@@ -49,9 +44,8 @@ CL_max = 1.8;   % Placeholder, max CL
 % Interdisciplinary inputs (Design inputs) 
 %--------------------------------------------------------------------------
 % Wing geometry:
-AR_unswept = 9;                         % Unswept aspect ratio
-AR_lowspeed = AR_unswept;               % Low speed, unswept AR
-TR = 0.5;                               % Wing taper ratio
+AR_unswept = 8;                         % Unswept aspect ratio
+TR = 0.3;                               % Wing taper ratio
 tmax = 2.3;                             % Maximum thickness, based on AS2 cabin dimensions (m)
 tcmax = 0.16;                           % T/c max; variable to iterate
 c_r = tmax/tcmax;                       % [m] Root chord = max thickness / tcmax ratio
@@ -67,8 +61,8 @@ M_perp = 0.7;             % perp Mach #, variable to iterate(?)
 %--------------------------------------------------------------------------
 % propulsion:
 ne = 4; % number of engines
-T_A_sub = T_A_sub*ne;
-T_A_super = T_A_super*ne;
+%T_A_sub = T_A_sub*ne;
+%T_A_super = T_A_super*ne;
 
 %% ========================================================================
 % Solution Space
@@ -93,19 +87,19 @@ W_empty                 = WEIGHTS.W_empty;
 W_fuel                  = WEIGHTS.W_fuel;
 W_payload_total         = WEIGHTS.W_payload_total;
 W_to_end                = WEIGHTS.W_to_end;
-W_climb_end_super       = WEIGHTS.W_climb_end_super;
+%W_climb_end_super       = WEIGHTS.W_climb_end_super;
 W_climb_avg_super       = WEIGHTS.W_climb_avg_super;
 W_cruise_start_super    = WEIGHTS.W_cruise_start_super;
 W_cruise_end_super      = WEIGHTS.W_cruise_end_super;
 W_cruise_avg_super      = WEIGHTS.W_cruise_avg_super;
-W_descend_end_super     = WEIGHTS.W_descend_end_super;
+%W_descend_end_super     = WEIGHTS.W_descend_end_super;
 W_descend_avg_super     = WEIGHTS.W_descend_avg_super;
-W_climb_end_sub         = WEIGHTS.W_climb_end_sub;
+%W_climb_end_sub         = WEIGHTS.W_climb_end_sub;
 W_climb_avg_sub         = WEIGHTS.W_climb_avg_sub;
 W_cruise_start_sub      = WEIGHTS.W_cruise_start_sub;
 W_cruise_end_sub        = WEIGHTS.W_cruise_end_sub;
 W_cruise_avg_sub        = WEIGHTS.W_cruise_avg_sub;
-W_descend_end_sub       = WEIGHTS.W_descend_end_sub;
+%W_descend_end_sub       = WEIGHTS.W_descend_end_sub;
 W_descend_avg_sub       = WEIGHTS.W_descend_avg_sub;
 W_land                  = WEIGHTS.W_land;
 W_cruise_avg_avg        = WEIGHTS.W_cruise_avg_avg;
@@ -142,10 +136,8 @@ T_SL_max_required = ThrustLoading*MTOW; % Required thrust for takeoff, N
 %--------------------------------------------------------------------------
 S_new_ft = convforce(MTOW,'N','lbf')/WingLoading;  % [ft^2]
 S_new = S_new_ft*convlength(1,'ft','m')^2;         % [m^2]
-
-new_WS = convforce(MTOW,'N','lbf')/(Sref*convlength(1,'m','ft')^2); % [lbf/ft^2]
-
 b_new = 2*S_new/(c_r + c_t); % [m] unswept
+%new_WS = convforce(MTOW,'N','lbf')/(Sref*convlength(1,'m','ft')^2); % [lbf/ft^2]
 
 fprintf('\n\n ======================================== New Wing ====================================== \n');
 fprintf('\n Original wing:  S  = %g [m^2] = %g [ft^2] ', Sref, Sref*convlength(1,'m','ft')^2);
@@ -180,7 +172,20 @@ else
 end
 %--------------------------------------------------------------------------
 % size the VT:
-[S_VT, l_VT, C_VT, y_VT, VT_plot] = VT_size(sweep_deg_cr_super, Sref, b_swept_cr_super);
+[VT, VT_plot] = VT_size(sweep_deg_cr_super, Sref, b_swept_cr_super);
+
+S_VT = VT.S_VT;
+l_VT = VT.l_VT;
+C_VT = VT.C_VT;
+y_VT = VT.y_VT;
+TR_VT = VT.TR;
+AR_VT = VT.AR;
+b_VT = VT.b;
+cr_VT = VT.cr;
+ct_VT = VT.ct;
+cbar_VT = VT.cbar;
+Z_bar = VT.Z_bar;
+SweepLE_VT = VT.SweepLE_VT;
 
 % =========================================================================
 % Plot vertical tail requirements:
@@ -221,18 +226,29 @@ fprintf('\n --------------------------------------------------------------------
 fprintf('\n Required takeoff thrust:   T  = %g [N] = %g [lbf] ', T_SL_max_required, convforce(T_SL_max_required,'N','lbf'));
 fprintf('\n Max takeoff weight:        MTOW  = %g [N] = %g [lbf] ', MTOW, convforce(MTOW,'N','lbf'));
 fprintf('\n\n ===================================================================================== \n');
-fprintf('\n Vertical tail size estimate:');
+fprintf('\n Vertical tail size estimate: (C_VT = %g)', C_VT);
 fprintf('\n\n Total required vertical tail area:');
 fprintf('\n S_VT = %g [m^2]', S_VT);
 fprintf('\n\n Location of vertial tail along left wing span:');
 fprintf('\n (measured from the center line):');
 fprintf('\n y = %g [m]', y_VT);
+fprintf('\n -------------------------------------------------------------------------------- ');
+fprintf('\n Vertical tail geometry:');
+fprintf('\n TR_VT   = %g ', TR_VT);
+fprintf('\n AR_VT   = %g ', AR_VT);
+fprintf('\n b_VT    = %g [m]', b_VT);
+fprintf('\n cr_VT   = %g [m]', cr_VT);
+fprintf('\n ct_VT   = %g [m]', ct_VT);
+fprintf('\n cbar_VT = %g [m]', cbar_VT);
+fprintf('\n Z_bar   = %g [m]', Z_bar);
+fprintf('\n SweepLE_VT = %g [deg]', SweepLE_VT);
 fprintf('\n\n ===================================================================================== \n');
 
 
 %% ========================================================================
 % operational envelopes:
 %--------------------------------------------------------------------------
+%
 cruise = [M_cr_sub, alt_cr_sub, M_cr_super, alt_cr_super];
 op_envelope(cruise, W_cruise_avg_avg, Sref, SM, b_unswept, TR, CL_max, ne, M_perp)
 
@@ -243,6 +259,7 @@ Thrust_required_and_available(cruise, W_cruise_avg_avg, Sref, SM, b_unswept, TR,
 
 fig_save_name = sprintf ('Thrust_config_%s', config_iter);
 fig_save('_Results', fig_save_name)
+%}
 %--------------------------------------------------------------------------
 
 %Range_trade(W_cruise_start_super, W_cruise_end_super, Sref, SM, b_unswept, AR_unswept, TR, M_perp)
@@ -251,12 +268,13 @@ fig_save('_Results', fig_save_name)
 %% ========================================================================
 % V-n diagram and wing loading
 %--------------------------------------------------------------------------
+%{
 altitudes = [0, convlength(alt_cr_sub,'m','ft'), convlength(alt_cr_super,'m','ft')]; % array of key altitudes for V-n diagram (ft)
 Vn_Diagram(convforce(MTOW,'N','lbf'), Sref*convlength(1,'m','ft')^2, altitudes, M_cr_sub, M_max, CL_max);
 %fig_save('Figures', 'Vn Diagram')
 [max_load, min_load] = Wing_Loading(b_unswept, MTOW, TR); 
 %fig_save('Figures', 'Wing Loading')
-
+%}
 %% ========================================================================
 % Takeoff Phase
 %--------------------------------------------------------------------------
@@ -325,11 +343,11 @@ end
 % Aero:
 CL_cr_sub = W_cruise_avg_super/(Sref*0.5*rho_cr_sub*V_cr_sub^2); % lift coefficient cruise
 [CD_cr_sub, ~] = aerodynamic_drag(alt_cr_sub, M_cr_sub, Sref, CL_cr_sub, SM, AR_swept_cr_sub, TR, sweep_deg_cr_sub);
-
+%--------------------------------------------------------------------------
+% propulsion:
 T_R_sub = CD_cr_sub*0.5*rho_cr_sub*V_cr_sub^2*Sref; % [N] thrust required
 
-%TSFC_sub = (T_R_sub/T_A_sub)*TSFC_sub; % throttling down
-
+[TSFC_sub, AB_sub, ne] = throttledown(T_R_sub/ne, alt_cr_sub, M_cr_sub, ne);
 %--------------------------------------------------------------------------
 % Performance:
 [R_constH_sub, R_CC_sub, TOF_constH_sub, TOF_CC_sub] = perf_cruise(M_cr_sub, alt_cr_sub, W_cruise_start_sub, W_cruise_end_sub, Sref, TSFC_sub, CL_cr_sub, CD_cr_sub);
@@ -349,11 +367,11 @@ fprintf('\n\n ==================================================================
 % Aero:
 CL_cr_super = W_cruise_avg_super/(Sref*0.5*rho_cr_super*V_cr_super^2); % lift coefficient cruise
 [CD_cr_super, ~] = aerodynamic_drag(alt_cr_super, M_cr_super, Sref, CL_cr_super, SM, AR_swept_cr_super, TR, sweep_deg_cr_super);
-
+%--------------------------------------------------------------------------
+% propulsion:
 T_R_super = CD_cr_super*0.5*rho_cr_super*V_cr_super^2*Sref; % [N] thrust required
 
-%TSFC_super = (T_R_super/T_A_super)*TSFC_super; % throttling down
-
+[TSFC_super, AB_super, ne] = throttledown(T_R_super/ne, alt_cr_super, M_cr_super, ne);
 %--------------------------------------------------------------------------
 % Performance:
 [R_constH_super, R_CC_super, TOF_constH_super, TOF_CC_super] = perf_cruise(M_cr_super, alt_cr_super, W_cruise_start_super, W_cruise_end_super, Sref, TSFC_super, CL_cr_super, CD_cr_super);
@@ -393,16 +411,6 @@ else
 	b_swept_Land = b_unswept;   % Span at sweep angle [m]
     AR_swept_Land = AR_unswept; % Swept aspect ratio
 end
-%--------------------------------------------------------------------------
-%{
-% Propulsion:
-[T_land_single_engine, ~] = Propulsion(M_Land, alt_land);
-T_land = T_land_single_engine*ne; % [N] total landing thrust
-
-if T_land > 0.1*T_TO % limit landing thrust to 10% of max SL Takeoff thrust
-    T_land = 0.1*T_TO; % idle thrust approximately?
-end
-%}
 %--------------------------------------------------------------------------
 % Performance
 [S_land, FAR_land, V_TD] = perf_land(alt_land, Sref, AR_swept_Land, W_land, CL_max, TR, SM, sweep_deg_Land);
@@ -509,7 +517,8 @@ dt_total_super = dt_climb_super + TOF_constH_super + dt_descend_super; % [s]
 fprintf('\n\n ============================== Total Range and Time of Flight for Subsonic Mission ============================== \n');
 fprintf('\n Total Range (including climb and descent)');
 fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Cruise Altitude: h  = %g [m] = %g [ft] \n', alt_cr_sub, convlength(alt_cr_sub,'m','ft'));
+fprintf('\n Cruise Altitude:    h  = %g [m] = %g [ft] \n', alt_cr_sub, convlength(alt_cr_sub,'m','ft'));
+fprintf('\n Cruise Mach number: M  = %g \n', M_cr_sub);
 fprintf('\n Range Covered During Climb:        R_climb   = %g [km] = %g [miles]', convlength(S_climb_sub,'m','km'), convlength(S_climb_sub,'m','mi'));
 fprintf('\n Constant Altitude Cruise Range:    R_cruise  = %g [km] = %g [miles]', convlength(R_constH_sub,'m','km'), convlength(R_constH_sub,'m','mi'));
 %fprintf('\n Cruise Climb Range:                R_cruise  = %g [km] = %g [miles]', convlength(R_CC_sub,'m','km'), convlength(R_CC_sub,'m','mi'));
@@ -526,7 +535,8 @@ fprintf('\n\n ==================================================================
 fprintf('\n\n ============================== Total Range and Time of Flight for Supersonic Mission ============================== \n');
 fprintf('\n Total Range (including climb and descent)');
 fprintf('\n -------------------------------------------------------------------------------- ');
-fprintf('\n Cruise Altitude: h  = %g [m] = %g [ft] \n', alt_cr_super, convlength(alt_cr_super,'m','ft'));
+fprintf('\n Cruise Altitude:    h  = %g [m] = %g [ft] \n', alt_cr_super, convlength(alt_cr_super,'m','ft'));
+fprintf('\n Cruise Mach number: M  = %g \n', M_cr_super);
 fprintf('\n Range Covered During Climb:        R_climb   = %g [km] = %g [miles]', convlength(S_climb_super,'m','km'), convlength(S_climb_super,'m','mi'));
 fprintf('\n Constant Altitude Cruise Range:    R_cruise  = %g [km] = %g [miles]', convlength(R_constH_super,'m','km'), convlength(R_constH_super,'m','mi'));
 %fprintf('\n Cruise Climb Range:                R_cruise  = %g [km] = %g [miles]', convlength(R_CC_super,'m','km'), convlength(R_CC_super,'m','mi'));
@@ -554,16 +564,20 @@ fprintf('\n\n ==================================================================
 %% ========================================================================
 % output vector: (for spreadsheet)
 %--------------------------------------------------------------------------
-OUTPUT = [num_pass; alt_cr_sub; M_cr_sub; alt_cr_super; M_cr_super;...
+if isnan(TSFC_sub) || isnan(TSFC_super)
+    OUTPUT = cell(41,1);
+else
+    OUTPUT = {num_pass; alt_cr_sub; M_cr_sub; alt_cr_super; M_cr_super;...
           AR_unswept; TR; tcmax; tmax; SM; ne;...
           WingLoading; ThrustLoading;...
           Sref; b_unswept; c_r; c_t;...
           MTOW/1000; W_fuel/1000; W_empty/1000; W_land/1000;...
           R_total_sub/1000; dt_total_sub/3600; R_total_super/1000; dt_total_super/3600;...
           V_stall; V_TO; BFL; V_approach; V_TD; FAR_land;...
-          sweep_deg_TO; sweep_climb_super(2) ; sweep_deg_cr_sub ;sweep_deg_cr_super ; sweep_descend_super(2); sweep_deg_Land;...
-          RTDE_Cost; DOC_Cost];
-
+          sweep_deg_TO; sweep_climb_super(2) ; sweep_deg_cr_sub ;sweep_deg_cr_super ; sweep_descend_super(1); sweep_deg_Land;...
+          RTDE_Cost; DOC_Cost;...
+          AB_sub; AB_super};
+end
 
 %%
-close all;
+%close all;
