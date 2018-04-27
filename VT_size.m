@@ -34,7 +34,7 @@ cr_VT       = 2*b_VT/(AR_VT*(1+TR_VT));
 ct_VT       = TR_VT*cr_VT;
 cbar_VT     = (2/3)*cr_VT*((1+TR_VT+(TR_VT^2))/(1+TR_VT));
 Z_bar       = (b_VT/6)*((1+(2*TR_VT))/(1+TR_VT));
-SweepLE_VT  = tand((cr_VT-ct_VT)/b_VT);
+SweepLE_VT  = atand((cr_VT-ct_VT)/b_VT);
 %--------------------------------------------------------------------------
 % plot data:
 l_VT_plot = 1:0.1:l_VT;         % [m] distance (in x-direction) between cg location and 1/4 chord of VT mac
