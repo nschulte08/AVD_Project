@@ -37,11 +37,21 @@ alt_cr_super = alt_cr_super*3.28084; % [ft] supersonic cruise altitude
 %% ========================================================================
 %% Eq 1 Req't: Takeoff
 [~, ~, ~, ~, ~, ~, ~, ~, ~, sigma_SL] = ATMO(0, 'E'); % 'E' = english units
-S_to = 10000;    % [ft] takeoff distance, per Shawn, not me
 %CL_max = 1.8; % max Take off CL , Roskam Part 1, Table 3.1
 WS_to = transpose(linspace(0, 1000, VectorLength)); % generic column vector
-TW_to = 37.5*WS_to/(sigma_SL*CL_max*S_to); % take off thrust loading
-
+%--------------------------------------------------------------------------
+S_TO_1 = 4000;    % [ft] takeoff distance
+TW_to_1 = 37.5*WS_to/(sigma_SL*CL_max*S_TO_1); % take off thrust loading
+%--------------------------------------------------------------------------
+S_TO_2 = 5000;    % [ft] takeoff distance
+TW_to_2 = 37.5*WS_to/(sigma_SL*CL_max*S_TO_2); % take off thrust loading
+%--------------------------------------------------------------------------
+S_TO_3 = 6000;    % [ft] takeoff distance
+TW_to_3 = 37.5*WS_to/(sigma_SL*CL_max*S_TO_3); % take off thrust loading
+%--------------------------------------------------------------------------
+S_TO_4 = 7000;    % [ft] takeoff distance
+TW_to_4 = 37.5*WS_to/(sigma_SL*CL_max*S_TO_4); % take off thrust loading
+%--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
 %% Eq 2 Req't: Landing
 V_app = 135;  % Approach speed in knots
@@ -102,7 +112,16 @@ figure('Name',figure_name,'NumberTitle','off','units','normalized','outerpositio
 hold on
 %--------------------------------------------------------------------------
 % Take-off
-plot(WS_to, TW_to, 'g-', 'LineWidth',3);
+plot(WS_to, TW_to_1,'Color',[0.0, 0.5, 0.0], 'LineStyle','-','LineWidth',3);
+axis([WSmin, WSmax, 0, TWmax])
+
+plot(WS_to, TW_to_2,'Color',[0.0, 0.5, 0.0],'LineStyle','--','LineWidth',3);
+axis([WSmin, WSmax, 0, TWmax])
+
+plot(WS_to, TW_to_3,'Color',[0.0, 0.5, 0.0],'LineStyle',':','LineWidth',3);
+axis([WSmin, WSmax, 0, TWmax])
+
+plot(WS_to, TW_to_4,'Color',[0.0, 0.5, 0.0],'LineStyle','-.','LineWidth',3);
 axis([WSmin, WSmax, 0, TWmax])
 %--------------------------------------------------------------------------
 % Landing
@@ -134,8 +153,13 @@ xlabel('Wing Loading (lbf/ft^{2})','FontSize',18);
 ylabel('Thrust Loading','FontSize',18);
 title_name = sprintf('Parametric Sizing Chart for SSBJ (Unswept AR = %g)',AR_unswept);
 title(title_name,'FontSize',18);
-legend('Take-off','Landing','2nd Climb Gradient','Subsonic Max Speed','Supersonic Max Speed','Subsonic Cruise','Supersonic Cruise','Location','best');
-grid on
+%--------------------------------------------------------------------------
+TO_1 = sprintf('S_T_O = %g ft', S_TO_1);
+TO_2 = sprintf('S_T_O = %g ft', S_TO_2);
+TO_3 = sprintf('S_T_O = %g ft', S_TO_3);
+TO_4 = sprintf('S_T_O = %g ft', S_TO_4);
+
+legend(TO_1,TO_2,TO_3,TO_4,'Landing','2nd Climb Gradient','Subsonic Max Speed','Supersonic Max Speed','Subsonic Cruise','Supersonic Cruise','Location','EastOutside');
 hold off
 %--------------------------------------------------------------------------
 
