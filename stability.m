@@ -24,7 +24,7 @@ Cl_da   = aileron control power [1/rad]
 Cn_dr   = rudder control power [1/rad]
 ===========================================================================
 %}
-function [CMa, Cl_beta, Cn_beta, CM_de, Cl_da, Cn_dr] = stability(M, AR, sweep_deg, S_ref, b_eff, TR, CL, SM, S_VT, C_VT, flight_phase)
+function [CMa, Cl_beta, Cn_beta, CM_de, Cl_da, Cn_dr] = stability(M, AR, sweep_deg, S_ref, b_eff, TR, CL, SM, S_VT, C_VT, flight_phase, folder_name)
 %--------------------------------------------------------------------------
 % geometry:
 tmax = 2.3;         % Maximum Thickness
@@ -80,16 +80,16 @@ fprintf('\n\n ============================================================= \n')
 %--------------------------------------------------------------------------
 de_plot = -5:5:5;    % [deg] elevator deflection
 alpha_plot = -10:10; % [deg] side slip
-%{
+%
 figure_name = sprintf('Longitudinal Stability, for %s', flight_phase);
 figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
 hold on
 for i = 1:length(de_plot)
     CM_plot(:,i) = CM0 + CMa.*alpha_plot.*pi./180 + CM_de*de_plot(i)*pi/180;
 end
-plot(alpha_plot, CM_plot(:,1),  'k', 'LineWidth',3);
-plot(alpha_plot, CM_plot(:,2),  'b', 'LineWidth',3);
-plot(alpha_plot, CM_plot(:,3),  'c', 'LineWidth',3);
+plot(alpha_plot, CM_plot(:,1),  '--k', 'LineWidth',3);
+plot(alpha_plot, CM_plot(:,2),  'k', 'LineWidth',3);
+plot(alpha_plot, CM_plot(:,3),  ':k', 'LineWidth',3);
 hold off
 xlabel('\alpha (deg)'  ,'FontSize',18);
 ylabel('CM','FontSize',18);
@@ -97,7 +97,7 @@ title_string = sprintf('%s Pitching Moment vs Angle of Attack', flight_phase);
 title(title_string,'FontSize',18);
 legend('\delta_e = -5 [deg]','\delta_e = 0 [deg]','\delta_e = 5 [deg]');
 grid on
-fig_save('Figures', figure_name)
+fig_save(folder_name, figure_name)
 %}
 %% ========================================================================
 % Lateral stability:
@@ -111,7 +111,7 @@ Cl_b_Gamma = 0;      % no dihedral
 Cl_b_wing = Cl_b_basic + Cl_b_Lambda + Cl_b_Gamma;
 
 % vertical tail contribution:
-z_v = l_VT; % [m] vertical distance between cg location and vertical tail ac (place holder)
+z_v = 1; % [m] vertical distance between cg location and vertical tail ac (place holder)
 var_2115 = 0.724 + (3.06*(S_VT/S_ref))/(1 + cosd(sweep_deg)) + 0.009*AR; % Nicolai eq. 21.15
 Cl_b_VT = -CL_a_VT*var_2115*(S_VT/S_ref)*(z_v/b_eff);
 
@@ -119,8 +119,8 @@ Cl_beta = Cl_b_wing + Cl_b_VT; % lateral stability derivative
 
 CL_am = 0.2;
 k   = ((CL_am)*Beta)/(2*pi);
-cl_dfrac = 0.45; % Roskam VI Figure 8.15
-cl_dth = 3.5; % Roskam VI Figure 8.14
+cl_dfrac = 0.625; % Roskam VI Figure 8.15
+cl_dth = 4.2; % Roskam VI Figure 8.14
 a_da = (cl_dfrac*cl_dth)/(0.2);
 Cprimel_d = (k/Beta)*(0.3);
 Cl_d = a_da*Cprimel_d;
@@ -136,18 +136,18 @@ fprintf('\n Cl_da = %g [1/deg]', Cl_da*pi/180);
 fprintf('\n\n ============================================================= \n');
 %}
 %--------------------------------------------------------------------------
-da_plot = -5:5:5;   % [deg] aileron deflection
+da_plot = -5:5:5;   % [deg] rudder deflection
 beta_plot = -10:10; % [deg] side slip
-%{
+%
 figure_name = sprintf('Lateral Stability, for %s', flight_phase);
 figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
 hold on
 for n = 1:length(da_plot)
     Cl_plot(:,n) = Cl_beta.*beta_plot.*pi./180 + Cl_da*da_plot(n)*pi/180;
 end
-plot(beta_plot, Cl_plot(:,1),  'k', 'LineWidth',3);
-plot(beta_plot, Cl_plot(:,2),  'b', 'LineWidth',3);
-plot(beta_plot, Cl_plot(:,3),  'c', 'LineWidth',3);
+plot(beta_plot, Cl_plot(:,1),  '--k', 'LineWidth',3);
+plot(beta_plot, Cl_plot(:,2),  'k', 'LineWidth',3);
+plot(beta_plot, Cl_plot(:,3),  ':k', 'LineWidth',3);
 hold off
 xlabel('\beta (deg)'  ,'FontSize',18);
 ylabel('C_l','FontSize',18);
@@ -155,7 +155,7 @@ title_string = sprintf('%s Rolling Moment vs Sideslip', flight_phase);
 title(title_string,'FontSize',18);
 legend('\delta_a = -5 [deg]','\delta_a = 0 [deg]','\delta_a = 5 [deg]');
 grid on
-fig_save('Figures', figure_name)
+fig_save(folder_name, figure_name)
 %}
 %% ========================================================================
 % Directional stability:
@@ -165,14 +165,13 @@ x = SM*c_bar; % [m] distance between cg location and wing ac
 Cn_b_wing = CL^2*(1/(4*pi*AR) - tand(sweep_deg)/(pi*AR*(AR + 4*cosd(sweep_deg)))*(cosd(sweep_deg) - AR/2 - AR^2/(8*cosd(sweep_deg)) + 6*x*sind(sweep_deg)/(c_bar*AR))); % Nicolai eq. 21.22
 
 % vertical tail contribution:
-Cn_b_VT = ((S_VT*l_VT)/(S_ref*b_eff))*CL_a_VT*var_2115; % Nicolai eq. 21.21
+Cn_b_VT = C_VT*CL_a_VT*var_2115; % Nicolai eq. 21.21
 
 % directional stability derivative:
 Cn_beta = Cn_b_wing + Cn_b_VT; % Nicolai eq. 21.20
 
-tau = 0.374; % typical for flying wings
+tau = 0.18; % typical for flying wings
 Cn_dr = 0.9*CL_a_VT*C_VT*tau; % rudder control power (Nicolai eq. 21.26)
-Cn_da = -0.2*CL*Cl_da;
 %{
 fprintf('\n\n ============================================================= \n');
 fprintf('\n %s Directional Stability Derivatives:', flight_phase);
@@ -190,16 +189,16 @@ fprintf('\n\n ============================================================= \n')
 %--------------------------------------------------------------------------
 dr_plot = -5:5:5;   % [deg] rudder deflection
 beta_plot = -10:10; % [deg] side slip
-%{
+%
 figure_name = sprintf('Directional Stability, for %s', flight_phase);
 figure('Name',figure_name,'NumberTitle','off','units','normalized','outerposition',[0 0 1 1]);
 hold on
 for m = 1:length(dr_plot)
     Cn_plot(:,m) = Cn_beta.*beta_plot.*pi./180 + Cn_dr*dr_plot(m)*pi/180;
 end
-plot(beta_plot, Cn_plot(:,1),  'k', 'LineWidth',3);
-plot(beta_plot, Cn_plot(:,2),  'b', 'LineWidth',3);
-plot(beta_plot, Cn_plot(:,3),  'c', 'LineWidth',3);
+plot(beta_plot, Cn_plot(:,1),  '--k', 'LineWidth',3);
+plot(beta_plot, Cn_plot(:,2),  'k', 'LineWidth',3);
+plot(beta_plot, Cn_plot(:,3),  ':k', 'LineWidth',3);
 hold off
 xlabel('\beta (deg)'  ,'FontSize',18);
 ylabel('C_n','FontSize',18);
@@ -207,7 +206,7 @@ title_string = sprintf('%s Yawing Moment vs Sideslip', flight_phase);
 title(title_string,'FontSize',18);
 legend('\delta_r = -5 [deg]','\delta_r = 0 [deg]','\delta_r = 5 [deg]'),%'\delta_r = 6 [deg]','\delta_r = 8 [deg]','\delta_r = 10 [deg]','Location', 'best');
 grid on
-fig_save('Figures', figure_name)
+fig_save(folder_name, figure_name)
 %}
 %% ========================================================================
 end
