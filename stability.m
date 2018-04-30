@@ -57,10 +57,10 @@ end
 CM0 = -0.01; % comes from airfoil
 %--------------------------------------------------------------------------
 K_b   = 0.25;        % Roskam VI Figure 8.52 (placeholder)
-cl_dfrac = 0.45; % Roskam VI Figure 8.15 (placeholder)
-cl_dth = 3.5;     % Roskam VI Figure 8.14(placeholder)
+cl_dfrac = 0.425; % Roskam VI Figure 8.15 (placeholder)
+cl_dth = 3.7;     % Roskam VI Figure 8.14(placeholder)
 k_prime = 0.68;    % Roskam VI Figure 8.13(placeholder)
-a_dfrac = 1.11;    % Roskam VI Figure 8.53(placeholder)
+a_dfrac = 1.08;    % Roskam VI Figure 8.53(placeholder)
 a_de  = K_b*cl_dfrac*cl_dth*(k_prime/CLa)*a_dfrac;
 Cm_ih = -CLa;
 CM_de = a_de*Cm_ih; % elevator control power -------------------> need to add this
@@ -116,15 +116,9 @@ var_2115 = 0.724 + (3.06*(S_VT/S_ref))/(1 + cosd(sweep_deg)) + 0.009*AR; % Nicol
 Cl_b_VT = -CL_a_VT*var_2115*(S_VT/S_ref)*(z_v/b_eff);
 
 Cl_beta = Cl_b_wing + Cl_b_VT; % lateral stability derivative
+Cl_da   = 0.0002;
 
-CL_am = 0.2;
-k   = ((CL_am)*Beta)/(2*pi);
-cl_dfrac = 0.625; % Roskam VI Figure 8.15
-cl_dth = 4.2; % Roskam VI Figure 8.14
-a_da = (cl_dfrac*cl_dth)/(0.2);
-Cprimel_d = (k/Beta)*(0.3);
-Cl_d = a_da*Cprimel_d;
-Cl_da = 2*Cl_d; % aileron control power ---> Roskam
+
 %{
 fprintf('\n\n ============================================================= \n');
 fprintf('\n %s Lateral Stability Derivatives:', flight_phase);
