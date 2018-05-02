@@ -56,15 +56,15 @@ else
 end
 CM0 = -0.01; % comes from airfoil
 %--------------------------------------------------------------------------
-K_b   = 0.25;        % Roskam VI Figure 8.52 (placeholder)
+K_b      = 0.25;        % Roskam VI Figure 8.52 (placeholder)
 cl_dfrac = 0.425; % Roskam VI Figure 8.15 (placeholder)
-cl_dth = 3.7;     % Roskam VI Figure 8.14(placeholder)
-k_prime = 0.68;    % Roskam VI Figure 8.13(placeholder)
-a_dfrac = 1.08;    % Roskam VI Figure 8.53(placeholder)
-a_de  = K_b*cl_dfrac*cl_dth*(k_prime/CLa)*a_dfrac;
-Cm_ih = -CLa;
-CM_de = a_de*Cm_ih; % elevator control power -------------------> need to add this
- %CM_da = 0; % effect of ailerons on pitching moment ----> need to add this
+cl_dth   = 3.7;     % Roskam VI Figure 8.14(placeholder)
+k_prime  = 0.68;    % Roskam VI Figure 8.13(placeholder)
+a_dfrac  = 1.08;    % Roskam VI Figure 8.53(placeholder)
+a_de     = K_b*cl_dfrac*cl_dth*(k_prime/CLa)*a_dfrac;
+Cm_ih    = -CLa;
+CM_de    = a_de*Cm_ih; % elevator control power
+CM_der   = CM_de*(pi/180);
 %{
 fprintf('\n\n ============================================================= \n');
 fprintf('\n %s Longitudinal Stability Derivatives:', flight_phase);
@@ -117,8 +117,59 @@ Cl_b_VT = -CL_a_VT*var_2115*(S_VT/S_ref)*(z_v/b_eff);
 
 Cl_beta = Cl_b_wing + Cl_b_VT; % lateral stability derivative
 Cl_da   = 0.0002;
-
-
+%% Sadrey's Method---------------------------------------------------------
+%Class 3-------------------------------------------------------------------
+%Rot_t_TO    = 1-3s
+%Pi_ac_TO    = 8-10s
+%Category B----------------------------------------------------------------
+%Level 2-------------------------------------------------------------------
+%Time to 30deg bank
+    %Low    = 3.9
+    %High   = 3.3
+    Phi_des = 30;
+%% ------------------------------------------------------------------------
+CL       = 1.8;
+c_root   = 14.375;
+S_ref    = 498;
+b        = 53.34;
+TR       = 0.3;
+rho      = 336.43
+V        = 0.7*281.65
+q_bar    = 0.5*rho*(V^2);
+CD_r     = 0.7;
+y_D      = (b*0.4)/2;
+S_VT     = 43;
+I_xx     = 48524;
+%% Control Power-----------------------------------------------------------
+b_i      = [0.2;
+            0.4;
+            0.6;
+            0.2;];
+b_o      = [0.4;
+            0.6;
+            0.8;
+            0.8;];
+c_frac   = 0.18;
+tau_a    = 0.374;
+Cl_dao   = ((2.*CL.*tau_a.*c_root)./(S_ref.*b)).*((((b_o.^2)./2)+(((2./3).*((TR-1)./b)).*b_o.^3)));
+Cl_dai   = ((2.*CL.*tau_a.*c_root)./(S_ref.*b)).*((((b_i.^2)./2)+(((2./3).*((TR-1)./b)).*b_i.^3)));
+Cl_da    = Cl_dao-Cl_dai;
+Cl_dar   = Cl_da.*(pi./180)
+%% Rolling Moment----------------------------------------------------------
+da_maxd  = 25;
+da_maxr  = da_maxd*(pi/180);
+Cl       = Cl_da.*da_maxd;
+M_l      = q_bar.*S_ref.*b.*Cl;
+%% Rates-------------------------------------------------------------------
+P_ss     = sqrt(((2.*M_l)./(rho.*(S_ref+S_VT).*CD_r.*(y_D.^3))))
+Phi1     = ((I_xx./(rho.*(y_D.^3).*(S_ref+S_VT).*CD_r)).*log(P_ss.^2));
+P_dot    = ((P_ss.^2)./(2.*Phi1))
+%% Times-------------------------------------------------------------------
+t_21     = sqrt((2.*Phi_des)./(P_dot));
+tss      = sqrt((2.*Phi1)./(P_dot));
+dt_r     = (Phi_des-Phi1)./(P_ss);
+t_22     = tss+dt_r;
+%--------------------------------------------------------------------------
 %{
 fprintf('\n\n ============================================================= \n');
 fprintf('\n %s Lateral Stability Derivatives:', flight_phase);
@@ -130,7 +181,7 @@ fprintf('\n Cl_da = %g [1/deg]', Cl_da*pi/180);
 fprintf('\n\n ============================================================= \n');
 %}
 %--------------------------------------------------------------------------
-da_plot = -5:5:5;   % [deg] rudder deflection
+da_plot = -5:5:5;   % [deg] aileron deflection
 beta_plot = -10:10; % [deg] side slip
 %
 figure_name = sprintf('Lateral Stability, for %s', flight_phase);
